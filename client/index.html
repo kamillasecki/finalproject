@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
-    <script src="/js/angular.min.js"></script>
+  <script src="/js/angular.min.js"></script>
   <script src="/js/script.js"></script>
   <script src="js/aes.js"></script>
   <script src="js/pbkdf2.js"></script>
@@ -23,29 +23,31 @@
 </head>
 
 <body>
-<div ng-controller="MainController">
-  <p>
-    <b>Click</b> to change the <span id="tag">html</span>
-  </p>
-  <p>
-    to a <span id="text">text</span> node {{message}}.
-  </p>
-  <p>
-    This <button name="nada">button</button> does nothing.
-  </p>
-  Your message decrypted: {{message}} <br/>
-  Your salt: {{salt}}<br/> 
-  Your key is: {{key}};<br/> 
-  Your encrypted message: {{encrypted}}<br/> 
-  
-  
-  
-  <form name="messageForm">
-    Your message:
-    <input type="search" placeholder="Enter your message" ng-model="input" />
-    <input type="submit" value="Encrypt" ng-click="encrypt(input)"/>
-  </form>
-</div>
+  <div ng-controller="MainController">
+    <form name="messageForm">
+      <div>
+        <input type="search" placeholder="enter phase to generate key" ng-model="secret" ng-change="encrypt(input, secret)">
+
+      </div>
+      <div>
+        <br/> Your message:<br/>
+        <input type="search" required placeholder="Enter your message" ng-model="input" ng-change="encrypt(input, secret)"/>
+        <input type="submit" value="Decrypt" ng-click="decrypt(encrypted, secret)" />
+      </div>
+
+    </form>
+
+
+    <div ng-show="input">
+      Your message original: {{message}} <br/> Your encrypted message: {{encrypted}}<br/>
+      Your decrypted message: {{decrypted}}
+    </div>
+    
+    <div>
+      <input type="search" required placeholder="Encryption pharse" ng-model="esecret" ng-change="decrypt(encrypted, esecret)"/>
+    </div>
+
+  </div>
 
 </body>
 

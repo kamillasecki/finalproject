@@ -1,0 +1,41 @@
+<html lang="en" ng-app="postEncrypt">
+
+<head>
+    <title>Main</title>
+    <% include ./index_partials/head %>
+        <style>
+            body {
+                padding-top: 60px;
+            }
+        </style>
+
+</head>
+<body>
+    <div ng-controller="MainController">
+        <% include ./index_partials/navbar %>
+        <form name="messageForm">
+            <div>
+                <input type="search" placeholder="enter phase to generate key" ng-model="secret" ng-change="encrypt(input, secret)">
+
+            </div>
+            <div>
+                <br/> Your message:<br/>
+                <input type="search" required placeholder="Enter your message" ng-model="input" ng-change="encrypt(input, secret)" />
+                <input type="submit" value="Decrypt" ng-click="decrypt(encrypted, secret)" />
+            </div>
+
+        </form>
+
+
+        <div ng-show="input">
+            Your message original: {{message}} <br/> Your encrypted message: {{encrypted}}<br/> Your decrypted message: {{decrypted}}
+        </div>
+
+        <div>
+            <input type="search" required placeholder="Encryption pharse" ng-model="esecret" ng-change="decrypt(encrypted, esecret)" />
+        </div>
+
+    </div>
+
+</body>
+</html>
