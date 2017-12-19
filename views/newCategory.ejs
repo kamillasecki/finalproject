@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>category</title>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/lib/angular-growl-v2/build/angular-growl.min.css">
     <script src="/lib/jquery/dist/jquery.min.js"></script>
-    <script src="/lib/angular.min.js"></script>
-    <script src="/lib/ng-category.js"></script>
+    <script src="/lib/angular/angular.min.js"></script>
+    <script src="/lib/angular-growl-v2/build/angular-growl.js"></script>
+
 </head>
 
-<body ng-controller="MainController">
+<body ng-controller="mainController">
     <ol class="breadcrumb">
         <li ng-repeat="cat in parents | reverse"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
     </ol>
@@ -27,19 +29,23 @@
                             </button>
                 </li>
             </ul>
+            <div growl inline="true" reference="2"></div>
         </div>
         <div class="col-md-4" style="margin:0px;padding:30px;">
             <form ng-submit="send()">
                 <div class="form-group">
                     <label class="control-label">Category name:</label>
                     <input class="form-control" ng-model="text" type="text" name="category" placeholder="New category...">
+                    <div growl inline="true" reference="1"></div>
                     <button class="btn btn-default" ng-disabled="!text" type="submit">Create new category</button>
                 </div>
             </form>
+            
         </div>
         <div class="col-md-2"></div>
     </div>
-    <script src="/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="/lib/ng-category.js"></script>
     <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
 
 </body>

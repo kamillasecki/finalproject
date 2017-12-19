@@ -42,6 +42,10 @@ exports.addCategoty = function(req, res) {
                     doc.categoriesId.push({ name: req.body.category, id: newCategory._id });
                     doc.save();
                 });
+                res.setHeader("Content-Type", "text/html");
+                    res.status(200);
+                    res.send("Item has been added successfuly.");
+                    console.log("Item has been added successfuly.")
             }
         }
     });
@@ -83,7 +87,6 @@ function getparentQuery(cat, res, req) {
             getparentQuery(parentCat, res);
         }
         else {
-            console.log(parentCategories);
             res.send(parentCategories);
             //res.render('newCategory.ejs', { categories: parentCategories, message: '' });
         }
@@ -156,22 +159,20 @@ exports.removeCategory = function(req, res) {
                     var options = { multi: true };
                     //Execute query
                     category.update(conditions, update, options, function(err) {
-                        console.log("Error:"+ err);
+                        console.log("Error when removing from parrent:"+ err);
                     });
 
                     var condition = { _id: requestedCategoryId };
                     category.remove(condition, function(err) {
                         if (err) {
-                            console.log("Error: " + err);
+                            console.log("Error when removing requested item: " + err);
                         }
                     });
-
-
-
-                    console.log("Parent: " + result);
-
-
-
+                
+                    res.setHeader("Content-Type", "text/html");
+                    res.status(200);
+                    res.send("Item has been removed successfuly.");
+                    console.log("Item has been removed successfuly.")
                 }
             }
         });
