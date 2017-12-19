@@ -1,5 +1,5 @@
 module.exports = function(app, passport) {
-
+var categoryCtrl = require("./controllers/category.js");
 // normal routes ===============================================================
 
 	// show the home page (will also have our login links)
@@ -12,6 +12,43 @@ module.exports = function(app, passport) {
 		res.render('profile.ejs', {
 			user : req.user
 		});
+	});
+	
+	// PROFILE SECTION =========================
+	app.get('/post', isLoggedIn, function(req, res) {
+		res.render('post.ejs', {
+			user : req.user
+		});
+	});
+	
+	// CATEGORY MANAGEMENT =========================
+	app.get('/category', function(req, res) {
+		res.render('newCategory.ejs');
+		//categoryCtrl.getCategoryPageById(req, res);
+	});
+	
+	app.delete('/api/category/:id',function(req,res){
+		categoryCtrl.removeCategory(req, res);
+	});
+	
+	app.post('/api/category', function(req, res) {
+		categoryCtrl.addCategoty(req, res);
+	});
+	
+	app.get('/getParents/:id', function(req,res) {
+		categoryCtrl.getParents(req,res);
+	});
+	
+	// decryption demo --------------------------
+	app.get('/demo', isLoggedIn, function(req, res) {
+		res.render('encodingdemo.ejs', {
+			user : req.user
+		});
+	});
+	
+	// PAGE NOT FOUND --------------------------
+	app.get('/404', function(req, res) {
+		res.render('notfound.ejs');
 	});
 
 	// LOGOUT ==============================
@@ -183,14 +220,7 @@ module.exports = function(app, passport) {
 		});
 	});
 	
-	// decryption demo --------------------------
-	app.get('/demo', isLoggedIn, function(req, res) {
-		res.render('encodingdemo.ejs', {
-			user : req.user
-		});
-	});
-
-
+	
 };
 
 // route middleware to ensure user is logged in

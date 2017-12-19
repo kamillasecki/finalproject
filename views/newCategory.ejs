@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html ng-app="cat">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>category</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/angular.min.js"></script>
+    <script src="/lib/ng-category.js"></script>
+</head>
+
+<body ng-controller="MainController">
+    <ol class="breadcrumb">
+        <li ng-repeat="cat in parents | reverse"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+    </ol>
+
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-4" style="padding:36px;">
+            <ul class="list-group">
+                <li class="list-group-item " ng-repeat="catt in parents[0].categoriesId">
+                    <a href="/category?id={{catt.id}}" class="col-md-11" ng-bind="catt.name"></a>
+                    <button type="button" class="btn btn-danger btn-xs text-right" ng-click="remove(catt.id)">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4" style="margin:0px;padding:30px;">
+            <form ng-submit="send()">
+                <div class="form-group">
+                    <label class="control-label">Category name:</label>
+                    <input class="form-control" ng-model="text" type="text" name="category" placeholder="New category...">
+                    <button class="btn btn-default" ng-disabled="!text" type="submit">Create new category</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
