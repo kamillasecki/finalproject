@@ -14,7 +14,6 @@
 </head>
 
 <body ng-controller="mainController">
-    <% include ./index_partials/navbar %>
     <ol class="breadcrumb">
         <li ng-repeat="cat in parents | reverse"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
     </ol>
@@ -24,8 +23,8 @@
         <div class="col-md-4" style="padding:36px;">
             <ul class="list-group">
                 <li class="list-group-item " ng-repeat="catt in parents[0].categoriesId">
-                    <a href="/category?id={{catt.id}}" class="col-md-11" ng-bind="catt.name"></a>
-                    <button type="button" class="btn btn-danger btn-xs text-right" ng-click="remove(catt.id)">
+                    <a href="/category?id={{catt._id}}" class="col-md-11" ng-bind="catt.name"></a>
+                    <button type="button" class="btn btn-danger btn-xs text-right" ng-click="remove(catt._id)">
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
                 </li>

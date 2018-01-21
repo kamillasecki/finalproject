@@ -7,8 +7,7 @@ exports.addCategoty = function(req, res) {
     console.log('Trying to add category to: ' + req.body.parent)
     //check if category already exsists
     var alreadyExist = false;
-    category.findOne({ '_id': req.body.parent }, function(err, doc) {
-        console.log('Trying to add category to: ' + req)
+    category.findOne({ '_id': req.body.parent }).populate('categoriesId').exec(function(err, doc) {
 
         if (err) { console.log('Error while trying to get category from database'); }
         if (doc == null || doc == undefined || doc == "") {
@@ -36,59 +35,31 @@ exports.addCategoty = function(req, res) {
                 n.name = req.body.category;
                 n.categoriesId = [];
                 n.postsId + [];
-                n.parent = req.body.parent;
+                n.parent = mongoose.Types.ObjectId(req.body.parent);
                 n.save(function(err, newCategory) {
                     console.log("Saved new category: " + newCategory._id);
-                    doc.categoriesId.push({ name: req.body.category, id: newCategory._id });
+                    doc.categoriesId.push(mongoose.Types.ObjectId(newCategory._id));
                     doc.save();
                 });
                 res.setHeader("Content-Type", "text/html");
-                    res.status(200);
-                    res.send("Item has been added successfuly.");
-                    console.log("Item has been added successfuly.")
+                res.status(200);
+                res.send("Item has been added successfuly.");
+                console.log("Item has been added successfuly.");
             }
         }
     });
 };
 
-exports.getCategoryPageById = function(req, res) {
-    parentCategories = [];
-    var requestedCategoryId = req.query.id;
-    console.log("requestedCategoryId: " + requestedCategoryId);
-    var query = category.findOne();
-    query.where({ _id: requestedCategoryId })
-        .exec(function(err, result) {
-            if (err) { console.log("Error: " + err); }
-            if (result == null || result == undefined || result == "") {
-                console.log("No such a parent category exists");
-                res.writeHead(302, {
-                    'Location': '404'
-                });
-                res.end();
-            }
-            else {
-                if (result.parent == '') {
-                    parentCategories.push(result);
-                    res.render('newCategory.ejs', { categories: parentCategories, message: '' });
-                }
-                else {
-                    parentCategories.push(result);
-                    getparentQuery(result, res, req);
-                }
-            }
-        });
-};
 
 function getparentQuery(cat, res, req) {
     var promise = category.findOne({ _id: cat.parent }).exec();
     promise.then(function(parentCat) {
         parentCategories.push(parentCat);
-        if (parentCat.parent != '') {
+        if (parentCat.parent != null) {
             getparentQuery(parentCat, res);
         }
         else {
             res.send(parentCategories);
-            //res.render('newCategory.ejs', { categories: parentCategories, message: '' });
         }
     });
 }
@@ -96,30 +67,33 @@ function getparentQuery(cat, res, req) {
 exports.getParents = function(req, res) {
     parentCategories = [];
     var requestedCategoryId = req.params.id;
-    console.log("requestedCategoryId: " + requestedCategoryId);
+    console.log("requestedCategoryId2: " + requestedCategoryId);
     var query = category.findOne();
     query.where({ _id: requestedCategoryId })
+        .populate('categoriesId')
         .exec(function(err, result) {
             if (err) { console.log("Error: " + err); }
             if (result == null || result == undefined || result == "") {
                 console.log("No such a parent category exists");
                 res.writeHead(302, {
-                    'Location': '404'
+                    'Location': 'notfound'
                 });
                 res.end();
             }
             else {
-                if (result.parent == '') {
+                if (result.parent == null) {
                     parentCategories.push(result);
                     console.log(parentCategories);
                     res.send(parentCategories);
                 }
                 else {
+                    console.log("result: " + result);
                     parentCategories.push(result);
                     getparentQuery(result, res, req);
                 }
             }
         });
+    console.log("parentCategories: " + parentCategories);
 };
 
 exports.removeCategory = function(req, res) {
@@ -152,14 +126,16 @@ exports.removeCategory = function(req, res) {
                     var qid = result.parent;
                     var id = mongoose.Types.ObjectId(qid);
                     //search conditions
-                    var conditions = {_id: id};
+                    var conditions = { _id: id };
                     //edit conditions
-                    var update = { $pull: { categoriesId: { id: requestedCategoryId } } };
+                    var update = { $pull: { categoriesId: mongoose.Types.ObjectId(requestedCategoryId) } };
                     //edit options
                     var options = { multi: true };
                     //Execute query
                     category.update(conditions, update, options, function(err) {
-                        console.log("Error when removing from parrent:"+ err);
+                        if (err) {
+                            console.log("Error when removing from parrent:" + err);
+                        }
                     });
 
                     var condition = { _id: requestedCategoryId };
@@ -168,7 +144,7 @@ exports.removeCategory = function(req, res) {
                             console.log("Error when removing requested item: " + err);
                         }
                     });
-                
+
                     res.setHeader("Content-Type", "text/html");
                     res.status(200);
                     res.send("Item has been removed successfuly.");
