@@ -1,5 +1,6 @@
 module.exports = function(app, passport) {
-var categoryCtrl = require("./controllers/category.js");
+var categoryCtrl = require("./controllers/contr-category.js");
+var postCtrl = require("./controllers/contr-post.js");
 // normal routes ===============================================================
 
 	// show the home page (will also have our login links)
@@ -14,11 +15,15 @@ var categoryCtrl = require("./controllers/category.js");
 		});
 	});
 	
-	// PROFILE SECTION =========================
+	// NEW POST =================================
 	app.get('/post', isLoggedIn, function(req, res) {
-		res.render('post.ejs', {
+		res.render('v-newpost.ejs', {
 			user : req.user
 		});
+	});
+	
+	app.post('/api/post', function(req, res) {
+		postCtrl.newPost(req, res);
 	});
 	
 	// CATEGORY MANAGEMENT =========================

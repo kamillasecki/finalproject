@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="post">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>post</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/stylesheets/styles.min.css">
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/lib/angular-growl-v2/build/angular-growl.min.css">
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/angular/angular.min.js"></script>
+    <script src="/lib/angular-growl-v2/build/angular-growl.js"></script>
+</head>
+
+<body ng-controller="mainController">
+    <% include ./index_partials/navbar %>
+        <div></div>
+        <div></div>
+        <div class="contact-clean">
+            <form method="post" ng-submit="send()">
+                <h2 class="text-center">New post</h2>
+                <div class="form-group has-success step1">
+                    <ol class="breadcrumb">
+                        <li ng-repeat="cat in parents | reverse"><a href="/post?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+                    </ol>
+                    <select class="form-control" id="categories_drop">
+                <optgroup label="Sub-category">
+                    <option value="" selected>Sub-category...</option>
+                    <option ng-repeat="catt in parents[0].categoriesId" value="{{catt.id}}">{{catt.name}}</option>
+                </optgroup>
+            </select>
+                </div>
+                <button class="btn btn-primary step1" id="next_btn" type=button>next</button>
+                <div class="form-group has-error has-feedback step2" style="display: none;">
+                    <input class="form-control" name="email" placeholder="Subject" ng-model="subject"><i class="form-control-feedback glyphicon glyphicon-remove" aria-hidden="true"></i>
+                    <p class="help-block">Please enter the subject.</p>
+                </div>
+                <div class="form-group step2" style="display: none;">
+                    <textarea class="form-control" rows="14" name="message" placeholder="Message" ng-model="text"></textarea>
+                </div>
+                <select class="form-control step2" style="display: none;" ng-model="privacy">
+                <optgroup label="Security">
+                    <option value="pub" selected="">Public</option>
+                    <option value="cgp">Closed group - public</option>
+                    <option value="cgh">Closed group - hidden</option>
+                </optgroup>
+            </select>
+                <button class="btn btn-primary step2" type="submit" style="display: none;">send </button>
+            </form>
+        </div>
+        <section class="testimonials"></section>
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5>Safe Boards © 2017</h5>
+                    </div>
+                    <div class="col-sm-6 social-icons"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-instagram"></i></a></div>
+                </div>
+            </div>
+        </footer>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="/lib/ng-newpost.js"></script>
+        <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>

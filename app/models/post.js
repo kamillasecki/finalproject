@@ -1,26 +1,29 @@
 var mongoose = require('mongoose');
-var bcrypt   = require('bcrypt-nodejs');
+var Schema = mongoose.Schema;
+var user = require('../models/user.js');
+var category = require('../models/category.js');
 
 var reply = mongoose.Schema({
     author: String,
-    text:String,
+    text: String,
     replies: [reply],
-    vote : Number
-},{
+    vote: Number
+}, {
     timestamps: true
 });
 
 // define the schema for our user model
 var postSchema = mongoose.Schema({
-    settings : {
-        privacy : String,
-        author : String,
+    settings: {
+        privacy: String,
+        author: { type: Schema.Types.ObjectId, ref: 'User' },
+        category: { type: Schema.Types.ObjectId, ref: 'Category' }
     },
     header: {
         subject: String,
     },
-    body : {
-        text : String
+    body: {
+        text: String
     },
     replies: [reply]
 }, {
@@ -32,3 +35,5 @@ var postSchema = mongoose.Schema({
 
 // create the model for users and expose it to our app
 module.exports = mongoose.model('Post', postSchema);
+
+var Post = mongoose.model('Post', postSchema);

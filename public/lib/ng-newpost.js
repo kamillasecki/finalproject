@@ -2,6 +2,22 @@
 /*global $*/
 var app = angular.module('post', ['angular-growl']);
 
+$(function(){
+      // bind change event to select
+      $('#categories_drop').on('change', function () {
+          var url = $(this).val(); // get selected value
+          if (url) { // require a URL
+              window.location = "post?id=" + url; // redirect
+          }
+          return false;
+      });
+      
+      $('#next_btn').on('click', function(){
+          $('.step2').show();
+          $('.step1').hide();
+      });
+    });
+
 app.filter('reverse', function() {
     return function(items) {
         return items.slice().reverse();
@@ -46,21 +62,6 @@ var mainController = function($scope, growl) {
         });
     };
 
-    $scope.remove = function remove(id) {
-        console.log("removing cat " + id);
-
-        $.ajax({
-            method: "DELETE",
-            url: "api/category/" + id,
-            success: function(response) {
-                $scope.getCategories();
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
-                growl.error(jqXHR.responseText,{referenceId: 2});
-            }
-        });
-    }
 
     $(document).ready(function() {
         $scope.getCategories()
@@ -69,8 +70,12 @@ var mainController = function($scope, growl) {
     $scope.send = function sent() {
         $.ajax({
             method: "POST",
-            url: "api/category",
-            data: { "category": $scope.text, parent: $scope.parents[0]._id },
+            url: "api/post",
+            data: { text: $scope.text, 
+                    subject: $scope.subject,
+                    category: id,
+                    privacy: $scope.privacy
+            },
             success: function(response) {
                 $scope.getCategories();
             },
