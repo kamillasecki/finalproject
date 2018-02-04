@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/stylesheets/styles.min.css">
+    <script src="/lib/crypto-js/aes.js"></script>
+    <script src="/lib/crypto-js/pbkdf2.js"></script>
+    <script src="/lib/crypto-js/crypto-js.js"></script>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/lib/angular-growl-v2/build/angular-growl.min.css">
     <script src="/lib/jquery/dist/jquery.min.js"></script>
@@ -24,31 +27,56 @@
                 <h2 class="text-center">New post</h2>
                 <div class="form-group has-success step1">
                     <ol class="breadcrumb">
-                        <li ng-repeat="cat in parents | reverse"><a href="/post?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+                        <li ng-repeat="cat in parents | reverse"><a href="/newpost?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
                     </ol>
                     <select class="form-control" id="categories_drop">
-                <optgroup label="Sub-category">
-                    <option value="" selected>Sub-category...</option>
-                    <option ng-repeat="catt in parents[0].categoriesId" value="{{catt.id}}">{{catt.name}}</option>
-                </optgroup>
-            </select>
+                        <optgroup label="Sub-category">
+                            <option value="" selected>Sub-category...</option>
+                            <option ng-repeat="catt in parents[0].categoriesId" value="{{catt._id}}">{{catt.name}}</option>
+                        </optgroup>
+                    </select>
                 </div>
                 <button class="btn btn-primary step1" id="next_btn" type=button>next</button>
-                <div class="form-group has-error has-feedback step2" style="display: none;">
-                    <input class="form-control" name="email" placeholder="Subject" ng-model="subject"><i class="form-control-feedback glyphicon glyphicon-remove" aria-hidden="true"></i>
-                    <p class="help-block">Please enter the subject.</p>
+                <div class="step2" style="display: none;">
+                    <input class="form-control" name="subject" placeholder="Subject" ng-model="subject"><i class="form-control-feedback" aria-hidden="true"></i>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="14" name="message" placeholder="Message" ng-model="text"></textarea>
+                    </div>
+                    <div>
+                        <label>Privacy</label>
+                        <select class="form-control" ng-model="privacy" ng-change="update()">
+                            <optgroup label="Privacy">
+                                <option value="pub" selected="selected">Public (default)</option>
+                                <option value="cgp">Closed group - public</option>
+                                <option value="cgh">Closed group - hidden</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div growl limit-messages="1" inline="true" reference="1"></div>
                 </div>
-                <div class="form-group step2" style="display: none;">
-                    <textarea class="form-control" rows="14" name="message" placeholder="Message" ng-model="text"></textarea>
+                <button class="btn btn-primary step2" type="submit" style="display: none;" id="send_btn">send </button>
+                <button class="btn btn-primary step1" id="next_btn2" type=button style="display: none;" ng-click="next2()">next</button>
+                <div class="step3" style="display: none;">
+                    <div class="form-group">
+                        <label for="">
+                            Encryption:
+                        </label>
+                        <button type="button" class="btn btn-outline-primary" id="enena">Disabled (default)</button>
+                        <button type="button" class="btn btn-outline-primary" id="endis" style="display: none">Enabled</button>
+
+                    </div>
+                    <div class="bs-callout bs-callout-danger" id="warn" style="display: none">
+                        <h4>Warning! </h4>
+                        <p>Your post will be encrypted. To read and reply to this post, users will need encryption phrase. The encryption phrase can be set below and should be distributed to the users using a secured communication channel. <br/> For security
+                            reason SafeBoards will not store the encryption phrase, and therefore if you forget your phrase we will not be able to assist you with restoring it.</p>
+                    </div>
+
+                    <div class="form-group" style="display: none;" id="secret">
+                        <input class="form-control" name="secret" placeholder="Secret..." ng-model="secret" ng-change="encrypt(text, secret)"><i class="form-control-feedback" aria-hidden="true"></i>
+                    </div>
+                    <div growl limit-messages="1" inline="true" reference="2"></div>
+                    <button class="btn btn-primary" type="submit" id="send_btn">send </button>
                 </div>
-                <select class="form-control step2" style="display: none;" ng-model="privacy">
-                <optgroup label="Security">
-                    <option value="pub" selected="">Public</option>
-                    <option value="cgp">Closed group - public</option>
-                    <option value="cgh">Closed group - hidden</option>
-                </optgroup>
-            </select>
-                <button class="btn btn-primary step2" type="submit" style="display: none;">send </button>
             </form>
         </div>
         <section class="testimonials"></section>

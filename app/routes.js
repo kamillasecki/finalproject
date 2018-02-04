@@ -16,7 +16,7 @@ var postCtrl = require("./controllers/contr-post.js");
 	});
 	
 	// NEW POST =================================
-	app.get('/post', isLoggedIn, function(req, res) {
+	app.get('/newpost', isLoggedIn, function(req, res) {
 		res.render('v-newpost.ejs', {
 			user : req.user
 		});
@@ -26,9 +26,21 @@ var postCtrl = require("./controllers/contr-post.js");
 		postCtrl.newPost(req, res);
 	});
 	
+	// DISPLAY SINGLE POST =========================
+	
+	app.get('/post', isLoggedIn, function(req, res) {
+		res.render('v-singlePost.ejs', {
+			user : req.user
+		});
+	});
+	
+	app.get('/api/post/:id', function(req, res) {
+		postCtrl.getPost(req, res);
+	});
+	
 	// CATEGORY MANAGEMENT =========================
 	app.get('/category', function(req, res) {
-		res.render('newCategory.ejs');
+		res.render('v-category.ejs');
 		//categoryCtrl.getCategoryPageById(req, res);
 	});
 	

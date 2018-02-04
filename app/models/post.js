@@ -1,23 +1,15 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var user = require('../models/user.js');
-var category = require('../models/category.js');
+var moment = require("moment");
 
-var reply = mongoose.Schema({
-    author: String,
-    text: String,
-    replies: [reply],
-    vote: Number
-}, {
-    timestamps: true
-});
 
 // define the schema for our user model
 var postSchema = mongoose.Schema({
     settings: {
         privacy: String,
         author: { type: Schema.Types.ObjectId, ref: 'User' },
-        category: { type: Schema.Types.ObjectId, ref: 'Category' }
+        category: { type: Schema.Types.ObjectId, ref: 'Category' },
+        encryption: { isEnabled: Boolean, checkword: String}
     },
     header: {
         subject: String,
@@ -25,13 +17,13 @@ var postSchema = mongoose.Schema({
     body: {
         text: String
     },
-    replies: [reply]
-}, {
-    timestamps: true
+    replies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
+    createdAt: {type: Date, default: Date.now()}
 });
 
-// methods ======================
-
+postSchema.virtual('createdAtWords').get(function() {
+    return moment(this.createdAt).fromNow();
+});
 
 // create the model for users and expose it to our app
 module.exports = mongoose.model('Post', postSchema);

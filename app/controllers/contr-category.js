@@ -72,13 +72,10 @@ exports.getParents = function(req, res) {
     query.where({ _id: requestedCategoryId })
         .populate('categoriesId')
         .exec(function(err, result) {
-            if (err) { console.log("Error: " + err); }
-            if (result == null || result == undefined || result == "") {
-                console.log("No such a parent category exists");
-                res.writeHead(302, {
-                    'Location': 'notfound'
-                });
-                res.end();
+            if (err || (result == null || result == undefined || result == "")) {
+                console.log("Error when trying to access database: " + err);
+                //res.redirect('/post?id=5a650c8bb62a0c8536f056c7');
+                res.send("NotFound")
             }
             else {
                 if (result.parent == null) {
