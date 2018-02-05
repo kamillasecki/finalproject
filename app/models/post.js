@@ -9,16 +9,28 @@ var postSchema = mongoose.Schema({
         privacy: String,
         author: { type: Schema.Types.ObjectId, ref: 'User' },
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
-        encryption: { isEnabled: Boolean, checkword: String}
+        encryption: { isEnabled: Boolean, checkword: String }
     },
     header: {
         subject: String,
+        votes: {
+            num: Number,
+            upVotes: [String],
+            downVotes: [String]
+        }
     },
     body: {
         text: String
     },
     replies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
-    createdAt: {type: Date, default: Date.now()}
+    createdAt: { type: Date, default: Date.now() }
+}, {
+    toObject: {
+        virtuals: true
+    },
+    toJSON: {
+        virtuals: true
+    }
 });
 
 postSchema.virtual('createdAtWords').get(function() {

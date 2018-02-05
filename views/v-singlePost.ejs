@@ -22,7 +22,56 @@
     <% include ./index_partials/navbar %>
         <div></div>
         <div></div>
-       
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8">
+                        <div>
+                            <h1>{{post.header.subject}}</h1>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9"><small>Created {{post.createdAtWords}}</small></div>
+                            <div class="col-md-3 col-md-offset-0" style="float:right;">
+                                <div class="btn-group" role="group"><button ng-click="uvp('<%= user._id%>')" class="btn btn-success btn-xs" type="button">vote up</button><button ng-click="dvp('<%= user._id%>')" class="btn btn-danger btn-xs" type="button">vote down</button></div>
+                                <div><small>Score: {{post.header.votes.num}}</small></div>
+                            </div>
+                        </div>
+                        <div>
+                            <blockquote>
+                                <p class="mb-0">{{post.body.text}}</p>
+                                <footer>{{post.settings.author.displayname}}</footer>
+                            </blockquote>
+                        </div>
+                        <div>
+                            <form><textarea class="form-control"></textarea><button class="btn btn-default" type="button">Reply </button></form>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div><small>6 minutes ago</small></div>
+                                <blockquote>
+                                    <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+                                    <footer>Someone famous</footer>
+                                </blockquote>
+                                <div>
+                                    <div class="btn-group" role="group"><button class="btn btn-success btn-xs" type="button">vote up</button><button class="btn btn-danger btn-xs" type="button">vote down</button></div><small>Score: 32</small></div><a href="#">Reply to comment</a>
+                                <div class="row">
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-11">
+                                        <div><small>6 minutes ago</small></div>
+                                        <blockquote>
+                                            <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+                                            <footer>Someone famous</footer>
+                                        </blockquote>
+                                        <div>
+                                            <div class="btn-group" role="group"><button class="btn btn-success btn-xs" type="button">vote up</button><button class="btn btn-danger btn-xs" type="button">vote down</button></div><small>Score: 32</small></div><a href="#">Reply to comment</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <section class="testimonials"></section>
         <footer class="site-footer">
             <div class="container">

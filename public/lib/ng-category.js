@@ -34,7 +34,7 @@ var mainController = function($scope, growl) {
         $.ajax({
             method: "GET",
             dataType: 'json',
-            url: "/getParents/" + id,
+            url: "api/category/getParents/" + id,
             success: function(response) {
                 $scope.parents = response;
                 $scope.$apply();

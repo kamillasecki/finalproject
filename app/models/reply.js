@@ -6,7 +6,11 @@ var replySchema = mongoose.Schema({
     author: String,
     text: String,
     replies: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
-    vote: Number,
+    votes: {
+            num: Number,
+            upVotes: [String],
+            downVotes: [String]
+        },
     createdAt: {type: Date, default: Date.now()}
 });
 

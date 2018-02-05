@@ -16,7 +16,7 @@
                 </form>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="active" role="presentation"><a href="#">You are logged in as:</a></li>
-                    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">user@gmail.com <span class="caret"></span></a>
+                    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#"><%= user.displayname%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation"><a href="#">First Item</a></li>
                             <li role="presentation"><a href="#">Second Item</a></li>
@@ -29,14 +29,3 @@
         </div>
     </nav>
     <div></div>
-
-
-<% if(user.local.validEmail===false){  %>
-
-    <h4 style="color:red; padding:20px;background-color:white; text-align:center" class="logged_as_container">Please note that you haven't verify your e-mail yet, if you dont do so your account will expire in 48h</h4>
-
-    <%  }   %>
-        <h5 style="float:right" class="logged_as_container">You are logged in as:
-            <%= user.google.email%>
-        </h5>
-      

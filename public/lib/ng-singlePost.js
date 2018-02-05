@@ -41,10 +41,44 @@ var mainController = function($scope, growl) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
-                
+
             }
         });
     });
+
+    $scope.uvp = function(u) {
+        alert(u);
+        console.log("upvoting" + u);
+        $.ajax({
+            method: "POST",
+            dataType: 'json',
+            url: "api/post/upvote/" + id,
+            success: function(response) {
+                console.log(response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("ERROR: " + textStatus, errorThrown);
+
+            }
+        });
+    };
+    
+    $scope.dvp = function(u) {
+        alert(u);
+        console.log("downvoting" + u);
+        $.ajax({
+            method: "POST",
+            dataType: 'json',
+            url: "api/post/downvote/" + id,
+            success: function(response) {
+                console.log(response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("ERROR: " + textStatus, errorThrown);
+
+            }
+        });
+    };
 
     $scope.encrypt = function(input, password) {
 
