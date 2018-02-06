@@ -67,11 +67,11 @@ module.exports = function(app, passport) {
 		postCtrl.getPost(req, res);
 	});
 	
-	app.post('/api/post/upvote/:pid', function(req,res){
+	app.get('/api/post/upvote/:pid', function(req,res){
 		postCtrl.upvote(req,res);
 	});
 	
-		app.post('/api/post/downvote/:pid', function(req,res){
+	app.get('/api/post/downvote/:pid', function(req,res){
 		postCtrl.downvote(req,res);
 	});
 	

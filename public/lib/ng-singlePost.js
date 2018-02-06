@@ -8,7 +8,8 @@ var app = angular.module('post', ['angular-growl']);
 var encryption = false;
 
 app.config(['growlProvider', function(growlProvider) {
-    growlProvider.globalPosition('bottom-center');
+    growlProvider.globalPosition('top-center');
+    growlProvider.globalTimeToLive(5000);
 }]);
 
 var mainController = function($scope, growl) {
@@ -47,35 +48,45 @@ var mainController = function($scope, growl) {
     });
 
     $scope.uvp = function(u) {
-        alert(u);
         console.log("upvoting" + u);
         $.ajax({
-            method: "POST",
+            method: "GET",
             dataType: 'json',
             url: "api/post/upvote/" + id,
-            success: function(response) {
-                console.log(response);
+            success: function(r) {
+                console.log(r);
+                if(r.n){
+                    //update the score
+                    $('#score').text(r.n);
+                } else {
+                    //display error message
+                    growl.error("<strong>"+r.m+"</strong>");
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
-
             }
         });
     };
     
     $scope.dvp = function(u) {
-        alert(u);
         console.log("downvoting" + u);
         $.ajax({
-            method: "POST",
+            method: "GET",
             dataType: 'json',
             url: "api/post/downvote/" + id,
-            success: function(response) {
-                console.log(response);
+            success: function(r) {
+                console.log(r);
+                if(r.n){
+                    //update the score
+                    $('#score').text(r.n);
+                } else {
+                    //display error message
+                    growl.error("<strong>"+r.m+"</strong>");
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
-
             }
         });
     };

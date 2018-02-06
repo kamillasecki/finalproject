@@ -89,7 +89,10 @@ exports.upvote = function(req, res) {
             }
             if (alreadyUpVoted) {
                 console.log("Already upvoted by the user ... not upvoting");
-                res.send("Error");
+                var r = {};
+                    r.n = null;
+                    r.m = "You have previously upvoted this post.";
+                    res.send(r);
             }
             else {
                 console.log("Not yet voted, processing... upvote");
@@ -107,7 +110,10 @@ exports.upvote = function(req, res) {
                     //add 2 to vote number
                     p.header.votes.num += 2;
                     p.save();
-                    res.send("{'n':"+p.header.votes.num+"}");
+                    var r = {};
+                    r.n = p.header.votes.num;
+                    r.m = "";
+                    res.send(r);
                 }
                 else {
                     console.log("not downvoted prviously, processing... upvote" + requestedPostId);
@@ -116,10 +122,11 @@ exports.upvote = function(req, res) {
                     //add 1 to vote number
                     p.header.votes.num += 1;
                     p.save();
-                    res.send("{'n':"+p.header.votes.num+"}");
+                    var r = {};
+                    r.n = p.header.votes.num;
+                    r.m = "";
+                    res.send(r);
                 }
-
-                res.send("OK");
             }
         }
 
@@ -140,7 +147,10 @@ exports.downvote = function(req, res) {
             }
             if (alreadyDownVoted) {
                 console.log("Already downvoted by the user... not downvoting");
-                res.send("Error");
+                var r = {};
+                    r.n = null;
+                    r.m = "You have previously downvoted this post.";
+                    res.send(r);
             }
             else {
                 console.log("Not yet downvoted, processing... downvote");
@@ -158,7 +168,10 @@ exports.downvote = function(req, res) {
                     //substract 2 from the vote number
                     p.header.votes.num -= 2;
                     p.save();
-                    res.send("{'n':"+p.header.votes.num+"}");
+                    var r = {};
+                    r.n = p.header.votes.num;
+                    r.m = "";
+                    res.send(r);
                 }
                 else {
                     console.log("not upvoted prviously, processing... downvote" + requestedPostId);
@@ -167,10 +180,11 @@ exports.downvote = function(req, res) {
                     //substract 1 from the vote number
                     p.header.votes.num -= 1;
                     p.save();
-                    res.send("{'n':"+p.header.votes.num+"}");
+                    var r = {};
+                    r.n = p.header.votes.num;
+                    r.m = "";
+                    res.send(r);
                 }
-
-                res.send("OK");
             }
         }
 

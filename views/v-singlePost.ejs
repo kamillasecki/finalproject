@@ -21,7 +21,7 @@
 <body ng-controller="mainController">
     <% include ./index_partials/navbar %>
         <div></div>
-        <div></div>
+        <div growl limit-messages="1"></div>
         <div>
             <div class="container">
                 <div class="row">
@@ -34,7 +34,7 @@
                             <div class="col-md-9"><small>Created {{post.createdAtWords}}</small></div>
                             <div class="col-md-3 col-md-offset-0" style="float:right;">
                                 <div class="btn-group" role="group"><button ng-click="uvp('<%= user._id%>')" class="btn btn-success btn-xs" type="button">vote up</button><button ng-click="dvp('<%= user._id%>')" class="btn btn-danger btn-xs" type="button">vote down</button></div>
-                                <div><small>Score: {{post.header.votes.num}}</small></div>
+                                <div><small>Score: <span id="score">{{post.header.votes.num}}</span></small></div>
                             </div>
                         </div>
                         <div>
