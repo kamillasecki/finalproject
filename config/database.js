@@ -1,6 +1,6 @@
 // config/database.js
 module.exports = {
 
-    'url' : 'mongodb://admin:kdjs;;cvjsdf@ds111885.mlab.com:11885/forum'
+    'url' : 'mongodb://user1:P4ssw0rd@ds111885.mlab.com:11885/forum'
 
 };

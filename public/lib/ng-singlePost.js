@@ -48,19 +48,43 @@ var mainController = function($scope, growl) {
     });
 
     $scope.uvp = function(u) {
-        console.log("upvoting" + u);
+        console.log("upvoting" + id);
         $.ajax({
             method: "GET",
             dataType: 'json',
             url: "api/post/upvote/" + id,
             success: function(r) {
                 console.log(r);
-                if(r.n){
+                if (r.n) {
                     //update the score
                     $('#score').text(r.n);
-                } else {
+                }
+                else {
                     //display error message
-                    growl.error("<strong>"+r.m+"</strong>");
+                    growl.error("<strong>" + r.m + "</strong>");
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("ERROR: " + textStatus, errorThrown);
+            }
+        });
+    };
+
+    $scope.dvp = function(u) {
+        console.log("downvoting" +id);
+        $.ajax({
+            method: "GET",
+            dataType: 'json',
+            url: "api/post/downvote/" + id,
+            success: function(r) {
+                console.log(r);
+                if (r.n) {
+                    //update the score
+                    $('#score').text(r.n);
+                }
+                else {
+                    //display error message
+                    growl.error("<strong>" + r.m + "</strong>");
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -69,20 +93,44 @@ var mainController = function($scope, growl) {
         });
     };
     
-    $scope.dvp = function(u) {
+        $scope.uvr = function(u) {
+        console.log("upvoting" + u);
+        $.ajax({
+            method: "GET",
+            dataType: 'json',
+            url: "api/post/reply/upvote/" + u,
+            success: function(r) {
+                console.log(r);
+                if (r.n) {
+                    //update the score
+                    $('#score'+u).text(r.n);
+                }
+                else {
+                    //display error message
+                    growl.error("<strong>" + r.m + "</strong>");
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("ERROR: " + textStatus, errorThrown);
+            }
+        });
+    };
+
+    $scope.dvr = function(u) {
         console.log("downvoting" + u);
         $.ajax({
             method: "GET",
             dataType: 'json',
-            url: "api/post/downvote/" + id,
+            url: "api/post/reply/downvote/" + u,
             success: function(r) {
                 console.log(r);
-                if(r.n){
+                if (r.n) {
                     //update the score
-                    $('#score').text(r.n);
-                } else {
+                    $('#score'+u).text(r.n);
+                }
+                else {
                     //display error message
-                    growl.error("<strong>"+r.m+"</strong>");
+                    growl.error("<strong>" + r.m + "</strong>");
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -112,6 +160,26 @@ var mainController = function($scope, growl) {
         $scope.encrypted = salt.toString() + iv.toString() + encrypted.toString();
         $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
     };
+
+    $scope.spr = function() {
+
+        $.ajax({
+            method: "POST",
+            url: "api/post/prep/" + id,
+            data: { 'm': $scope.prep },
+            success: function(r) {
+                console.log(r);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("ERROR: " + textStatus, errorThrown);
+                console.log("ERROR: " + jqXHR.responseText);
+
+                growl.error(jqXHR.responseText, { referenceId: 1 });
+            }
+        });
+
+    };
+
 };
 
 app.controller("mainController", ["$scope", "growl", mainController]);

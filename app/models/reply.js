@@ -3,7 +3,7 @@ var moment = require('moment');
 var Schema = mongoose.Schema;
 
 var replySchema = mongoose.Schema({
-    author: String,
+    author: { type: Schema.Types.ObjectId, ref: 'User' },
     text: String,
     replies: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
     votes: {
@@ -12,6 +12,13 @@ var replySchema = mongoose.Schema({
             downVotes: [String]
         },
     createdAt: {type: Date, default: Date.now()}
+}, {
+    toObject: {
+        virtuals: true
+    },
+    toJSON: {
+        virtuals: true
+    }
 });
 
 replySchema.virtual('createdAtWords').get(function() {

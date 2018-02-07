@@ -75,6 +75,18 @@ module.exports = function(app, passport) {
 		postCtrl.downvote(req,res);
 	});
 	
+	// app.get('/api/post/reply/upvote/:rid', function(req,res){
+	// 	postCtrl.upvoteRep(req,res);
+	// });
+	
+	// app.get('/api/post/reply/downvote/:rid', function(req,res){
+	// 	postCtrl.downvoteRep(req,res);
+	// });
+	
+	app.post('/api/post/prep/:id', function(req,res){
+		postCtrl.prep(req,res);
+	});
+	
 	//CATEGORY API
 
 	app.delete('/api/category/:id', function(req, res) {

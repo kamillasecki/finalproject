@@ -11,13 +11,15 @@
     "express": "~4.0.0",
     "express-session": "~1.0.0",
     "method-override": "~1.0.0",
-    "mongoose": "~3.8.1",
+    "mongodb": "latest",
+    "mongoose": "latest",
     "morgan": "~1.0.0",
     "passport": "~0.1.17",
     "passport-facebook": "^1.0.3",
     "passport-google-oauth": "^0.1.5",
     "passport-google-oauth2": "^0.1.6",
     "passport-local": "~0.1.6",
-    "passport-twitter": "^1.0.4"
+    "passport-twitter": "^1.0.4",
+    "update-mongo": "0.0.4"
   }
 }
