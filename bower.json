@@ -1,0 +1,25 @@
+{
+  "name": "sb",
+  "description": "",
+  "main": "server.js",
+  "authors": [
+    "kamillasecki <kamil.lasecki@eircom.net>"
+  ],
+  "license": "MIT",
+  "homepage": "https://safeboards-kamillasecki.c9users.io",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-growl-v2": "^0.7.9",
+    "font-awesome": "fontawesome#^4.7.0",
+    "angular-sanitize": "^1.6.7",
+    "bootstrap": "^3.3.7"
+  }
+}
