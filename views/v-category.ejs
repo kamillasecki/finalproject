@@ -15,7 +15,7 @@
 
 <body ng-controller="mainController">
     <ol class="breadcrumb">
-        <li ng-repeat="cat in parents | reverse"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+        <li ng-repeat="cat in parents | orderBy:'-'"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
     </ol>
 
     <div class="row">
@@ -46,8 +46,6 @@
     </div>
 
     <script src="/lib/ng-category.js"></script>
-    <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-
 </body>
 
 </html>

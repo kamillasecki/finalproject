@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>post</title>
+    <title>{{post.header.subject}}</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/stylesheets/styles.min.css">
@@ -33,33 +33,49 @@
                         <div class="row">
                             <div class="col-md-9"><small>Created {{post.createdAtWords}}</small></div>
                             <div class="col-md-3 col-md-offset-0" style="float:right;">
-                                <div class="btn-group" role="group"><button ng-click="uvp()" class="btn btn-success btn-xs" type="button">vote up</button><button ng-click="dvp()" class="btn btn-danger btn-xs" type="button">vote down</button></div>
-                                <div><small>Score: <span id="score">{{post.header.votes.num}}</span></small></div>
+                                <div class="btn-group" role="group"><button ng-click="uvp()" class="btn btn-success btn-xs" type="button">vote up</button>
+                                    <button ng-click="dvp()" class="btn btn-danger btn-xs" type="button">vote down</button>
+                                </div>
+                                <div>
+                                    <small>Score: <span id="score">{{post.header.votes.num}}</span></small>
+                                </div>
                             </div>
                         </div>
                         <div>
                             <blockquote>
-                                <p class="mb-0">{{post.body.text}}</p>
+                                <p class="mb-0 angular-with-newlines">{{post.body.text}}</p>
                                 <footer>{{post.settings.author.displayname}}</footer>
                             </blockquote>
                         </div>
                         <div>
-                            <form><textarea class="form-control" ng-model="prep"></textarea><button class="btn btn-default" type="button" ng-click="spr()">Reply </button></form>
+                            <form><textarea id="res" class="form-control" ng-model="prep"></textarea>
+                                <button class="btn btn-default" type="button" ng-href='#here' ng-click="spr()">Reply </button></form>
                         </div>
-                        <div ng-repeat="rep in post.replies" class="row">
+                        <div ng-repeat="rep in post.replies | orderBy:'-'" class="row">
                             </br>
-                            <div class="col-md-12">
+                            <div ng-show="rep.votes.num<0" id="e_{{rep._id}}">
+                                <footer>Comment hidden due low score</footer>
+                                <a ng-click="show(rep._id)">Show...</a>
+                            </div>
+                            <div class="col-md-12" ng-show="rep.votes.num>=0" id="t_{{rep._id}}">
                                 <div><small>{{rep.createdAtWords}}</small></div>
                                 <blockquote>
-                                    <p class="mb-0">{{rep.text}}</p>
+                                    <p class="mb-0 angular-with-newlines">{{rep.text}}</p>
                                     <footer>{{rep.author.displayname}}</footer>
                                 </blockquote>
                                 <div>
-                                    <div class="btn-group" role="group"><button ng-click="uvr('{{rep._id}}')" class="btn btn-success btn-xs" type="button">vote up</button><button ng-click="dvr('{{rep._id}}')" class="btn btn-danger btn-xs" type="button">vote down</button></div>
-                                    <div><small>Score: <span id="score{{rep._id">{{rep.votes.num}}</span></small></div>
+                                    <div>
+                                        <small>Score: <span id="score{{rep._id}}">{{rep.votes.num}}</span></small>
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <button ng-click="uvr(rep._id)" class="btn btn-success btn-xs" type="button">vote up</button>
+                                        <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
+                                    </div>
+
                                 </div>
                                 <a href="#">Reply to comment</a>
-                                <div class="row">
+
+                                <div class="row" hidden="">
                                     <div class="col-md-1"></div>
                                     <div class="col-md-11">
                                         <div><small>6 minutes ago</small></div>

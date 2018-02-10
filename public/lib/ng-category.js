@@ -2,12 +2,6 @@
 /*global $*/
 var app = angular.module('cat', ['angular-growl']);
 
-app.filter('reverse', function() {
-    return function(items) {
-        return items.slice().reverse();
-    };
-});
-
 app.config(['growlProvider', function(growlProvider) {
   growlProvider.globalTimeToLive(8000);
   growlProvider.globalPosition('bottom-center');
@@ -35,10 +29,16 @@ var mainController = function($scope, growl) {
             method: "GET",
             dataType: 'json',
             url: "api/category/getParents/" + id,
-            success: function(response) {
-                $scope.parents = response;
+            success: function(r) {
+                if(r.status == "notfound") {
+                    window.location = "/404";
+                } else {
+                    $scope.parents = r;
                 $scope.$apply();
-                console.log($scope.parents);
+                console.log(r);
+                }
+                
+                
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);

@@ -69,13 +69,15 @@ exports.getParents = function(req, res) {
     var requestedCategoryId = req.params.id;
     console.log("requestedCategoryId2: " + requestedCategoryId);
     var query = category.findOne();
+    var r = {};
     query.where({ _id: requestedCategoryId })
         .populate('categoriesId')
         .exec(function(err, result) {
             if (err || (result == null || result == undefined || result == "")) {
                 console.log("Error when trying to access database: " + err);
-                //res.redirect('/post?id=5a650c8bb62a0c8536f056c7');
-                res.send("NotFound")
+                r.status = "notfound"
+                r.o = null
+                res.send(r)
             }
             else {
                 if (result.parent == null) {

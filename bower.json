@@ -6,7 +6,7 @@
     "kamillasecki <kamil.lasecki@eircom.net>"
   ],
   "license": "MIT",
-  "homepage": "https://safeboards-kamillasecki.c9users.io",
+  "homepage": "https://finalproject-kamillasecki.c9users.io",
   "private": true,
   "ignore": [
     "**/.*",
@@ -20,6 +20,11 @@
     "angular-growl-v2": "^0.7.9",
     "font-awesome": "fontawesome#^4.7.0",
     "angular-sanitize": "^1.6.7",
+    "webcomponentsjs": "^1.1.0",
+    "iron-form": "^2.1.4",
+    "bootstrap": "^4.0.0"
+  },
+  "resolutions": {
     "bootstrap": "^3.3.7"
   }
 }

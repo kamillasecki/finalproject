@@ -145,6 +145,7 @@ exports.downvote = function(req, res) {
     var requestedPostId = req.params.pid;
     var alreadyUpVoted = -1;
     var alreadyDownVoted = false;
+    var r = {};
     post.findOne({ '_id': requestedPostId }).exec(function(err, p) {
         if (err) { console.log('Error while trying to get post from the database'); }
         else {
@@ -155,7 +156,6 @@ exports.downvote = function(req, res) {
             }
             if (alreadyDownVoted) {
                 console.log("Already downvoted by the user... not downvoting");
-                var r = {};
                 r.n = null;
                 r.m = "You have previously downvoted this post.";
                 res.send(r);
@@ -176,7 +176,6 @@ exports.downvote = function(req, res) {
                     //substract 2 from the vote number
                     p.header.votes.num -= 2;
                     p.save();
-                    var r = {};
                     r.n = p.header.votes.num;
                     r.m = "";
                     res.send(r);
@@ -188,7 +187,6 @@ exports.downvote = function(req, res) {
                     //substract 1 from the vote number
                     p.header.votes.num -= 1;
                     p.save();
-                    var r = {};
                     r.n = p.header.votes.num;
                     r.m = "";
                     res.send(r);
@@ -199,121 +197,121 @@ exports.downvote = function(req, res) {
     });
 };
 
-// exports.upvoteRep = function(req, res) {
-//     console.log('Your debug req: ' + JSON.stringify(req.user));
-//     var requestedRepId = req.params.rid;
-//     var alreadyUpVoted = false;
-//     var alreadyDownVoted = -1;
-//     reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
-//         if (err) { console.log('Error while trying to get post from the database'); }
-//         else {
-//             var fb = {};
-//             for (var i = 0; i < r.votes.upVotes.length; i++) {
-//                 if (r.votes.upVotes[i] == req.user._id) {
-//                     alreadyUpVoted = true;
-//                 }
-//             }
-//             if (alreadyUpVoted) {
-//                 console.log("Already upvoted by the user ... not upvoting");
-//                 fb.n = null;
-//                 fb.m = "You have previously upvoted this post.";
-//                 res.send(fb);
-//             }
-//             else {
-//                 console.log("Not yet voted, processing... upvote");
-//                 for (var j = 0; j < r.votes.downVotes.length; j++) {
-//                     if (r.votes.downVotes[i] == req.user._id) {
-//                         alreadyDownVoted = j;
-//                     }
-//                 }
-//                 if (alreadyDownVoted != -1) {
-//                     console.log("downvoted prviously, processing... upvote");
-//                     //remove user from downvote
-//                     r.votes.downVotes.splice(alreadyDownVoted, 1);
-//                     //add user to upvote
-//                     r.votes.upVotes.push(req.user._id);
-//                     //add 2 to vote number
-//                     r.votes.num += 2;
-//                     r.save();
-//                     fb.n = r.votes.num;
-//                     fb.m = "";
-//                     res.send(fb);
-//                 }
-//                 else {
-//                     console.log("not downvoted prviously, processing... upvote" + requestedRepId);
-//                     //add user to upvote
-//                     r.votes.upVotes.push(req.user._id);
-//                     //add 1 to vote number
-//                     r.votes.num += 1;
-//                     r.save();
-//                     fb.n = r.votes.num;
-//                     fb.m = "";
-//                     res.send(fb);
-//                 }
-//             }
-//         }
+exports.upvoteRep = function(req, res) {
+    console.log('Your debug req: ' + JSON.stringify(req.user));
+    var requestedRepId = req.params.rid;
+    var alreadyUpVoted = false;
+    var alreadyDownVoted = -1;
+    reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
+        if (err) { console.log('Error while trying to get post from the database'); }
+        else {
+            var fb = {};
+            for (var i = 0; i < r.votes.upVotes.length; i++) {
+                if (r.votes.upVotes[i] == req.user._id) {
+                    alreadyUpVoted = true;
+                }
+            }
+            if (alreadyUpVoted) {
+                console.log("Already upvoted by the user ... not upvoting");
+                fb.n = null;
+                fb.m = "You have previously upvoted this post.";
+                res.send(fb);
+            }
+            else {
+                console.log("Not yet voted, processing... upvote");
+                for (var j = 0; j < r.votes.downVotes.length; j++) {
+                    if (r.votes.downVotes[i] == req.user._id) {
+                        alreadyDownVoted = j;
+                    }
+                }
+                if (alreadyDownVoted != -1) {
+                    console.log("downvoted prviously, processing... upvote");
+                    //remove user from downvote
+                    r.votes.downVotes.splice(alreadyDownVoted, 1);
+                    //add user to upvote
+                    r.votes.upVotes.push(req.user._id);
+                    //add 2 to vote number
+                    r.votes.num += 2;
+                    r.save();
+                    fb.n = r.votes.num;
+                    fb.m = "";
+                    res.send(fb);
+                }
+                else {
+                    console.log("not downvoted prviously, processing... upvote" + requestedRepId);
+                    //add user to upvote
+                    r.votes.upVotes.push(req.user._id);
+                    //add 1 to vote number
+                    r.votes.num += 1;
+                    r.save();
+                    fb.n = r.votes.num;
+                    fb.m = "";
+                    res.send(fb);
+                }
+            }
+        }
 
-//     });
-// };
+    });
+};
 
-// exports.downvoteRep = function(req, res) {
-//     var requestedRepId = req.params.rid;
-//     var alreadyUpVoted = -1;
-//     var alreadyDownVoted = false;
-//     reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
-//         if (err) { console.log('Error while trying to get post from the database'); }
-//         else {
-//             var fb = {};
-//             for (var i = 0; i < r.votes.downVotes.length; i++) {
-//                 if (r.votes.downVotes[i] == req.user._id) {
-//                     alreadyDownVoted = true;
-//                 }
-//             }
-//             if (alreadyDownVoted) {
-//                 console.log("Already downvoted by the user... not downvoting");
-//                 fb.n = null;
-//                 fb.m = "You have previously downvoted this post.";
-//                 res.send(fb);
-//             }
-//             else {
-//                 console.log("Not yet downvoted, processing... downvote");
-//                 for (var j = 0; j < r.votes.upVotes.length; j++) {
-//                     if (r.votes.upVotes[i] == req.user._id) {
-//                         alreadyUpVoted = j;
-//                     }
-//                 }
-//                 if (alreadyUpVoted != -1) {
-//                     console.log("upvoted prviously, processing... downvote");
-//                     //remove user from upvotes
-//                     r.votes.upVotes.splice(alreadyDownVoted, 1);
-//                     //add user to downvotes
-//                     r.votes.downVotes.push(req.user._id);
-//                     //substract 2 from the vote number
-//                     r.votes.num -= 2;
-//                     r.save();
-//                     fb.n = r.votes.num;
-//                     fb.m = "";
-//                     res.send(fb);
-//                 }
-//                 else {
-//                     console.log("not upvoted prviously, processing... downvote" + requestedRepId);
-//                     //add user to downvote
-//                     r.votes.downVotes.push(req.user._id);
-//                     //substract 1 from the vote number
-//                     r.votes.num -= 1;
-//                     r.save();
-//                     fb.n = r.votes.num;
-//                     fb.m = "";
-//                     res.send(fb);
-//                 }
-//             }
-//         }
+exports.downvoteRep = function(req, res) {
+    var requestedRepId = req.params.rid;
+    var alreadyUpVoted = -1;
+    var alreadyDownVoted = false;
+    reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
+        if (err) { console.log('Error while trying to get post from the database'); }
+        else {
+            var fb = {};
+            for (var i = 0; i < r.votes.downVotes.length; i++) {
+                if (r.votes.downVotes[i] == req.user._id) {
+                    alreadyDownVoted = true;
+                }
+            }
+            if (alreadyDownVoted) {
+                console.log("Already downvoted by the user... not downvoting");
+                fb.n = null;
+                fb.m = "You have previously downvoted this post.";
+                res.send(fb);
+            }
+            else {
+                console.log("Not yet downvoted, processing... downvote");
+                for (var j = 0; j < r.votes.upVotes.length; j++) {
+                    if (r.votes.upVotes[i] == req.user._id) {
+                        alreadyUpVoted = j;
+                    }
+                }
+                if (alreadyUpVoted != -1) {
+                    console.log("upvoted prviously, processing... downvote");
+                    //remove user from upvotes
+                    r.votes.upVotes.splice(alreadyDownVoted, 1);
+                    //add user to downvotes
+                    r.votes.downVotes.push(req.user._id);
+                    //substract 2 from the vote number
+                    r.votes.num -= 2;
+                    r.save();
+                    fb.n = r.votes.num;
+                    fb.m = "";
+                    res.send(fb);
+                }
+                else {
+                    console.log("not upvoted prviously, processing... downvote" + requestedRepId);
+                    //add user to downvote
+                    r.votes.downVotes.push(req.user._id);
+                    //substract 1 from the vote number
+                    r.votes.num -= 1;
+                    r.save();
+                    fb.n = r.votes.num;
+                    fb.m = "";
+                    res.send(fb);
+                }
+            }
+        }
 
-//     });
-// };
+    });
+};
 
 exports.prep = function(req, res) {
-    console.log("start processung reply...")
+    console.log("start processung reply...");
     var postId = req.params.id;
     post.findOne({ _id: postId }).exec(function(err, p) {
         if (err) { console.log('Error while trying to get post from the database'); }
@@ -326,7 +324,7 @@ exports.prep = function(req, res) {
             var r = new reply();
             r.author = new mongoose.Types.ObjectId(req.user._id);
             r.text = req.body.m;
-            r.replies = []
+            r.replies = [];
             r.votes = {};
             r.votes.num = 0;
             r.votes.upVotes = [];
@@ -338,7 +336,9 @@ exports.prep = function(req, res) {
                 console.log("Saved new post: " + rep._id);
                 p.replies.push(mongoose.Types.ObjectId(rep._id));
                 p.save();
-            });;
+                res.end();
+            });
+            //res.end("OK");
         }
-    })
+    });
 };

@@ -14,6 +14,7 @@ app.config(['growlProvider', function(growlProvider) {
 
 var mainController = function($scope, growl) {
     $scope.post = {};
+    $scope.showing = {};
     $scope.checkword = "";
 
     var url_string = window.location.href;
@@ -24,7 +25,14 @@ var mainController = function($scope, growl) {
         growl.error(text, { referenceId: 1 });
     };
 
-    $(document).ready(function() {
+    $scope.show = function(id) {
+        $scope.showing[id] = true;
+        $('#t_'+id).removeClass( "ng-hide" );
+        $('#e_'+id).addClass( "ng-hide" );
+        //alert(id);
+    };
+    
+    $scope.load = function() {
         $.ajax({
             method: "GET",
             dataType: 'json',
@@ -32,7 +40,7 @@ var mainController = function($scope, growl) {
             success: function(response) {
                 if (response == "NotFound") {
                     // data.redirect contains the string URL to redirect to
-                    window.location = "/"
+                    window.location = "/";
                 }
                 else {
                     $scope.post = response;
@@ -42,9 +50,12 @@ var mainController = function($scope, growl) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
-
             }
         });
+    };
+
+    $(document).ready(function() {
+        $scope.load();
     });
 
     $scope.uvp = function(u) {
@@ -71,7 +82,7 @@ var mainController = function($scope, growl) {
     };
 
     $scope.dvp = function(u) {
-        console.log("downvoting" +id);
+        console.log("downvoting" + id);
         $.ajax({
             method: "GET",
             dataType: 'json',
@@ -92,8 +103,8 @@ var mainController = function($scope, growl) {
             }
         });
     };
-    
-        $scope.uvr = function(u) {
+
+    $scope.uvr = function(u) {
         console.log("upvoting" + u);
         $.ajax({
             method: "GET",
@@ -103,7 +114,7 @@ var mainController = function($scope, growl) {
                 console.log(r);
                 if (r.n) {
                     //update the score
-                    $('#score'+u).text(r.n);
+                    $('#score' + u).text(r.n);
                 }
                 else {
                     //display error message
@@ -126,7 +137,7 @@ var mainController = function($scope, growl) {
                 console.log(r);
                 if (r.n) {
                     //update the score
-                    $('#score'+u).text(r.n);
+                    $('#score' + u).text(r.n);
                 }
                 else {
                     //display error message
@@ -162,20 +173,19 @@ var mainController = function($scope, growl) {
     };
 
     $scope.spr = function() {
-
+        console.log("replying...");
         $.ajax({
             method: "POST",
             url: "api/post/prep/" + id,
-            data: { 'm': $scope.prep },
-            success: function(r) {
-                console.log(r);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
-                console.log("ERROR: " + jqXHR.responseText);
-
-                growl.error(jqXHR.responseText, { referenceId: 1 });
-            }
+            data: { 'm': $scope.prep }
+        }).done(function(r) {
+            console.log("responce: ok" + r);
+            $("#res").val('');
+            console.log("reloading");
+            $scope.load();
+            console.log("reloaded");
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
         });
 
     };
