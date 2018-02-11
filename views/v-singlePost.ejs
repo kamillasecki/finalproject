@@ -25,8 +25,8 @@
         <div>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-8">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-10">
                         <div>
                             <h1>{{post.header.subject}}</h1>
                         </div>
@@ -106,13 +106,6 @@
                                                         <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
                                                     </div>
                                                 </div>
-                                                <a ng-click="show_r(rep2._id)">Reply to comment...</a>
-                                                <div id="re_{{rep2._id}}" hidden="">
-                                                    <form>
-                                                        <textarea class="form-control" id="rrep_{{rep2._id}}"></textarea>
-                                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="srr(rep2._id)">Reply </button>
-                                                    </form>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -120,6 +113,7 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-1"></div>
                 </div>
             </div>
             <section class="testimonials"></section>

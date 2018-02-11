@@ -11,7 +11,7 @@ var replySchema = mongoose.Schema({
             upVotes: [String],
             downVotes: [String]
         },
-    createdAt: {type: Date, default: Date.now()}
+    createdAt: {type: Date, default: Date.now}
 }, {
     toObject: {
         virtuals: true

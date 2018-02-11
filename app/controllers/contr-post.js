@@ -67,8 +67,7 @@ exports.getPost = function(req, res) {
         .populate('settings.author', 'displayname')
         .populate({
             path: 'replies',
-            populate: [
-                {
+            populate: [{
                     path: 'author',
                     select: 'displayname'
                 },
@@ -325,12 +324,15 @@ exports.downvoteRep = function(req, res) {
 exports.prep = function(req, res) {
     console.log("start processung reply...");
     var postId = req.params.id;
+    var cal = {};
     post.findOne({ _id: postId }).exec(function(err, p) {
         if (err) { console.log('Error while trying to get post from the database'); }
         else if (p == null || p == undefined || p == "") {
             //connection to DB successfull
             console.log("No such a post exists");
-            res.send("Error");
+            cal.status = "notfound"
+            cal.o = null
+            res.send(cal)
         }
         else {
             var r = new reply();

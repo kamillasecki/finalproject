@@ -43,19 +43,19 @@ var mainController = function($scope, growl) {
             method: "GET",
             dataType: 'json',
             url: "api/post/" + id,
-            success: function(response) {
-                if (response == "NotFound") {
-                    // data.redirect contains the string URL to redirect to
-                    window.location = "/";
+            success: function(r) {
+                if (r.status == "NotFound") {
+                    window.location = "/404";
                 }
                 else {
-                    $scope.post = response;
+                    $scope.post = r;
                     $scope.$apply();
-                    console.log(response);
+                    console.log(r);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
+                window.location = "/404";
             }
         });
     };

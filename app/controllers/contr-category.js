@@ -75,8 +75,7 @@ exports.getParents = function(req, res) {
         .exec(function(err, result) {
             if (err || (result == null || result == undefined || result == "")) {
                 console.log("Error when trying to access database: " + err);
-                r.status = "notfound"
-                r.o = null
+                r.status = "NotFound"
                 res.send(r)
             }
             else {

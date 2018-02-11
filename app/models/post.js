@@ -23,7 +23,7 @@ var postSchema = mongoose.Schema({
         text: String
     },
     replies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
-    createdAt: { type: Date, default: Date.now() }
+    createdAt: { type: Date, default: Date.now}
 }, {
     toObject: {
         virtuals: true
