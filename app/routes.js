@@ -87,6 +87,10 @@ module.exports = function(app, passport) {
 		postCtrl.prep(req,res);
 	});
 	
+	app.post('/api/post/rrep/:id', function(req,res){
+		postCtrl.rrep(req,res);
+	});
+	
 	//CATEGORY API
 
 	app.delete('/api/category/:id', function(req, res) {

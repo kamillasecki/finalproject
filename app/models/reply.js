@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 var replySchema = mongoose.Schema({
     author: { type: Schema.Types.ObjectId, ref: 'User' },
     text: String,
-    replies: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+    replies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
     votes: {
             num: Number,
             upVotes: [String],

@@ -26,10 +26,16 @@ var mainController = function($scope, growl) {
     };
 
     $scope.show = function(id) {
-        $scope.showing[id] = true;
         $('#t_'+id).removeClass( "ng-hide" );
         $('#e_'+id).addClass( "ng-hide" );
-        //alert(id);
+    };
+    
+    $scope.show_r = function(id) {
+        $('#re_'+id).show();
+    };
+    
+    $scope.hide_r = function(id) {
+        $('#re_'+id).hide();
     };
     
     $scope.load = function() {
@@ -189,6 +195,25 @@ var mainController = function($scope, growl) {
         });
 
     };
+    
+   $scope.srr = function(id) {
+        console.log("replying..." + $("#rrep_"+id).val()) ;
+        $.ajax({
+            method: "POST",
+            url: "api/post/rrep/" + id,
+            data: { 'm': $("#rrep_"+id).val() }
+        }).done(function(r) {
+            console.log("responce: ok" + r);
+            $("#rrep_"+id).val('');
+            console.log("reloading");
+            $scope.load();
+            console.log("reloaded");
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
+        });
+
+    };
+    
 
 };
 

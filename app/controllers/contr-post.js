@@ -67,9 +67,21 @@ exports.getPost = function(req, res) {
         .populate('settings.author', 'displayname')
         .populate({
             path: 'replies',
-            populate: { path: 'author', select: 'displayname'}
+            populate: [
+                {
+                    path: 'author',
+                    select: 'displayname'
+                },
+                {
+                    path: 'replies',
+                    populate: {
+                        path: 'author',
+                        select: 'displayname'
+                    }
+                }
+            ]
         })
-        .populate({path: 'settings.category' , populate : {path: 'categoriesId'}})
+        .populate({ path: 'settings.category', populate: { path: 'categoriesId' } })
         .exec(function(err, doc) {
             if (err) { console.log('Error while trying to get post from the database'); }
             else if (doc == null || doc == undefined || doc == "") {
@@ -334,6 +346,39 @@ exports.prep = function(req, res) {
                     console.log("Error when saving new reply: " + err);
                 }
                 console.log("Saved new post: " + rep._id);
+                p.replies.push(mongoose.Types.ObjectId(rep._id));
+                p.save();
+                res.end();
+            });
+            //res.end("OK");
+        }
+    });
+};
+
+exports.rrep = function(req, res) {
+    console.log("start processung reply...");
+    var repId = req.params.id;
+    reply.findOne({ _id: repId }).exec(function(err, p) {
+        if (err) { console.log('Error while trying to get reply from the database'); }
+        else if (p == null || p == undefined || p == "") {
+            //connection to DB successfull
+            console.log("No such a reply exists");
+            res.send("Error");
+        }
+        else {
+            var r = new reply();
+            r.author = new mongoose.Types.ObjectId(req.user._id);
+            r.text = req.body.m;
+            r.replies = [];
+            r.votes = {};
+            r.votes.num = 0;
+            r.votes.upVotes = [];
+            r.votes.downVotes = [];
+            r.save(function(err, rep) {
+                if (err) {
+                    console.log("Error when saving new reply: " + err);
+                }
+                console.log("Saved new reply: " + rep._id);
                 p.replies.push(mongoose.Types.ObjectId(rep._id));
                 p.save();
                 res.end();
