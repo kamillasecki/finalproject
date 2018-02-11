@@ -26,32 +26,42 @@ var mainController = function($scope, growl) {
     };
 
     $scope.show = function(id) {
-        $('#t_'+id).removeClass( "ng-hide" );
-        $('#e_'+id).addClass( "ng-hide" );
+        $('#t_' + id).removeClass("ng-hide");
+        $('#e_' + id).addClass("ng-hide");
     };
-    
+
     $scope.show_r = function(id) {
-        $('#re_'+id).show();
+        $('#re_' + id).show();
+        $('#relink_' + id).hide();
     };
-    
+
     $scope.hide_r = function(id) {
-        $('#re_'+id).hide();
+        $('#re_' + id).hide();
+        $('#relist_' + id).show();
     };
     
+    $scope.show_rellist = function(id) {
+        console.log("ok")
+        $('.relistlink_' + id).hide();
+        $('.relist_' + id).show();
+    };
+    
+    $scope.hide_rellist = function(id) {
+        console.log("ok")
+        $('.relistlink_' + id).show();
+        $('.relist_' + id).hide();
+    };
+
     $scope.load = function() {
         $.ajax({
             method: "GET",
             dataType: 'json',
             url: "api/post/" + id,
             success: function(r) {
-                if (r.status == "NotFound") {
-                    window.location = "/404";
-                }
-                else {
                     $scope.post = r;
                     $scope.$apply();
                     console.log(r);
-                }
+                
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
@@ -195,16 +205,16 @@ var mainController = function($scope, growl) {
         });
 
     };
-    
-   $scope.srr = function(id) {
-        console.log("replying..." + $("#rrep_"+id).val()) ;
+
+    $scope.srr = function(id) {
+        console.log("replying..." + $("#rrep_" + id).val());
         $.ajax({
             method: "POST",
             url: "api/post/rrep/" + id,
-            data: { 'm': $("#rrep_"+id).val() }
+            data: { 'm': $("#rrep_" + id).val() }
         }).done(function(r) {
             console.log("responce: ok" + r);
-            $("#rrep_"+id).val('');
+            $("#rrep_" + id).val('');
             console.log("reloading");
             $scope.load();
             console.log("reloaded");
@@ -213,7 +223,7 @@ var mainController = function($scope, growl) {
         });
 
     };
-    
+
 
 };
 

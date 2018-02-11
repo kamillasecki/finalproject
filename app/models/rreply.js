@@ -5,7 +5,6 @@ var Schema = mongoose.Schema;
 var replySchema = mongoose.Schema({
     author: { type: Schema.Types.ObjectId, ref: 'User' },
     text: String,
-    rreplies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
     votes: {
             num: Number,
             upVotes: [String],
@@ -28,4 +27,4 @@ replySchema.virtual('createdAtWords').get(function() {
 
 
 // create the model for users and expose it to our app
-module.exports = mongoose.model('Reply', replySchema);
+module.exports = mongoose.model('Rreply', replySchema);

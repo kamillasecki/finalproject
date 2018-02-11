@@ -4,16 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{post.header.subject}}</title>
+    <title>SafeBoards</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">
-    <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/font-awesome/web-fonts-with-css/css/fontawesome-all.css">
     <link rel="stylesheet" href="/stylesheets/styles.min.css">
-    <script src="/lib/angular/angular.min.js"></script>
-    <script src="/lib/crypto-js/aes.js"></script>
-    <script src="/lib/crypto-js/pbkdf2.js"></script>
-    <script src="/lib/crypto-js/crypto-js.js"></script>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/lib/angular-growl-v2/build/angular-growl.min.css">
+    <script src="/lib/angular/angular.min.js"></script>
+    <script src="/lib/crypto-js/crypto-js.js"></script>
     <script src="/lib/jquery/dist/jquery.min.js"></script>
     <script src="/lib/angular-growl-v2/build/angular-growl.js"></script>
 </head>
@@ -57,7 +55,7 @@
                             </br>
                             <div ng-show="rep.votes.num<0" id="e_{{rep._id}}">
                                 <footer>Comment hidden due to poor quality</footer>
-                                <a ng-click="show(rep._id)">Show...</a>
+                                <button type="button" class="btn btn-link" ng-click="show(rep._id)">Show...</button>
                             </div>
                             <div class="col-md-12" ng-show="rep.votes.num>=0" id="t_{{rep._id}}">
                                 <div><small>{{rep.createdAtWords}}</small></div>
@@ -75,60 +73,66 @@
                                     </div>
 
                                 </div>
-                                <a ng-click="show_r(rep._id)">Reply to comment...</a>
+                                <div id="relink_{{rep._id}}">
+                                    <button type="button" class="btn btn-link" ng-click="show_r(rep._id)">Reply to comment...</button>
+                                </div>
+
                                 <div id="re_{{rep._id}}" hidden="">
                                     <form>
                                         <textarea class="form-control" id="rrep_{{rep._id}}"></textarea>
                                         <button class="btn btn-default" type="button" ng-href='#here' ng-click="srr(rep._id)">Reply </button>
+                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="hide_r(rep._id)">Cancel </button>
                                     </form>
                                 </div>
-                                <div ng-repeat="rep2 in rep.replies | orderBy:'-'" class="row">
-                                    <div class="col-md-1"></div>
-                                    <div class="col-md-11">
-                                        <div>
-                                            </br>
-                                            <div ng-show="rep2.votes.num<0" id="e_{{rep2._id}}">
-                                                <footer>Comment hidden due to poor quality</footer>
-                                                <a ng-click="show(rep2._id)">Show...</a>
-                                            </div>
-                                            <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
-                                                <div><small>{{rep2.createdAtWords}}</small></div>
-                                                <blockquote>
-                                                    <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
-                                                    <footer>{{rep2.author.displayname}}</footer>
-                                                </blockquote>
-                                                <div>
+                                <div class="relistlink_{{rep._id}}">
+                                    <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length>1">Show all {{rep.rreplies.length}} replies</button>
+                                </div>
+                                <div class="relistlink_{{rep._id}}">
+                                    <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length==1">Show reply</button>
+                                </div>
+                                <div class="relist_{{rep._id}}" hidden="true">
+                                    <button type="button" class="btn btn-link" ng-click="hide_rellist(rep._id)">Hide replies</button>
+                                </div>
+                                <div class="relist_{{rep._id}}" hidden="">
+                                    <div ng-repeat="rep2 in rep.rreplies | orderBy:'-'" class="row">
+                                        <div class="col-md-1"></div>
+                                        <div class="col-md-11">
+                                            <div>
+                                                </br>
+                                                <div ng-show="rep2.votes.num<0" id="e_{{rep2._id}}">
+                                                    <footer>Comment hidden due to poor quality</footer>
+                                                    <a ng-click="show(rep2._id)">Show...</a>
+                                                </div>
+                                                <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
+                                                    <div><small>{{rep2.createdAtWords}}</small></div>
+                                                    <blockquote>
+                                                        <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
+                                                        <footer>{{rep2.author.displayname}}</footer>
+                                                    </blockquote>
                                                     <div>
-                                                        <small>Score: <span id="score{{rep2._id}}">{{rep2.votes.num}}</span></small>
-                                                    </div>
-                                                    <div class="btn-group" role="group">
-                                                        <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">vote up</button>
-                                                        <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
+                                                        <div>
+                                                            <small>Score: <span id="score{{rep2._id}}">{{rep2.votes.num}}</span></small>
+                                                        </div>
+                                                        <div class="btn-group" role="group">
+                                                            <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">vote up</button>
+                                                            <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
                     <div class="col-md-1"></div>
                 </div>
             </div>
-            <section class="testimonials"></section>
-            <footer class="site-footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5>Safe Boards © 2017</h5>
-                        </div>
-                        <div class="col-sm-6 social-icons"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-instagram"></i></a></div>
-                    </div>
-                </div>
-            </footer>
-            <script src="/lib/ng-singlePost.js"></script>
-            <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+            <% include ./index_partials/footer %>
+                <script src="/lib/ng-singlePost.js"></script>
+                <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
 </body>
 
 </html>

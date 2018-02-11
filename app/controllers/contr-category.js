@@ -12,10 +12,7 @@ exports.addCategoty = function(req, res) {
         if (err) { console.log('Error while trying to get category from database'); }
         if (doc == null || doc == undefined || doc == "") {
             console.log("No such a parent category exists")
-            res.writeHead(302, {
-                'Location': '404'
-            });
-            res.end();
+            res.render('notfound.ejs');
         }
         else {
             var categories = doc.categoriesId;
@@ -75,8 +72,7 @@ exports.getParents = function(req, res) {
         .exec(function(err, result) {
             if (err || (result == null || result == undefined || result == "")) {
                 console.log("Error when trying to access database: " + err);
-                r.status = "NotFound"
-                res.send(r)
+                res.render('notfound.ejs');
             }
             else {
                 if (result.parent == null) {

@@ -1,6 +1,6 @@
 var post = require('../models/post.js');
-var category = require('../models/category.js');
 var reply = require('../models/reply.js');
+var category = require('../models/category.js');
 var mongoose = require('mongoose');
 
 exports.newPost = function(req, res) {
@@ -67,12 +67,15 @@ exports.getPost = function(req, res) {
         .populate('settings.author', 'displayname')
         .populate({
             path: 'replies',
+            model: 'Reply',
             populate: [{
                     path: 'author',
+                    model: 'User',
                     select: 'displayname'
                 },
                 {
-                    path: 'replies',
+                    path: 'rreplies',
+                    model: 'Reply',
                     populate: {
                         path: 'author',
                         select: 'displayname'
@@ -80,14 +83,15 @@ exports.getPost = function(req, res) {
                 }
             ]
         })
-        .populate({ path: 'settings.category', populate: { path: 'categoriesId' } })
         .exec(function(err, doc) {
             if (err) { console.log('Error while trying to get post from the database'); }
             else if (doc == null || doc == undefined || doc == "") {
                 console.log("Post doesn't exist");
-                res.send("Post doesn't exist");
+                //res.send("Post doesn't exist");
+                res.render('notfound.ejs');
             }
             else {
+                console.log(doc);
                 res.send(doc);
             }
         });
@@ -99,7 +103,10 @@ exports.upvote = function(req, res) {
     var alreadyUpVoted = false;
     var alreadyDownVoted = -1;
     post.findOne({ '_id': requestedPostId }).exec(function(err, p) {
-        if (err) { console.log('Error while trying to get post from the database'); }
+        if (err) {
+            console.log('Error while trying to get post from the database');
+            res.render('notfound.ejs');
+        }
         else {
             for (var i = 0; i < p.header.votes.upVotes.length; i++) {
                 if (p.header.votes.upVotes[i] == req.user._id) {
@@ -158,7 +165,11 @@ exports.downvote = function(req, res) {
     var alreadyDownVoted = false;
     var r = {};
     post.findOne({ '_id': requestedPostId }).exec(function(err, p) {
-        if (err) { console.log('Error while trying to get post from the database'); }
+        if (err) {
+            console.log('Error while trying to get post from the database');
+            res.render('notfound.ejs');
+
+        }
         else {
             for (var i = 0; i < p.header.votes.downVotes.length; i++) {
                 if (p.header.votes.downVotes[i] == req.user._id) {
@@ -214,7 +225,10 @@ exports.upvoteRep = function(req, res) {
     var alreadyUpVoted = false;
     var alreadyDownVoted = -1;
     reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
-        if (err) { console.log('Error while trying to get post from the database'); }
+        if (err) {
+            console.log('Error while trying to get post from the database');
+            res.render('notfound.ejs');
+        }
         else {
             var fb = {};
             for (var i = 0; i < r.votes.upVotes.length; i++) {
@@ -270,7 +284,10 @@ exports.downvoteRep = function(req, res) {
     var alreadyUpVoted = -1;
     var alreadyDownVoted = false;
     reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
-        if (err) { console.log('Error while trying to get post from the database'); }
+        if (err) {
+            console.log('Error while trying to get post from the database');
+            res.render('notfound.ejs');
+        }
         else {
             var fb = {};
             for (var i = 0; i < r.votes.downVotes.length; i++) {
@@ -326,13 +343,14 @@ exports.prep = function(req, res) {
     var postId = req.params.id;
     var cal = {};
     post.findOne({ _id: postId }).exec(function(err, p) {
-        if (err) { console.log('Error while trying to get post from the database'); }
+        if (err) { 
+            res.render('notfound.ejs');
+            console.log('Error while trying to get post from the database'); 
+        }
         else if (p == null || p == undefined || p == "") {
             //connection to DB successfull
             console.log("No such a post exists");
-            cal.status = "notfound"
-            cal.o = null
-            res.send(cal)
+            res.render('notfound.ejs');
         }
         else {
             var r = new reply();
@@ -363,25 +381,22 @@ exports.rrep = function(req, res) {
     reply.findOne({ _id: repId }).exec(function(err, p) {
         if (err) { console.log('Error while trying to get reply from the database'); }
         else if (p == null || p == undefined || p == "") {
-            //connection to DB successfull
-            console.log("No such a reply exists");
-            res.send("Error");
+            res.render('notfound.ejs');
         }
         else {
             var r = new reply();
             r.author = new mongoose.Types.ObjectId(req.user._id);
             r.text = req.body.m;
-            r.replies = [];
             r.votes = {};
             r.votes.num = 0;
             r.votes.upVotes = [];
             r.votes.downVotes = [];
-            r.save(function(err, rep) {
+            r.save(function(err, rrep) {
                 if (err) {
                     console.log("Error when saving new reply: " + err);
                 }
-                console.log("Saved new reply: " + rep._id);
-                p.replies.push(mongoose.Types.ObjectId(rep._id));
+                console.log("Saved new reply: " + rrep._id);
+                p.rreplies.push(mongoose.Types.ObjectId(rrep._id));
                 p.save();
                 res.end();
             });

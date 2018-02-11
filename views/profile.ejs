@@ -2,7 +2,7 @@
 <head>
     <title>Node Authentication</title>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/lib/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/font-awesome/web-fonts-with-css/css/fontawesome-all.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
     <script src="/lib/jquery/dist/jquery.js"></script>
     <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
@@ -15,7 +15,7 @@
 <div class="container">
 
     <div class="page-header text-center">
-        <h1><span class="fa fa-anchor"></span> Welcome <%= user.displayname %></h1>
+        <h1><span class="fas fa-anchor"></span> Welcome <%= user.displayname %></h1>
         <a href="/logout" class="btn btn-default btn-sm">Logout</a>
     </div>
 
@@ -24,7 +24,7 @@
         <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h3><span class="fa fa-user"></span> Local</h3>
+                <h3><span class="fas fa-user"></span> Local</h3>
 
                 <% if (user.local.username) { %>
                     <p>
@@ -44,7 +44,7 @@
         <!-- FACEBOOK INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h3 class="text-primary"><span class="fa fa-facebook"></span> Facebook</h3>
+                <h3 class="text-primary"><span class="fab fa-facebook-f"></span> Facebook</h3>
 
                 <!-- check if the user has this token (is the user authenticated with this social account) -->
                 <% if (user.facebook.token) { %>
@@ -66,32 +66,11 @@
 
     <div class="row">
 
-        <!-- TWITTER INFORMATION -->
-        <div class="col-sm-6">
-            <div class="well">
-                <h3 class="text-info"><span class="fa fa-twitter"></span> Twitter</h3>
-
-                <!-- check if the user has this token (is the user authenticated with this social account) -->
-                <% if (user.twitter.token) { %>
-                    <p>
-                        <strong>id</strong>: <%= user.twitter.id %><br>
-                        <strong>token</strong>: <%= user.twitter.token %><br>
-                        <strong>display name</strong>: <%= user.twitter.displayName %><br>
-                        <strong>username</strong>: <%= user.twitter.username %>
-                    </p>
-
-                    <a href="/unlink/twitter" class="btn btn-info">Unlink</a>
-                <% } else { %>
-                    <a href="/connect/twitter" class="btn btn-info">Connect Twitter</a>
-                <% } %>
-
-            </div>
-        </div>
-
+       
         <!-- GOOGLE INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h3 class="text-danger"><span class="fa fa-google-plus"></span> Google+</h3>
+                <h3 class="text-danger"><span class="fab fa-google-plus"></span> Google+</h3>
 
                 <!-- check if the user has this token (is the user authenticated with this social account) -->
                 <% if (user.google.token) { %>

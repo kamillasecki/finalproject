@@ -15,13 +15,13 @@
     "moment": "^2.20.1",
     "mongodb": "latest",
     "mongoose": "latest",
+    "mongoose-deep-populate": "^3.1.1",
     "morgan": "~1.0.0",
     "passport": "~0.1.17",
     "passport-facebook": "^1.0.3",
     "passport-google-oauth": "^0.1.5",
     "passport-google-oauth2": "^0.1.6",
     "passport-local": "~0.1.6",
-    "passport-twitter": "^1.0.4",
     "update-mongo": "0.0.4"
   }
 }

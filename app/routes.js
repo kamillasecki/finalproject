@@ -1,6 +1,8 @@
 module.exports = function(app, passport) {
 	var categoryCtrl = require("./controllers/contr-category.js");
 	var postCtrl = require("./controllers/contr-post.js");
+
+
 	// ============================================================================
 	// PAGES ROUTES ===============================================================
 	// ============================================================================
@@ -57,40 +59,40 @@ module.exports = function(app, passport) {
 	// ============================================================================
 
 	//POST API
-	
+
 	app.post('/api/post', function(req, res) {
 		postCtrl.newPost(req, res);
 	});
-	
-	
+
+
 	app.get('/api/post/:id', function(req, res) {
 		postCtrl.getPost(req, res);
 	});
-	
-	app.get('/api/post/upvote/:pid', function(req,res){
-		postCtrl.upvote(req,res);
+
+	app.get('/api/post/upvote/:pid', function(req, res) {
+		postCtrl.upvote(req, res);
 	});
-	
-	app.get('/api/post/downvote/:pid', function(req,res){
-		postCtrl.downvote(req,res);
+
+	app.get('/api/post/downvote/:pid', function(req, res) {
+		postCtrl.downvote(req, res);
 	});
-	
-	app.get('/api/post/reply/upvote/:rid', function(req,res){
-		postCtrl.upvoteRep(req,res);
+
+	app.get('/api/post/reply/upvote/:rid', function(req, res) {
+		postCtrl.upvoteRep(req, res);
 	});
-	
-	app.get('/api/post/reply/downvote/:rid', function(req,res){
-		postCtrl.downvoteRep(req,res);
+
+	app.get('/api/post/reply/downvote/:rid', function(req, res) {
+		postCtrl.downvoteRep(req, res);
 	});
-	
-	app.post('/api/post/prep/:id', function(req,res){
-		postCtrl.prep(req,res);
+
+	app.post('/api/post/prep/:id', function(req, res) {
+		postCtrl.prep(req, res);
 	});
-	
-	app.post('/api/post/rrep/:id', function(req,res){
-		postCtrl.rrep(req,res);
+
+	app.post('/api/post/rrep/:id', function(req, res) {
+		postCtrl.rrep(req, res);
 	});
-	
+
 	//CATEGORY API
 
 	app.delete('/api/category/:id', function(req, res) {
@@ -106,7 +108,7 @@ module.exports = function(app, passport) {
 	});
 
 	//LOGOUT
-	
+
 	app.get('/logout', function(req, res) {
 		req.logout();
 		res.redirect('/');
@@ -275,6 +277,9 @@ module.exports = function(app, passport) {
 		});
 	});
 
+	app.use(function(req, res, next) {
+		res.status(404).render("notfound.ejs")
+	})
 
 };
 
