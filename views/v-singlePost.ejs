@@ -72,7 +72,7 @@
                                     </span>
                                     <span class="btn-group pull-right" role="group" style="text-align: right">
                                         <button ng-click="uvr(rep._id)" class="btn btn-success btn-xs" type="button"><i class="fas fa-thumbs-up"></i></button>
-                                        <button class="btn btn-link btn-xs"><span class="badge">{{rep.votes.num}}</span></button>
+                                        <button class="btn btn-link btn-xs"><span class="badge" id="score{{rep._id}}">{{rep.votes.num}}</span></button>
                                         <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button"><i class="fas fa-thumbs-down"></i></button>
                                         
                                     </span>

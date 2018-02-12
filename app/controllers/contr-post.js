@@ -192,7 +192,7 @@ exports.downvote = function(req, res) {
                 if (alreadyUpVoted != -1) {
                     console.log("upvoted prviously, processing... downvote");
                     //remove user from upvotes
-                    p.header.votes.upVotes.splice(alreadyDownVoted, 1);
+                    p.header.votes.upVotes.splice(alreadyUpVoted, 1);
                     //add user to downvotes
                     p.header.votes.downVotes.push(req.user._id);
                     //substract 2 from the vote number
@@ -244,8 +244,9 @@ exports.upvoteRep = function(req, res) {
             }
             else {
                 console.log("Not yet voted, processing... upvote");
+                //searching for 
                 for (var j = 0; j < r.votes.downVotes.length; j++) {
-                    if (r.votes.downVotes[i] == req.user._id) {
+                    if (r.votes.downVotes[j] == req.user._id) {
                         alreadyDownVoted = j;
                     }
                 }
@@ -304,14 +305,16 @@ exports.downvoteRep = function(req, res) {
             else {
                 console.log("Not yet downvoted, processing... downvote");
                 for (var j = 0; j < r.votes.upVotes.length; j++) {
-                    if (r.votes.upVotes[i] == req.user._id) {
+                    console.log("checking pos: " + j + " in upVotes. Found: " + r.votes.upVotes[j])
+                    if (r.votes.upVotes[j] == req.user._id) {
+                        console.log(r.votes.upVotes[j] + " matches current user")
                         alreadyUpVoted = j;
                     }
                 }
                 if (alreadyUpVoted != -1) {
                     console.log("upvoted prviously, processing... downvote");
                     //remove user from upvotes
-                    r.votes.upVotes.splice(alreadyDownVoted, 1);
+                    r.votes.upVotes.splice(alreadyUpVoted, 1);
                     //add user to downvotes
                     r.votes.downVotes.push(req.user._id);
                     //substract 2 from the vote number
