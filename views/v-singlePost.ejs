@@ -35,7 +35,7 @@
 
                                 <div ng-if="post.settings.author._id==user">
                                     <button class="btn btn-light btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                                    <button ng-if="post.replies.length==0" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
+                                    <button ng-if="post.replies.length==0" ng-click="pdel()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
                                 </div>
                             </div>
                             <div class="col-md-3 col-md-offset-0" style="text-align: right">

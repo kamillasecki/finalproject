@@ -225,6 +225,22 @@ var mainController = function($scope, growl) {
 
     };
 
+    $scope.pdel = function() {
+        $.ajax({
+            method: "DELETE",
+            url: "api/post/del/" + id
+        }).done(function(r) {
+            console.log("responce: ok" + r);
+            if(r.status == "error") {
+                growl.error("<strong>" + r.m + "</strong>");
+            } else if (r.status == "ok"){
+                alert(r.m);
+                window.location = '/';
+            }
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
+        });
+    }
 
 };
 

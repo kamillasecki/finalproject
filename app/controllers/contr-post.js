@@ -346,9 +346,9 @@ exports.prep = function(req, res) {
     var postId = req.params.id;
     var cal = {};
     post.findOne({ _id: postId }).exec(function(err, p) {
-        if (err) { 
+        if (err) {
             res.render('notfound.ejs');
-            console.log('Error while trying to get post from the database'); 
+            console.log('Error while trying to get post from the database');
         }
         else if (p == null || p == undefined || p == "") {
             //connection to DB successfull
@@ -404,6 +404,35 @@ exports.rrep = function(req, res) {
                 res.end();
             });
             //res.end("OK");
+        }
+    });
+};
+
+exports.pdel = function(req, res) {
+    var id = req.params.id;
+    var r = {};
+    post.findOne({ _id: id }).exec(function(err, p) {
+        if (err) { console.log('Error while trying to get post from the database'); }
+        else if (p == null || p == undefined || p == "") {
+            res.render('notfound.ejs');
+        }
+        else if (p.replies.length != 0) {
+            r.status = "error";
+            r.m = "Cannot delete post with replies";
+            res.send(r);
+        }
+        else {
+            post.remove({ _id: id }, function(err) {
+                if (err) {
+                    console.log('Error while trying to remove post from the database');
+                    res.render('notfound.ejs');
+                }
+                else {
+                    r.status = "ok";
+                    r.m = "Your post has been removed";
+                    res.send(r);
+                }
+            });
         }
     });
 };
