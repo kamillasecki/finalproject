@@ -37,7 +37,7 @@ var mainController = function($scope, growl) {
 
     $scope.hide_r = function(id) {
         $('#re_' + id).hide();
-        $('#relist_' + id).show();
+        $('#relink_' + id).show();
     };
     
     $scope.show_rellist = function(id) {
@@ -71,6 +71,7 @@ var mainController = function($scope, growl) {
     };
 
     $(document).ready(function() {
+        $scope.user = $("#user").val();
         $scope.load();
     });
 
