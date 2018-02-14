@@ -34,7 +34,7 @@
                                 <small>Created {{post.createdAtWords}}</small>
 
                                 <div ng-if="post.settings.author._id==user">
-                                    <button class="btn btn-light btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn btn-light btn-sm" ng-click="pedit()"><i class="fas fa-edit"></i> Edit</button>
                                     <button ng-if="post.replies.length==0" ng-click="pdel()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
                                 </div>
                             </div>
@@ -49,7 +49,12 @@
                         </div>
                         <div>
                             <blockquote>
-                                <p class="mb-0 angular-with-newlines">{{post.body.text}}</p>
+                                <p class="mb-0 angular-with-newlines" id="posttext">{{post.body.text}}</p>
+                                <form id="postedit" hidden="">
+                                    <textarea id="update" class="form-control" ng-model="post.body.text"></textarea>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit_close()">Cancel </button>
+                                </form>
                                 <footer>{{post.settings.author.displayname}}</footer>
                             </blockquote>
                         </div>
@@ -73,65 +78,65 @@
                                     <span class="btn-group pull-right" role="group" style="text-align: right">
                                         <button ng-click="uvr(rep._id)" class="btn btn-success btn-xs" type="button"><i class="fas fa-thumbs-up"></i></button>
                                         <button class="btn btn-link btn-xs"><span class="badge" id="score{{rep._id}}">{{rep.votes.num}}</span></button>
-                                        <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button"><i class="fas fa-thumbs-down"></i></button>
-                                        
+                                    <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button"><i class="fas fa-thumbs-down"></i></button>
+
                                     </span>
                                 </div>
                                 <blockquote>
                                     <p class="mb-0 angular-with-newlines">{{rep.text}}</p>
                                     <footer>{{rep.author.displayname}}</footer>
                                     <div id="relink_{{rep._id}}">
-                                    <button type="button" class="btn btn-link" ng-click="show_r(rep._id)">Reply to comment...</button>
-                                </div>
+                                        <button type="button" class="btn btn-link" ng-click="show_r(rep._id)">Reply to comment...</button>
+                                    </div>
 
-                                <div id="re_{{rep._id}}" hidden="">
-                                    <form>
-                                        <textarea class="form-control" id="rrep_{{rep._id}}"></textarea>
-                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="srr(rep._id)">Reply </button>
-                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="hide_r(rep._id)">Cancel </button>
-                                    </form>
-                                </div>
-                                <div class="relistlink_{{rep._id}}">
-                                    <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length>1"><i class="fas fa-angle-double-down"></i> Show all {{rep.rreplies.length}} replies</button>
-                                </div>
-                                <div class="relistlink_{{rep._id}}">
-                                    <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length==1"><i class="fas fa-angle-double-down"></i> Show reply</button>
-                                </div>
-                                <div class="relist_{{rep._id}}" hidden="true">
-                                    <button type="button" class="btn btn-link" ng-click="hide_rellist(rep._id)"><i class="fas fa-angle-double-up"></i> Hide replies</button>
-                                </div>
-                                <div class="relist_{{rep._id}}" hidden="">
-                                    <div ng-repeat="rep2 in rep.rreplies | orderBy:'-'" class="row">
-                                        <div class="col-md-1"></div>
-                                        <div class="col-md-11">
-                                            <div>
-                                                </br>
-                                                <div ng-show="rep2.votes.num<0" id="e_{{rep2._id}}">
-                                                    <footer>Comment hidden due to poor quality</footer>
-                                                    <a ng-click="show(rep2._id)">Show...</a>
-                                                </div>
-                                                <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
-                                                    <div><small>{{rep2.createdAtWords}}</small></div>
-                                                    <blockquote>
-                                                        <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
-                                                        <footer>{{rep2.author.displayname}}</footer>
-                                                    </blockquote>
-                                                    <div>
+                                    <div id="re_{{rep._id}}" hidden="">
+                                        <form>
+                                            <textarea class="form-control" id="rrep_{{rep._id}}"></textarea>
+                                            <button class="btn btn-default" type="button" ng-href='#here' ng-click="srr(rep._id)">Reply </button>
+                                            <button class="btn btn-default" type="button" ng-href='#here' ng-click="hide_r(rep._id)">Cancel </button>
+                                        </form>
+                                    </div>
+                                    <div class="relistlink_{{rep._id}}">
+                                        <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length>1"><i class="fas fa-angle-double-down"></i> Show all {{rep.rreplies.length}} replies</button>
+                                    </div>
+                                    <div class="relistlink_{{rep._id}}">
+                                        <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length==1"><i class="fas fa-angle-double-down"></i> Show reply</button>
+                                    </div>
+                                    <div class="relist_{{rep._id}}" hidden="true">
+                                        <button type="button" class="btn btn-link" ng-click="hide_rellist(rep._id)"><i class="fas fa-angle-double-up"></i> Hide replies</button>
+                                    </div>
+                                    <div class="relist_{{rep._id}}" hidden="">
+                                        <div ng-repeat="rep2 in rep.rreplies | orderBy:'-'" class="row">
+                                            <div class="col-md-1"></div>
+                                            <div class="col-md-11">
+                                                <div>
+                                                    </br>
+                                                    <div ng-show="rep2.votes.num<0" id="e_{{rep2._id}}">
+                                                        <footer>Comment hidden due to poor quality</footer>
+                                                        <a ng-click="show(rep2._id)">Show...</a>
+                                                    </div>
+                                                    <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
+                                                        <div><small>{{rep2.createdAtWords}}</small></div>
+                                                        <blockquote>
+                                                            <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
+                                                            <footer>{{rep2.author.displayname}}</footer>
+                                                        </blockquote>
                                                         <div>
-                                                            <small>Score: <span id="score{{rep2._id}}">{{rep2.votes.num}}</span></small>
-                                                        </div>
-                                                        <div class="btn-group" role="group">
-                                                            <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">vote up</button>
-                                                            <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
+                                                            <div>
+                                                                <small>Score: <span id="score{{rep2._id}}">{{rep2.votes.num}}</span></small>
+                                                            </div>
+                                                            <div class="btn-group" role="group">
+                                                                <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">vote up</button>
+                                                                <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                                 </blockquote>
-                                
+
 
                             </div>
                         </div>

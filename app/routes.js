@@ -95,7 +95,11 @@ module.exports = function(app, passport) {
 	
 	app.delete('/api/post/del/:id', function(req, res){
 		postCtrl.pdel(req, res);
-	})
+	});
+	
+	app.put('/api/post/update/:id', function(req, res) {
+		postCtrl.pupd(req,res);	
+	});
 
 	//CATEGORY API
 

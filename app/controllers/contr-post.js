@@ -344,7 +344,6 @@ exports.downvoteRep = function(req, res) {
 exports.prep = function(req, res) {
     console.log("start processung reply...");
     var postId = req.params.id;
-    var cal = {};
     post.findOne({ _id: postId }).exec(function(err, p) {
         if (err) {
             res.render('notfound.ejs');
@@ -431,6 +430,34 @@ exports.pdel = function(req, res) {
                     r.status = "ok";
                     r.m = "Your post has been removed";
                     res.send(r);
+                }
+            });
+        }
+    });
+};
+
+exports.pupd = function(req, res) {
+    var postId = req.params.id;
+    post.findOne({ _id: postId }).exec(function(err, p) {
+        if (err) {
+            res.render('notfound.ejs');
+            console.log('Error while trying to get post from the database');
+        }
+        else if (p == null || p == undefined || p == "") {
+            //connection to DB successfull
+            console.log("No such a post exists");
+            res.render('notfound.ejs');
+        }
+        else {
+            p.body.text = req.body.m;
+            p.save(function(err, rep) {
+                if (err) {
+                    console.log("Error when saving new reply: " + err);
+                    res.render('notfound.ejs');
+                }
+                else {
+                    console.log("Updated new post: " + rep._id);
+                    res.end();
                 }
             });
         }

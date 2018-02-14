@@ -241,7 +241,39 @@ var mainController = function($scope, growl) {
             console.log("Request failed: " + textStatus);
         });
     }
-
+    
+    $scope.pedit = function () {
+        if ($scope.post.replies.length > 0) {
+            console.log("already commented, allow update only");
+            $("#posttext").hide();
+            $("#postedit").show();
+        } else {
+            console.log("not yet commented, allow edit.");
+        }
+        
+    };
+    
+    $scope.pedit_close = function () {
+            $("#posttext").show();
+            $("#postedit").hide();
+    };
+    
+    $scope.pupd = function() {
+        console.log("Updating post to ..." + $scope.post.body.text);
+        $.ajax({
+            method: "PUT",
+            url: "api/post/update/" + id,
+            data: { 'm': $scope.post.body.text}
+        }).done(function() {
+            console.log("responce: ok");
+            console.log("reloading");
+            $scope.load();
+            $scope.pedit_close();
+            console.log("reloaded");
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
+        });
+    };
 };
 
 app.controller("mainController", ["$scope", "growl", mainController]);
