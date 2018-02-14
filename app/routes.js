@@ -100,6 +100,10 @@ module.exports = function(app, passport) {
 	app.put('/api/post/update/:id', function(req, res) {
 		postCtrl.pupd(req,res);	
 	});
+	
+	app.put('/api/post/edit/:id', function(req, res) {
+		postCtrl.pedit(req,res);	
+	});
 
 	//CATEGORY API
 

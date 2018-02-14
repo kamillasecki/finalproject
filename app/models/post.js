@@ -21,9 +21,7 @@ var postSchema = mongoose.Schema({
     },
     body: {
         text: String,
-        updates:[
-            {i: Number,
-            text: String}]
+        updates:[String]
     },
     replies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
     createdAt: { type: Date, default: Date.now}

@@ -34,7 +34,7 @@
                                 <small>Created {{post.createdAtWords}}</small>
 
                                 <div ng-if="post.settings.author._id==user">
-                                    <button class="btn btn-light btn-sm" ng-click="pedit()"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn btn-light btn-sm" ng-click="pedit_show()"><i class="fas fa-edit"></i> Edit</button>
                                     <button ng-if="post.replies.length==0" ng-click="pdel()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
                                 </div>
                             </div>
@@ -50,10 +50,22 @@
                         <div>
                             <blockquote>
                                 <p class="mb-0 angular-with-newlines" id="posttext">{{post.body.text}}</p>
+                                <hr ng-if="post.body.updates.length>0" />
+                                <div ng-repeat="e in post.body.updates" >
+                                    <p class="mb-0 angular-with-newlines" id="posttext"><h5>Update #{{$index+1}}: {{e}}</h5></p>
+                                </div>
+                                <hr/>
+                                
                                 <form id="postedit" hidden="">
                                     <textarea id="update" class="form-control" ng-model="post.body.text"></textarea>
                                     <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
                                     <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit_close()">Cancel </button>
+                                </form>
+                                <form id="postedit2" hidden="">
+                                    <label>EDIT #{{post.body.updates.length+1}}:</label>
+                                    <textarea id="edit" class="form-control" ng-model="editt">EDIT : #{{post.body.updates.length}}</textarea>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit()">Save </button>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit2_close()">Cancel </button>
                                 </form>
                                 <footer>{{post.settings.author.displayname}}</footer>
                             </blockquote>

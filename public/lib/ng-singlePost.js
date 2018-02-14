@@ -39,13 +39,13 @@ var mainController = function($scope, growl) {
         $('#re_' + id).hide();
         $('#relink_' + id).show();
     };
-    
+
     $scope.show_rellist = function(id) {
         console.log("ok")
         $('.relistlink_' + id).hide();
         $('.relist_' + id).show();
     };
-    
+
     $scope.hide_rellist = function(id) {
         console.log("ok")
         $('.relistlink_' + id).show();
@@ -58,10 +58,10 @@ var mainController = function($scope, growl) {
             dataType: 'json',
             url: "api/post/" + id,
             success: function(r) {
-                    $scope.post = r;
-                    $scope.$apply();
-                    console.log(r);
-                
+                $scope.post = r;
+                $scope.$apply();
+                console.log(r);
+
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
@@ -231,9 +231,10 @@ var mainController = function($scope, growl) {
             url: "api/post/del/" + id
         }).done(function(r) {
             console.log("responce: ok" + r);
-            if(r.status == "error") {
+            if (r.status == "error") {
                 growl.error("<strong>" + r.m + "</strong>");
-            } else if (r.status == "ok"){
+            }
+            else if (r.status == "ok") {
                 alert(r.m);
                 window.location = '/';
             }
@@ -241,35 +242,63 @@ var mainController = function($scope, growl) {
             console.log("Request failed: " + textStatus);
         });
     }
-    
-    $scope.pedit = function () {
+
+    $scope.pedit_show = function() {
         if ($scope.post.replies.length > 0) {
             console.log("already commented, allow update only");
+            $("#postedit2").show();
+        }
+        else {
+            console.log("not yet commented, allow edit.");
             $("#posttext").hide();
             $("#postedit").show();
-        } else {
-            console.log("not yet commented, allow edit.");
         }
-        
+
     };
-    
-    $scope.pedit_close = function () {
-            $("#posttext").show();
-            $("#postedit").hide();
+
+    $scope.pedit_close = function() {
+        $("#posttext").show();
+        $("#postedit").hide();
     };
-    
+
+    $scope.pedit2_close = function() {
+        $("#postedit2").hide();
+    };
+
     $scope.pupd = function() {
         console.log("Updating post to ..." + $scope.post.body.text);
         $.ajax({
             method: "PUT",
             url: "api/post/update/" + id,
-            data: { 'm': $scope.post.body.text}
+            data: { 'm': $scope.post.body.text }
         }).done(function() {
             console.log("responce: ok");
             console.log("reloading");
             $scope.load();
             $scope.pedit_close();
             console.log("reloaded");
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
+        });
+    };
+
+    $scope.pedit = function() {
+        console.log("Updating post to ..." + $scope.editt);
+        $.ajax({
+            method: "PUT",
+            url: "api/post/edit/" + id,
+            data: { 'm': $scope.editt }
+        }).done(function(r) {
+            console.log("responce: ok" + r);
+            if (r.status == "error") {
+                growl.error("<strong>" + r.m + "</strong>");
+            }
+            else {
+                console.log("reloading");
+                $scope.load();
+                $scope.pedit2_close();
+                console.log("reloaded");
+            }
         }).fail(function(jqXHR, textStatus) {
             console.log("Request failed: " + textStatus);
         });

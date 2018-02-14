@@ -42,6 +42,7 @@ exports.newPost = function(req, res) {
                     p.settings.encryption.checkword = req.body.checkword;
                 }
                 p.body.text = req.body.text;
+                p.body.updates = [];
                 p.header.subject = req.body.subject;
                 p.header.votes.num = 0;
                 p.header.votes.upVotes = [];
@@ -457,6 +458,40 @@ exports.pupd = function(req, res) {
                 }
                 else {
                     console.log("Updated new post: " + rep._id);
+                    res.end();
+                }
+            });
+        }
+    });
+};
+
+exports.pedit = function(req, res) {
+    var postId = req.params.id;
+    post.findOne({ _id: postId }).exec(function(err, p) {
+        if (err) {
+            res.render('notfound.ejs');
+            console.log('Error while trying to get post from the database');
+        }
+        else if (p == null || p == undefined || p == "") {
+            //connection to DB successfull
+            console.log("No such a post exists");
+            res.render('notfound.ejs');
+        }
+        else if (req.body.m == "" || req.body.m == null) {
+            var r = {};
+            r.status = "error";
+            r.m = "Update cannot be empty.";
+            res.send(r);
+        }
+        else {
+            p.body.updates.push(req.body.m);
+            p.save(function(err, rep) {
+                if (err) {
+                    console.log("Error when saving new edit: " + err);
+                    res.render('notfound.ejs');
+                }
+                else {
+                    console.log("Added new Edit to post: " + rep._id);
                     res.end();
                 }
             });
