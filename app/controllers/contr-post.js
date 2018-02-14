@@ -449,6 +449,12 @@ exports.pupd = function(req, res) {
             console.log("No such a post exists");
             res.render('notfound.ejs');
         }
+        else if (req.body.m == "" || req.body.m == null) {
+            var r = {};
+            r.status = "error";
+            r.m = "Post cannot be empty.";
+            res.send(r);
+        }
         else {
             p.body.text = req.body.m;
             p.save(function(err, rep) {

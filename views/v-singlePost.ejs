@@ -51,11 +51,13 @@
                             <blockquote>
                                 <p class="mb-0 angular-with-newlines" id="posttext">{{post.body.text}}</p>
                                 <hr ng-if="post.body.updates.length>0" />
-                                <div ng-repeat="e in post.body.updates" >
-                                    <p class="mb-0 angular-with-newlines" id="posttext"><h5>Update #{{$index+1}}: {{e}}</h5></p>
+                                <div ng-repeat="e in post.body.updates">
+                                    <p class="mb-0 angular-with-newlines" id="posttext">
+                                        <h5>Update #{{$index+1}}: {{e}}</h5>
+                                    </p>
                                 </div>
                                 <hr/>
-                                
+
                                 <form id="postedit" hidden="">
                                     <textarea id="update" class="form-control" ng-model="post.body.text"></textarea>
                                     <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
@@ -88,10 +90,15 @@
                                         <small>{{rep.createdAtWords}}</small>
                                     </span>
                                     <span class="btn-group pull-right" role="group" style="text-align: right">
-                                        <button ng-click="uvr(rep._id)" class="btn btn-success btn-xs" type="button"><i class="fas fa-thumbs-up"></i></button>
-                                        <button class="btn btn-link btn-xs"><span class="badge" id="score{{rep._id}}">{{rep.votes.num}}</span></button>
-                                    <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button"><i class="fas fa-thumbs-down"></i></button>
-
+                                        <button ng-click="uvr(rep._id)" class="btn btn-success btn-xs" type="button">
+                                            <i class="fas fa-thumbs-up"></i>
+                                            </button>
+                                        <button class="btn btn-link btn-xs">
+                                            <span class="badge" id="score{{rep._id}}">{{rep.votes.num}}</span>
+                                    </button>
+                                    <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button">
+                                        <i class="fas fa-thumbs-down"></i>
+                                        </button>
                                     </span>
                                 </div>
                                 <blockquote>
@@ -128,19 +135,29 @@
                                                         <a ng-click="show(rep2._id)">Show...</a>
                                                     </div>
                                                     <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
-                                                        <div><small>{{rep2.createdAtWords}}</small></div>
+                                                        <div>
+                                                            <span><small>{{rep2.createdAtWords}}</small></span>
+                                                            <span class="btn-group pull-right" role="group" style="text-align: right">
+                                                                <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">
+                                                                    <i class="fas fa-thumbs-up"></i>
+                                                                    </button>
+                                                                <button class="btn btn-link btn-xs">
+                                                                    <span class="badge" id="score{{rep2._id}}">
+                                                                        {{rep2.votes.num}}
+                                                                    </span>
+                                                                </button>
+                                                                <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">
+                                                                    <i class="fas fa-thumbs-down"></i>
+                                                                </button>
+                                                            </span>
+                                                        </div>
                                                         <blockquote>
                                                             <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
                                                             <footer>{{rep2.author.displayname}}</footer>
                                                         </blockquote>
                                                         <div>
-                                                            <div>
-                                                                <small>Score: <span id="score{{rep2._id}}">{{rep2.votes.num}}</span></small>
-                                                            </div>
-                                                            <div class="btn-group" role="group">
-                                                                <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">vote up</button>
-                                                                <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">vote down</button>
-                                                            </div>
+
+
                                                         </div>
                                                     </div>
                                                 </div>

@@ -271,12 +271,17 @@ var mainController = function($scope, growl) {
             method: "PUT",
             url: "api/post/update/" + id,
             data: { 'm': $scope.post.body.text }
-        }).done(function() {
+        }).done(function(r) {
             console.log("responce: ok");
             console.log("reloading");
-            $scope.load();
-            $scope.pedit_close();
-            console.log("reloaded");
+            if (r.status == "error") {
+                growl.error("<strong>" + r.m + "</strong>");
+            }
+            else {
+                $scope.load();
+                $scope.pedit_close();
+                console.log("reloaded");
+            }
         }).fail(function(jqXHR, textStatus) {
             console.log("Request failed: " + textStatus);
         });
