@@ -18,126 +18,135 @@
 
 <body ng-controller="mainController as mainCtrl">
     <% include ./index_partials/navbar %>
-        <div></div>
-        <div growl limit-messages="1"></div>
-        <div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-10">
-                        <div class="well well-sm">
-                            <h1>{{post.header.subject}}</h1>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-9">
+    <div growl limit-messages="1"></div>
+        <div class="centered" id="loader">
+            <div class="loader"></div>
+            <h4 class="centered">Loading...</h4>
+        </div>
+        <div id="pass" class="centered" style="display:none">
+            <form id="postedit2">
+                <label>All messages in this post are encrypted. <br/>Please provide encryption phrase below:</label>
+                <input class="form-control" id="phrase" placeholder="Encryption phrase..." class="form-control" ng-model="phrase"/>
+                <button class="btn btn-default" type="button" ng-href='#here' ng-click="decr()">OK </button>
+            </form>
+        </div>
+        <div id="main" style="display:none">
+            <div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-10">
+                            <div class="well well-sm">
+                                <h1>{{post.header.subject}}</h1>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-9">
 
-                                <small>Created {{post.createdAtWords}}</small>
+                                    <small>Created {{post.createdAtWords}}</small>
 
-                                <div ng-if="post.settings.author._id==user">
-                                    <button class="btn btn-light btn-sm" ng-click="pedit_show()"><i class="fas fa-edit"></i> Edit</button>
-                                    <button ng-if="post.replies.length==0" ng-click="pdel()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
+                                    <div ng-if="post.settings.author._id==user">
+                                        <button class="btn btn-light btn-sm" ng-click="pedit_show()"><i class="fas fa-edit"></i> Edit</button>
+                                        <button ng-if="post.replies.length==0" ng-click="pdel()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-md-offset-0" style="text-align: right">
+                                    <div class="btn-group" role="group"><button ng-click="uvp()" class="btn btn-success btn-sm" type="button"><i class="fas fa-thumbs-up"></i></button>
+                                        <button ng-click="dvp()" class="btn btn-danger btn-sm" type="button"><i class="fas fa-thumbs-down"></i></button>
+                                    </div>
+                                    <div>
+                                        Score: <span id="score">{{post.header.votes.num}}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-md-offset-0" style="text-align: right">
-                                <div class="btn-group" role="group"><button ng-click="uvp()" class="btn btn-success btn-sm" type="button"><i class="fas fa-thumbs-up"></i></button>
-                                    <button ng-click="dvp()" class="btn btn-danger btn-sm" type="button"><i class="fas fa-thumbs-down"></i></button>
-                                </div>
-                                <div>
-                                    Score: <span id="score">{{post.header.votes.num}}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <blockquote>
-                                <p class="mb-0 angular-with-newlines" id="posttext">{{post.body.text}}</p>
-                                <hr ng-if="post.body.updates.length>0" />
-                                <div ng-repeat="e in post.body.updates">
-                                    <p class="mb-0 angular-with-newlines" id="posttext">
-                                        <h5>Update #{{$index+1}}: {{e}}</h5>
-                                    </p>
-                                </div>
-                                <hr/>
+                            <div>
+                                <blockquote>
+                                    <p class="mb-0 angular-with-newlines" id="posttext">{{post.body.text}}</p>
+                                    <hr ng-if="post.body.updates.length>0" />
+                                    <div ng-repeat="e in post.body.updates">
+                                        <h5 class="angular-with-newlines">Update #{{$index+1}}: {{e}}</h5>
+                                    </div>
+                                    <hr/>
 
-                                <form id="postedit" hidden="">
-                                    <textarea id="update" class="form-control" ng-model="post.body.text"></textarea>
-                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
-                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit_close()">Cancel </button>
+                                    <form id="postedit" hidden="">
+                                        <textarea id="update" class="form-control" ng-model="post.body.text"></textarea>
+                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
+                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit_close()">Cancel </button>
+                                    </form>
+                                    <form id="postedit2" hidden="">
+                                        <label>EDIT #{{post.body.updates.length+1}}:</label>
+                                        <textarea id="edit" class="form-control" ng-model="editt">EDIT : #{{post.body.updates.length}}</textarea>
+                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit()">Save </button>
+                                        <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit2_close()">Cancel </button>
+                                    </form>
+                                    <footer>by {{post.settings.author.displayname}}</footer>
+                                </blockquote>
+                            </div>
+                            <div>
+                                <form>
+                                    <textarea id="res" class="form-control" ng-model="prep"></textarea>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="spr()">Reply </button>
                                 </form>
-                                <form id="postedit2" hidden="">
-                                    <label>EDIT #{{post.body.updates.length+1}}:</label>
-                                    <textarea id="edit" class="form-control" ng-model="editt">EDIT : #{{post.body.updates.length}}</textarea>
-                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit()">Save </button>
-                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit2_close()">Cancel </button>
-                                </form>
-                                <footer>{{post.settings.author.displayname}}</footer>
-                            </blockquote>
-                        </div>
-                        <div>
-                            <form>
-                                <textarea id="res" class="form-control" ng-model="prep"></textarea>
-                                <button class="btn btn-default" type="button" ng-href='#here' ng-click="spr()">Reply </button>
-                            </form>
-                        </div>
-                        <div ng-repeat="rep in post.replies | orderBy:'-'" class="row">
-                            </br>
-                            <div ng-show="rep.votes.num<0" id="e_{{rep._id}}">
-                                <footer>Comment hidden due to poor quality</footer>
-                                <button type="button" class="btn btn-link" ng-click="show(rep._id)">Show...</button>
                             </div>
-                            <div class="col-md-12" ng-show="rep.votes.num>=0" id="t_{{rep._id}}">
-                                <div class="well well-sm">
-                                    <span>
+                            <div ng-repeat="rep in post.replies | orderBy:'-'" class="row">
+                                </br>
+                                <div class="mb-0" ng-show="rep.votes.num<0" id="e_{{rep._id}}">
+                                    <h5>Comment hidden due to poor quality</h5>
+                                    <button type="button" class="btn btn-link" ng-click="show(rep._id)">Show...</button>
+                                </div>
+                                <div class="col-md-12" ng-show="rep.votes.num>=0" id="t_{{rep._id}}">
+                                    <div class="well well-sm">
+                                        <span>
                                         <small>{{rep.createdAtWords}}</small>
                                     </span>
-                                    <span class="btn-group pull-right" role="group" style="text-align: right">
+                                        <span class="btn-group pull-right" role="group" style="text-align: right">
                                         <button ng-click="uvr(rep._id)" class="btn btn-success btn-xs" type="button">
                                             <i class="fas fa-thumbs-up"></i>
                                             </button>
                                         <button class="btn btn-link btn-xs">
                                             <span class="badge" id="score{{rep._id}}">{{rep.votes.num}}</span>
-                                    </button>
-                                    <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button">
+                                        </button>
+                                        <button ng-click="dvr(rep._id)" class="btn btn-danger btn-xs" type="button">
                                         <i class="fas fa-thumbs-down"></i>
                                         </button>
-                                    </span>
-                                </div>
-                                <blockquote>
-                                    <p class="mb-0 angular-with-newlines">{{rep.text}}</p>
-                                    <footer>{{rep.author.displayname}}</footer>
-                                    <div id="relink_{{rep._id}}">
-                                        <button type="button" class="btn btn-link" ng-click="show_r(rep._id)">Reply to comment...</button>
+                                        </span>
                                     </div>
+                                    <blockquote>
+                                        <p class="mb-0 angular-with-newlines">{{rep.text}}</p>
+                                        <footer>by {{rep.author.displayname}}</footer>
+                                        <div id="relink_{{rep._id}}">
+                                            <button type="button" class="btn btn-link" ng-click="show_r(rep._id)">Reply to this comment...</button>
+                                        </div>
 
-                                    <div id="re_{{rep._id}}" hidden="">
-                                        <form>
-                                            <textarea class="form-control" id="rrep_{{rep._id}}"></textarea>
-                                            <button class="btn btn-default" type="button" ng-href='#here' ng-click="srr(rep._id)">Reply </button>
-                                            <button class="btn btn-default" type="button" ng-href='#here' ng-click="hide_r(rep._id)">Cancel </button>
-                                        </form>
-                                    </div>
-                                    <div class="relistlink_{{rep._id}}">
-                                        <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length>1"><i class="fas fa-angle-double-down"></i> Show all {{rep.rreplies.length}} replies</button>
-                                    </div>
-                                    <div class="relistlink_{{rep._id}}">
-                                        <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length==1"><i class="fas fa-angle-double-down"></i> Show reply</button>
-                                    </div>
-                                    <div class="relist_{{rep._id}}" hidden="true">
-                                        <button type="button" class="btn btn-link" ng-click="hide_rellist(rep._id)"><i class="fas fa-angle-double-up"></i> Hide replies</button>
-                                    </div>
-                                    <div class="relist_{{rep._id}}" hidden="">
-                                        <div ng-repeat="rep2 in rep.rreplies | orderBy:'-'" class="row">
-                                            <div class="col-md-1"></div>
-                                            <div class="col-md-11">
-                                                <div>
-                                                    </br>
-                                                    <div ng-show="rep2.votes.num<0" id="e_{{rep2._id}}">
-                                                        <footer>Comment hidden due to poor quality</footer>
-                                                        <a ng-click="show(rep2._id)">Show...</a>
-                                                    </div>
-                                                    <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
-                                                        <div>
-                                                            <span><small>{{rep2.createdAtWords}}</small></span>
-                                                            <span class="btn-group pull-right" role="group" style="text-align: right">
+                                        <div id="re_{{rep._id}}" hidden="">
+                                            <form>
+                                                <textarea class="form-control" id="rrep_{{rep._id}}"></textarea>
+                                                <button class="btn btn-default" type="button" ng-href='#here' ng-click="srr(rep._id)">Reply </button>
+                                                <button class="btn btn-default" type="button" ng-href='#here' ng-click="hide_r(rep._id)">Cancel </button>
+                                            </form>
+                                        </div>
+                                        <div class="relistlink_{{rep._id}}">
+                                            <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length>1"><i class="fas fa-angle-double-down"></i> Show all {{rep.rreplies.length}} replies</button>
+                                        </div>
+                                        <div class="relistlink_{{rep._id}}">
+                                            <button type="button" class="btn btn-link" ng-click="show_rellist(rep._id)" ng-if="rep.rreplies.length==1"><i class="fas fa-angle-double-down"></i> Show reply</button>
+                                        </div>
+                                        <div class="relist_{{rep._id}}" hidden="true">
+                                            <button type="button" class="btn btn-link" ng-click="hide_rellist(rep._id)"><i class="fas fa-angle-double-up"> </i> Hide replies</button>
+                                        </div>
+                                        <div class="relist_{{rep._id}}" hidden="">
+                                            <div ng-repeat="rep2 in rep.rreplies | orderBy:'-'" class="row">
+                                                <div class="col-md-1"></div>
+                                                <div class="col-md-11">
+                                                    <div>
+                                                        </br>
+                                                        <div ng-show="rep2.votes.num<0" id="e_{{rep2._id}}">
+                                                            <h5>Comment hidden due to poor quality</h5>
+                                                            <a ng-click="show(rep2._id)">Show...</a>
+                                                        </div>
+                                                        <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
+                                                            <div>
+                                                                <span><small>{{rep2.createdAtWords}}</small></span>
+                                                                <span class="btn-group pull-right" role="group" style="text-align: right">
                                                                 <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">
                                                                     <i class="fas fa-thumbs-up"></i>
                                                                     </button>
@@ -149,33 +158,35 @@
                                                                 <button ng-click="dvr(rep2._id)" class="btn btn-danger btn-xs" type="button">
                                                                     <i class="fas fa-thumbs-down"></i>
                                                                 </button>
-                                                            </span>
-                                                        </div>
-                                                        <blockquote>
-                                                            <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
-                                                            <footer>{{rep2.author.displayname}}</footer>
-                                                        </blockquote>
-                                                        <div>
+                                                                </span>
+                                                            </div>
+                                                            <blockquote>
+                                                                <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
+                                                                <footer>by {{rep2.author.displayname}}</footer>
+                                                            </blockquote>
+                                                            <div>
 
 
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </blockquote>
+                                    </blockquote>
 
 
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-1"></div>
                     </div>
-                    <div class="col-md-1"></div>
                 </div>
+                <% include ./index_partials/footer %>
+                    <script src="/lib/ng-singlePost.js"></script>
+                    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
             </div>
-            <% include ./index_partials/footer %>
-                <script src="/lib/ng-singlePost.js"></script>
-                <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+        </div>
 </body>
 
 </html>

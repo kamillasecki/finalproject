@@ -16,6 +16,9 @@ var mainController = function($scope, growl) {
     $scope.post = {};
     $scope.showing = {};
     $scope.checkword = "";
+    $scope.phrase = "";
+    $scope.salt = "";
+    $scope.iv = "";
 
     var url_string = window.location.href;
     var url = new URL(url_string);
@@ -61,10 +64,23 @@ var mainController = function($scope, growl) {
                 $scope.post = r;
                 $scope.$apply();
                 console.log(r);
+                if ($scope.post.settings.encryption.isEnabled) {
+                    $("#loader").delay(800).fadeOut(400, function() {
+                        $("#pass").fadeIn(400);
+                    });
+                }
+                else {
+                    $("#loader").delay(800).fadeOut(400, function() {
+                        $("#main").fadeIn(400);
+                    });
+                }
 
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
+                $("#loader").delay(800).fadeOut(400, function() {
+                    $("#main").fadeIn(400);
+                });
                 window.location = "/404";
             }
         });
@@ -188,6 +204,49 @@ var mainController = function($scope, growl) {
         $scope.encrypted = salt.toString() + iv.toString() + encrypted.toString();
         $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
     };
+    
+    $scope.reen = function(input) {
+        var key = CryptoJS.PBKDF2($scope.phrase, $scope.salt, {
+            keySize: keySize / 32,
+            iterations: iterations
+        });
+        var encrypted = CryptoJS.AES.encrypt(input, key, {
+            iv: $scope.iv,
+            padding: CryptoJS.pad.Pkcs7,
+            mode: CryptoJS.mode.CBC
+        });
+        return $scope.salt + $scope.iv + encrypted.toString();
+    }
+
+    $scope.decrypt = function(message, pass) {
+        if (pass != null) {
+            $scope.salt = CryptoJS.enc.Hex.parse(message.substr(0, 32));
+            $scope.iv = CryptoJS.enc.Hex.parse(message.substr(32, 32))
+            var encrypted = message.substring(64);
+
+            var key = CryptoJS.PBKDF2(pass, $scope.salt, {
+                keySize: keySize / 32,
+                iterations: iterations
+            });
+
+            var decrypted = CryptoJS.AES.decrypt(encrypted, key, {
+                iv: $scope.iv,
+                padding: CryptoJS.pad.Pkcs7,
+                mode: CryptoJS.mode.CBC
+            })
+            try {
+                return decrypted.toString(CryptoJS.enc.Utf8);
+            }
+            catch (ex) {
+                if (decrypted.toString() != "") {
+                    return decrypted.toString();
+                }
+                else {
+                    return message;
+                }
+            }
+        }
+    }
 
     $scope.spr = function() {
         console.log("replying...");
@@ -307,6 +366,29 @@ var mainController = function($scope, growl) {
         }).fail(function(jqXHR, textStatus) {
             console.log("Request failed: " + textStatus);
         });
+    };
+
+    $scope.decr = function() {
+        var check = $scope.decrypt($scope.post.settings.encryption.checkword, $scope.phrase);
+        if (check == "decrypted") {
+            $scope.post.body.text = $scope.decrypt($scope.post.body.text, $scope.phrase);
+            if ($scope.replies > 0) {
+                for (var i = 0; i < $scope.replies.length; i++) {
+                    $scope.replies[i] = $scope.decrypt($scope.replies[i], $scope.phrase);
+                }
+            }
+
+            $("#pass").delay(800).fadeOut(400, function() {
+
+                $("#main").fadeIn(400);
+            });
+
+        }
+        else {
+            growl.error("<strong>Incorrect phrase</strong>");
+            $scope.phrase = "";
+        }
+
     };
 };
 
