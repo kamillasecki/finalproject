@@ -3,6 +3,7 @@ var moment = require('moment');
 var Schema = mongoose.Schema;
 
 var replySchema = mongoose.Schema({
+    isDeleted: Boolean,
     author: { type: Schema.Types.ObjectId, ref: 'User' },
     text: String,
     rreplies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],

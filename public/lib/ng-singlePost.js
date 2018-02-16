@@ -25,7 +25,7 @@ var mainController = function($scope, growl) {
     var id = url.searchParams.get("id");
 
     $scope.error = function(text) {
-        growl.error(text, { referenceId: 1 });
+        growl.error("<strong>" + text + "</strong>");
     };
 
     $scope.show = function(id) {
@@ -65,9 +65,16 @@ var mainController = function($scope, growl) {
                 $scope.$apply();
                 console.log(r);
                 if ($scope.post.settings.encryption.isEnabled) {
-                    $("#loader").delay(800).fadeOut(400, function() {
-                        $("#pass").fadeIn(400);
-                    });
+                    if ($scope.phrase == "") {
+                        $("#loader").delay(800).fadeOut(400, function() {
+                            $("#pass").fadeIn(400);
+                            $("#phrase").focus();
+                        });
+                    }
+                    else {
+                        $scope.decr();
+                        $scope.$apply();
+                    }
                 }
                 else {
                     $("#loader").delay(800).fadeOut(400, function() {
@@ -204,7 +211,7 @@ var mainController = function($scope, growl) {
         $scope.encrypted = salt.toString() + iv.toString() + encrypted.toString();
         $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
     };
-    
+
     $scope.reen = function(input) {
         var key = CryptoJS.PBKDF2($scope.phrase, $scope.salt, {
             keySize: keySize / 32,
@@ -249,39 +256,60 @@ var mainController = function($scope, growl) {
     }
 
     $scope.spr = function() {
-        console.log("replying...");
-        $.ajax({
-            method: "POST",
-            url: "api/post/prep/" + id,
-            data: { 'm': $scope.prep }
-        }).done(function(r) {
-            console.log("responce: ok" + r);
-            $("#res").val('');
-            console.log("reloading");
-            $scope.load();
-            console.log("reloaded");
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
-
+        console.log("$scope.prep:" + $scope.prep)
+        if ($scope.prep == undefined || $scope.prep == "") {
+            $scope.error("Your responce cannot be empty.");
+        }
+        else {
+            var data;
+            if ($scope.post.settings.encryption.isEnabled) {
+                data = { 'm': $scope.reen($scope.prep) };
+            }
+            else {
+                data = { 'm': $scope.prep };
+            }
+            $.ajax({
+                method: "POST",
+                url: "api/post/prep/" + id,
+                data: data
+            }).done(function(r) {
+                console.log("responce: ok" + r);
+                $("#res").val('');
+                $scope.load();
+            }).fail(function(jqXHR, textStatus) {
+                console.log("Request failed: " + textStatus);
+            });
+        }
     };
 
     $scope.srr = function(id) {
-        console.log("replying..." + $("#rrep_" + id).val());
-        $.ajax({
-            method: "POST",
-            url: "api/post/rrep/" + id,
-            data: { 'm': $("#rrep_" + id).val() }
-        }).done(function(r) {
-            console.log("responce: ok" + r);
-            $("#rrep_" + id).val('');
-            console.log("reloading");
-            $scope.load();
-            console.log("reloaded");
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
+        var rep = $("#rrep_" + id).val();
 
+        if (rep == undefined || rep == "") {
+            $scope.error("Your responce cannot be empty.");
+        }
+        else {
+            var data;
+            if ($scope.post.settings.encryption.isEnabled) {
+                data = { 'm': $scope.reen(rep) };
+            }
+            else {
+                data = { 'm': rep };
+            }
+            $.ajax({
+                method: "POST",
+                url: "api/post/rrep/" + id,
+                data: data
+            }).done(function(r) {
+                console.log("responce: ok" + r);
+                $("#rrep_" + id).val('');
+                console.log("reloading");
+                $scope.load();
+                console.log("reloaded");
+            }).fail(function(jqXHR, textStatus) {
+                console.log("Request failed: " + textStatus);
+            });
+        }
     };
 
     $scope.pdel = function() {
@@ -326,10 +354,17 @@ var mainController = function($scope, growl) {
 
     $scope.pupd = function() {
         console.log("Updating post to ..." + $scope.post.body.text);
+        var data;
+        if ($scope.post.settings.encryption.isEnabled) {
+            data = { 'm': $scope.reen($scope.post.body.text) };
+        }
+        else {
+            data = { 'm': $scope.post.body.text };
+        }
         $.ajax({
             method: "PUT",
             url: "api/post/update/" + id,
-            data: { 'm': $scope.post.body.text }
+            data: data
         }).done(function(r) {
             console.log("responce: ok");
             console.log("reloading");
@@ -372,23 +407,41 @@ var mainController = function($scope, growl) {
         var check = $scope.decrypt($scope.post.settings.encryption.checkword, $scope.phrase);
         if (check == "decrypted") {
             $scope.post.body.text = $scope.decrypt($scope.post.body.text, $scope.phrase);
-            if ($scope.replies > 0) {
-                for (var i = 0; i < $scope.replies.length; i++) {
-                    $scope.replies[i] = $scope.decrypt($scope.replies[i], $scope.phrase);
+            if ($scope.post.replies.length > 0) {
+                for (var i = 0; i < $scope.post.replies.length; i++) {
+                    $scope.post.replies[i].text = $scope.decrypt($scope.post.replies[i].text, $scope.phrase);
+                    for (var j = 0; j < $scope.post.replies[i].rreplies.length; j++) {
+                        $scope.post.replies[i].rreplies[j].text = $scope.decrypt($scope.post.replies[i].rreplies[j].text, $scope.phrase);
+                    }
                 }
             }
-
             $("#pass").delay(800).fadeOut(400, function() {
-
                 $("#main").fadeIn(400);
             });
-
         }
         else {
             growl.error("<strong>Incorrect phrase</strong>");
             $scope.phrase = "";
         }
 
+    };
+    
+    $scope.rdel = function (id) {
+        $.ajax({
+            method: "DELETE",
+            url: "api/post/reply/del/" + id
+        }).done(function(r) {
+            console.log("responce: ok" + r);
+            if (r.status == "error") {
+                growl.error("<strong>" + r.m + "</strong>");
+            }
+            else if (r.status == "ok") {
+                alert(r.m);
+                window.location = '/';
+            }
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
+        });
     };
 };
 

@@ -421,18 +421,37 @@ exports.pdel = function(req, res) {
             r.m = "Cannot delete post with replies";
             res.send(r);
         }
-        else {
+        else if (p.settings.author.toString() == req.user._id){
             post.remove({ _id: id }, function(err) {
                 if (err) {
                     console.log('Error while trying to remove post from the database');
                     res.render('notfound.ejs');
                 }
                 else {
-                    r.status = "ok";
-                    r.m = "Your post has been removed";
-                    res.send(r);
+                    var cid = p.settings.category;
+                    //search conditions
+                    var conditions = { _id: cid };
+                    //edit conditions
+                    var update = { $pull: {postsId: mongoose.Types.ObjectId(id) }};
+                    //edit options
+                    var options = { multi: true };
+                    //Execute query
+                    category.update(conditions, update, options, function(err) {
+                        if (err) {
+                            console.log("Error when removing from category:" + err);
+                        }
+                        else {
+                            r.status = "ok";
+                            r.m = "Your post has been removed";
+                            res.send(r);
+                        }
+                    });
                 }
             });
+        } else {
+            r.status = "error";
+            r.m = "You are not authorized to remove this post";
+            res.send(r);
         }
     });
 };
@@ -499,6 +518,38 @@ exports.pedit = function(req, res) {
                 else {
                     console.log("Added new Edit to post: " + rep._id);
                     res.end();
+                }
+            });
+        }
+    });
+};
+
+exports.rdel = function(req, res) {
+    var repId = req.params.id;
+    reply.findOne({ _id: repId }).exec(function(err, r) {
+        if (err) {
+            res.render('notfound.ejs');
+            console.log('Error while trying to get post from the database');
+        }
+        else if (r == null || r == undefined || r == "") {
+            //connection to DB successfull
+            console.log("No such a reply exists");
+            res.render('notfound.ejs');
+        }
+        else if (r.rreplies.length > 0) {
+            r.isDeleted = true;
+            r.save();
+        }
+        else {
+            post.remove({ _id: repId }, function(err) {
+                if (err) {
+                    console.log('Error while trying to remove reply from the database');
+                    res.render('notfound.ejs');
+                }
+                else {
+                    r.status = "ok";
+                    r.m = "Your reply has been removed";
+                    res.send(r);
                 }
             });
         }
