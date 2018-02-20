@@ -108,6 +108,10 @@ module.exports = function(app, passport) {
 	app.delete('/api/post/reply/del/:id', function(req,res) {
 		postCtrl.rdel(req,res);
 	});
+	
+	app.put('/api/post/reply/edit/:id', function(req, res) {
+		postCtrl.redit(req,res);	
+	});
 
 	//CATEGORY API
 

@@ -9,7 +9,8 @@ var postSchema = mongoose.Schema({
         privacy: String,
         author: { type: Schema.Types.ObjectId, ref: 'User' },
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
-        encryption: { isEnabled: Boolean, checkword: String }
+        encryption: { isEnabled: Boolean, checkword: String },
+        access: [{ type: Schema.Types.ObjectId, ref: 'User' }]
     },
     header: {
         subject: String,

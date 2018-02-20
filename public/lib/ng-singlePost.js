@@ -19,6 +19,7 @@ var mainController = function($scope, growl) {
     $scope.phrase = "";
     $scope.salt = "";
     $scope.iv = "";
+    $scope.temp = "";
 
     var url_string = window.location.href;
     var url = new URL(url_string);
@@ -337,6 +338,7 @@ var mainController = function($scope, growl) {
         }
         else {
             console.log("not yet commented, allow edit.");
+            $scope.temp = $scope.post.body.text;
             $("#posttext").hide();
             $("#postedit").show();
         }
@@ -344,6 +346,7 @@ var mainController = function($scope, growl) {
     };
 
     $scope.pedit_close = function() {
+        $scope.post.body.text = $scope.temp;
         $("#posttext").show();
         $("#postedit").hide();
     };
@@ -355,30 +358,34 @@ var mainController = function($scope, growl) {
     $scope.pupd = function() {
         console.log("Updating post to ..." + $scope.post.body.text);
         var data;
-        if ($scope.post.settings.encryption.isEnabled) {
-            data = { 'm': $scope.reen($scope.post.body.text) };
-        }
-        else {
-            data = { 'm': $scope.post.body.text };
-        }
-        $.ajax({
-            method: "PUT",
-            url: "api/post/update/" + id,
-            data: data
-        }).done(function(r) {
-            console.log("responce: ok");
-            console.log("reloading");
-            if (r.status == "error") {
-                growl.error("<strong>" + r.m + "</strong>");
+        if ($scope.post.body.text.trim() != "") {
+            if ($scope.post.settings.encryption.isEnabled) {
+                data = { 'm': $scope.reen($scope.post.body.text) };
             }
             else {
-                $scope.load();
-                $scope.pedit_close();
-                console.log("reloaded");
+                data = { 'm': $scope.post.body.text };
             }
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
+            $.ajax({
+                method: "PUT",
+                url: "api/post/update/" + id,
+                data: data
+            }).done(function(r) {
+                console.log("responce: ok");
+                console.log("reloading");
+                if (r.status == "error") {
+                    growl.error("<strong>" + r.m + "</strong>");
+                }
+                else {
+                    $scope.load();
+                    $scope.pedit_close();
+                    console.log("reloaded");
+                }
+            }).fail(function(jqXHR, textStatus) {
+                console.log("Request failed: " + textStatus);
+            });
+        } else {
+            $scope.error("Post message cannot be empty.")
+        }
     };
 
     $scope.pedit = function() {
@@ -425,11 +432,12 @@ var mainController = function($scope, growl) {
         }
 
     };
-    
-    $scope.rdel = function (id) {
+
+    $scope.rdel = function(rid) {
         $.ajax({
             method: "DELETE",
-            url: "api/post/reply/del/" + id
+            url: "api/post/reply/del/" + rid,
+            data: { 'pid': id }
         }).done(function(r) {
             console.log("responce: ok" + r);
             if (r.status == "error") {
@@ -442,6 +450,43 @@ var mainController = function($scope, growl) {
         }).fail(function(jqXHR, textStatus) {
             console.log("Request failed: " + textStatus);
         });
+    };
+
+    $scope.redit_show = function(id) {
+       $scope.temp = $("#trepedit_"+id).val();
+        $("#reptext_" + id).hide();
+        $("#repedit_" + id).show();
+    };
+
+    $scope.rupd = function(id) {
+        var data;
+        if ($("#trepedit_"+id).val().trim() != "") {
+            if ($scope.post.settings.encryption.isEnabled) {
+                data = { 'm': $scope.reen($("#trepedit_"+id).val().trim()) };
+            }
+            else {
+                data = { 'm': $("#trepedit_"+id).val().trim() };
+            }
+            $.ajax({
+                method: "PUT",
+                url: "api/post/reply/edit/" + id,
+                data: data
+            }).done(function(r) {
+                console.log("responce: ok");
+                console.log("reloading");
+                if (r.status == "error") {
+                    growl.error("<strong>" + r.m + "</strong>");
+                }
+                else {
+                    $scope.load();
+                    console.log("reloaded");
+                }
+            }).fail(function(jqXHR, textStatus) {
+                console.log("Request failed: " + textStatus);
+            });
+        } else {
+            $scope.error("Reply message cannot be empty.")
+        }
     };
 };
 

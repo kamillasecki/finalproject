@@ -55,6 +55,10 @@ exports.newPost = function(req, res) {
                     console.log("Saved new post: " + newPost._id);
                     doc.postsId.push(mongoose.Types.ObjectId(newPost._id));
                     doc.save();
+                    var r = {};
+                    r.status = "OK";
+                    r.id = newPost._id;
+                    res.send(r);
                 });
             }
         }
@@ -421,7 +425,7 @@ exports.pdel = function(req, res) {
             r.m = "Cannot delete post with replies";
             res.send(r);
         }
-        else if (p.settings.author.toString() == req.user._id){
+        else if (p.settings.author.toString() == req.user._id) {
             post.remove({ _id: id }, function(err) {
                 if (err) {
                     console.log('Error while trying to remove post from the database');
@@ -432,7 +436,7 @@ exports.pdel = function(req, res) {
                     //search conditions
                     var conditions = { _id: cid };
                     //edit conditions
-                    var update = { $pull: {postsId: mongoose.Types.ObjectId(id) }};
+                    var update = { $pull: { postsId: mongoose.Types.ObjectId(id) } };
                     //edit options
                     var options = { multi: true };
                     //Execute query
@@ -448,7 +452,8 @@ exports.pdel = function(req, res) {
                     });
                 }
             });
-        } else {
+        }
+        else {
             r.status = "error";
             r.m = "You are not authorized to remove this post";
             res.send(r);
@@ -541,15 +546,58 @@ exports.rdel = function(req, res) {
             r.save();
         }
         else {
-            post.remove({ _id: repId }, function(err) {
+            reply.remove({ _id: repId }, function(err) {
                 if (err) {
                     console.log('Error while trying to remove reply from the database');
                     res.render('notfound.ejs');
                 }
                 else {
-                    r.status = "ok";
-                    r.m = "Your reply has been removed";
-                    res.send(r);
+                    console.log(req.body);
+                    post.update({ _id: req.body.pid }, { $pull: { replies: mongoose.Types.ObjectId(repId) } }, { multi: true },
+                        function(err) {
+                            if (err) {
+                                console.log("Error when removing reply ref from post category:" + err);
+                            }
+                            else {
+                                r.status = "ok";
+                                r.m = "Your reply has been removed";
+                                res.send(r);
+                            }
+                        });
+                }
+            });
+        }
+    });
+};
+
+exports.redit = function(req, res) {
+    var rId = req.params.id;
+    reply.findOne({ _id: rId }).exec(function(err, r) {
+        if (err) {
+            res.render('notfound.ejs');
+            console.log('Error while trying to get reply from the database');
+        }
+        else if (r == null || r == undefined || r == "") {
+            //connection to DB successfull
+            console.log("No such a reply exists");
+            res.render('notfound.ejs');
+        }
+        else if (req.body.m == "" || req.body.m == null) {
+            var f = {};
+            f.status = "error";
+            f.m = "Reply cannot be empty.";
+            res.send(f);
+        }
+        else {
+            r.text = req.body.m;
+            r.save(function(err, rep) {
+                if (err) {
+                    console.log("Error when saving new edit: " + err);
+                    res.render('notfound.ejs');
+                }
+                else {
+                    console.log("Added new Edit to post: " + rep._id);
+                    res.end();
                 }
             });
         }

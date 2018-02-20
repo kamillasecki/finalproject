@@ -127,9 +127,7 @@ var mainController = function($scope, growl) {
         $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
     };
 
-
     $scope.getCategories = function getCategories() {
-        console.log("starting ajax");
         $.ajax({
             method: "GET",
             dataType: 'json',
@@ -176,9 +174,13 @@ var mainController = function($scope, growl) {
                     encryption: encryption,
                     checkword: $scope.checkword
                 },
-                success: function(response) {
+                success: function(r) {
                     $scope.getCategories();
-                    console.log("Post added");
+                    alert("Your post has been added successfully.");
+                    if(r.status == "OK")
+                    {
+                        window.location = "post?id=" + r.id;
+                    }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log("ERROR: " + textStatus, errorThrown);
