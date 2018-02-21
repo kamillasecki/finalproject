@@ -3,15 +3,11 @@ var mongoose = require('mongoose');
 var parentCategories = [];
 
 exports.addCategoty = function(req, res) {
-    var categoryNmae = req.body.category;
-    console.log('Trying to add category to: ' + req.body.parent)
+
     //check if category already exsists
     var alreadyExist = false;
     category.findOne({ '_id': req.body.parent }).populate('categoriesId').exec(function(err, doc) {
-
-        if (err) { console.log('Error while trying to get category from database'); }
-        if (doc == null || doc == undefined || doc == "") {
-            console.log("No such a parent category exists")
+        if (err || doc == null || doc == undefined || doc == "") {
             res.render('notfound.ejs');
         }
         else {
@@ -22,10 +18,9 @@ exports.addCategoty = function(req, res) {
                 }
             }
             if (alreadyExist) {
-                console.log("Category already exist");
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
-                res.send("Category already exist");
+                res.send("Category with this mane already exists");
             }
             else {
                 var n = new category();
@@ -34,19 +29,17 @@ exports.addCategoty = function(req, res) {
                 n.postsId + [];
                 n.parent = mongoose.Types.ObjectId(req.body.parent);
                 n.save(function(err, newCategory) {
-                    console.log("Saved new category: " + newCategory._id);
                     doc.categoriesId.push(mongoose.Types.ObjectId(newCategory._id));
                     doc.save();
                 });
                 res.setHeader("Content-Type", "text/html");
                 res.status(200);
                 res.send("Item has been added successfuly.");
-                console.log("Item has been added successfuly.");
             }
         }
     });
-};
 
+};
 
 function getparentQuery(cat, res, req) {
     var promise = category.findOne({ _id: cat.parent }).exec();
@@ -64,9 +57,7 @@ function getparentQuery(cat, res, req) {
 exports.getParents = function(req, res) {
     parentCategories = [];
     var requestedCategoryId = req.params.id;
-    console.log("requestedCategoryId2: " + requestedCategoryId);
     var query = category.findOne();
-    var r = {};
     query.where({ _id: requestedCategoryId })
         .populate('categoriesId')
         .exec(function(err, result) {
@@ -77,17 +68,14 @@ exports.getParents = function(req, res) {
             else {
                 if (result.parent == null) {
                     parentCategories.push(result);
-                    console.log(parentCategories);
                     res.send(parentCategories);
                 }
                 else {
-                    console.log("result: " + result);
                     parentCategories.push(result);
                     getparentQuery(result, res, req);
                 }
             }
         });
-    console.log("parentCategories: " + parentCategories);
 };
 
 exports.removeCategory = function(req, res) {

@@ -10,10 +10,12 @@ var postSchema = mongoose.Schema({
         author: { type: Schema.Types.ObjectId, ref: 'User' },
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
         encryption: { isEnabled: Boolean, checkword: String },
+        isAdmin: Boolean,
         access: {
-            allowed:[{ type: Schema.Types.ObjectId, ref: 'User' }],
-            requested:[{ type: Schema.Types.ObjectId, ref: 'User' }],
-            invited:[{ type: Schema.Types.ObjectId, ref: 'User' }]
+            admin: [{ type: Schema.Types.ObjectId, ref: 'User'}],
+            allowed:[{ type: Schema.Types.ObjectId, ref: 'User'}],
+            requested:[{ type: Schema.Types.ObjectId, ref: 'User'}],
+            invited:[{ type: Schema.Types.ObjectId, ref: 'User'}]
         }
     },
     header: {

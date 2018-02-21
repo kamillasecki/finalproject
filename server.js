@@ -1,7 +1,6 @@
 var http = require('http');
 var path = require('path');
 
-var async = require('async');
 var express = require('express');
 var mongoose = require('mongoose');
 var passport = require('passport');
@@ -11,14 +10,20 @@ var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 var session      = require('express-session');
 var configDB = require('./config/database.js');
+var configDBtest = require('./config/databaseTest.js');
 var app = express();
 
 // configuration ===============================================================
-mongoose.connect(configDB.url); // connect to database
+if(process.env.NODE_ENV == 'test'){
+  mongoose.connect(configDBtest.url);
+} else {
+  mongoose.connect(configDB.url);
+  app.use(morgan('dev')); // log every request to the console
+}
+
 require('./config/passport')(passport); // passport configuration
 
 // set up our express application
-app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser()); // get information from html forms
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,3 +45,5 @@ server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
   console.log("SafeBoard server listening at", addr.address + ":" + addr.port);
 });
+
+module.exports = server;

@@ -1,10 +1,14 @@
 {
   "name": "node-authentication",
   "main": "server.js",
+  "scripts": {
+    "test": "mocha --timeout 10000 ./test/**"
+  },
   "dependencies": {
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.0.0",
     "bower": "^1.8.2",
+    "chai": "^4.1.2",
     "connect-flash": "~0.1.1",
     "cookie-parser": "~1.0.0",
     "crypto-js": "^3.1.9-1",
@@ -12,6 +16,7 @@
     "express": "~4.0.0",
     "express-session": "~1.0.0",
     "method-override": "~1.0.0",
+    "mocha": "^5.0.1",
     "moment": "^2.20.1",
     "mongodb": "latest",
     "mongoose": "latest",
@@ -22,6 +27,12 @@
     "passport-google-oauth": "^0.1.5",
     "passport-google-oauth2": "^0.1.6",
     "passport-local": "~0.1.6",
+    "sinon": "^4.3.0",
+    "sinon-mongoose": "^2.0.2",
     "update-mongo": "0.0.4"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0"
   }
 }

@@ -50,9 +50,15 @@
                 <div class="row">
                     <div class="col-md-1"></div>
                     <div class="col-md-10">
-                        <div class="well well-sm">
-                            <h1>{{post.header.subject}}</h1>
+                        <div class="row well well-sm">
+                            <div class="col-md-11">
+                                <h1>{{post.header.subject}}</h1>
+                            </div>
+                            <div class="col-md-1">
+                                <button><h1>...</h1></button>
+                            </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-9">
 
@@ -165,20 +171,20 @@
 
                                     <!--NOT DELETED-->
                                     <!--TEXT-->
-        
+
                                     <div ng-if="!rep.isDeleted">
                                         <p id="reptext_{{rep._id}}" class="mb-0 angular-with-newlines">{{rep.text}}</p>
-                                        
+
                                         <!--EDIT-->
-                                        
+
                                         <form id="repedit_{{rep._id}}" hidden="">
                                             <textarea id="trepedit_{{rep._id}}" class="form-control" ng-model="rep.text"></textarea>
                                             <button class="btn btn-default" type="button" ng-href='#here' ng-click="rupd(rep._id)">Save </button>
                                             <button class="btn btn-default" type="button" ng-href='#here' ng-click="load()">Cancel </button>
                                         </form>
-                                        
+
                                         <!--AUTHOR-->
-                                        
+
                                         <footer>by {{rep.author.displayname}}</footer>
                                         <div id="relink_{{rep._id}}">
                                             <button type="button" class="btn btn-link" ng-click="show_r(rep._id)">Reply to this comment...</button>
