@@ -2,17 +2,16 @@ process.env.NODE_ENV = 'test';
 
 let mongoose = require("mongoose");
 let category = require('../app/models/category');
-
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let should = chai.should();
-
 chai.use(chaiHttp);
 
-//create initial state of categories
 
-describe('Create initial state of categories', () => {
+//create initial state of categories
+  
+describe('POSTing new categories', () => {
     before((done) => {
         category.remove({}, () => {
             var c = new category();
@@ -27,7 +26,6 @@ describe('Create initial state of categories', () => {
         });
     });
 
-
     it('it should be able to add new category under existing Main one', (done) => {
         let c = {
             category: "IT",
@@ -38,10 +36,7 @@ describe('Create initial state of categories', () => {
             .send(c)
             .end((err, res) => {
                 res.should.have.status(200);
-                res.body.should.be.a('object');
-                // res.body.should.have.property('errors');
-                // res.body.errors.should.have.property('pages');
-                // res.body.errors.pages.should.have.property('kind').eql('required');
+                res.should.have.property('text').eql('Item has been added successfuly.');
                 done();
             });
     });
@@ -55,11 +50,8 @@ describe('Create initial state of categories', () => {
             .post('/api/category')
             .send(c)
             .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a('object');
-                // res.body.should.have.property('errors');
-                // res.body.errors.should.have.property('pages');
-                // res.body.errors.pages.should.have.property('kind').eql('required');
+                res.should.have.status(406);
+                res.error.should.have.property('text').eql("Missing element.");
                 done();
             });
     });
@@ -79,18 +71,55 @@ describe('Create initial state of categories', () => {
             });
     });
 });
-// describe('GET category parents', () => {
-//     it('it should GET all parents of the category', (done) => {
-//         chai.request(server)
-//             .get('/api/category/getParents/5a8d915c7d7d1e6c642e5745')
-//             .end((err, res) => {
-//                 res.should.have.status(200);
-//                 res.body.should.be.a('array');
-//                 res.body.length.should.be.eql(1);
-//                 done();
-//             });
-//     });
-// });
+
+describe('GETing parents', () => {
+    it('it should GET all parents of requested id', (done) => {
+        chai.request(server)
+            .get('/api/category/getParents/5a8d915c7d7d1e6c642e5745')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('array');
+                res.body.length.should.be.eql(1);
+                done();
+            });
+    });
+    
+    it('it should render 404 if an ID does not exists', (done) => {
+        chai.request(server)
+            .get('/api/category/getParents/111111111111111111111111')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.have.property('text').contains("Error 404");
+                done();
+            });
+    });
+});
+
+describe('GETing parents', () => {
+    it('it should GET all parents of requested id', (done) => {
+        chai.request(server)
+            .get('/api/category/getParents/5a8d915c7d7d1e6c642e5745')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('array');
+                res.body.length.should.be.eql(1);
+                done();
+            });
+    });
+    
+    it('it should render 404 if an ID does not exists', (done) => {
+        chai.request(server)
+            .get('/api/category/getParents/111111111111111111111111')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.have.property('text').contains("Error 404");
+                done();
+            });
+    });
+});
+
+
+
 /*
  * Test the /POST route
  */

@@ -6,39 +6,44 @@ exports.addCategoty = function(req, res) {
 
     //check if category already exsists
     var alreadyExist = false;
-    category.findOne({ '_id': req.body.parent }).populate('categoriesId').exec(function(err, doc) {
-        if (err || doc == null || doc == undefined || doc == "") {
-            res.render('notfound.ejs');
-        }
-        else {
-            var categories = doc.categoriesId;
-            for (var i = 0; i < categories.length; i++) {
-                if (categories[i].name == req.body.category) {
-                    alreadyExist = true;
-                }
-            }
-            if (alreadyExist) {
-                res.setHeader("Content-Type", "text/html");
-                res.status(406);
-                res.send("Category with this mane already exists");
+    if (req.body.category == "" || req.body.category == null) {
+        res.setHeader("Content-Type", "text/html");
+        res.status(406);
+        res.send("Missing element.");
+    }
+    else {
+        category.findOne({ '_id': req.body.parent }).populate('categoriesId').exec(function(err, doc) {
+            if (err || doc == null || doc == undefined || doc == "") {
+                res.render('notfound.ejs');
             }
             else {
-                var n = new category();
-                n.name = req.body.category;
-                n.categoriesId = [];
-                n.postsId + [];
-                n.parent = mongoose.Types.ObjectId(req.body.parent);
-                n.save(function(err, newCategory) {
-                    doc.categoriesId.push(mongoose.Types.ObjectId(newCategory._id));
-                    doc.save();
-                });
-                res.setHeader("Content-Type", "text/html");
-                res.status(200);
-                res.send("Item has been added successfuly.");
+                for (var i = 0; i < doc.categoriesId.length; i++) {
+                    if (doc.categoriesId[i].name == req.body.category) {
+                        alreadyExist = true;
+                    }
+                }
+                if (alreadyExist) {
+                    res.setHeader("Content-Type", "text/html");
+                    res.status(406);
+                    res.send("Category with this mane already exists");
+                }
+                else {
+                    var n = new category();
+                    n.name = req.body.category;
+                    n.categoriesId = [];
+                    n.postsId + [];
+                    n.parent = mongoose.Types.ObjectId(req.body.parent);
+                    n.save(function(err, newCategory) {
+                        doc.categoriesId.push(mongoose.Types.ObjectId(newCategory._id));
+                        doc.save();
+                        res.setHeader("Content-Type", "text/html");
+                        res.status(200);
+                        res.send("Item has been added successfuly.");
+                    });
+                }
             }
-        }
-    });
-
+        });
+    }
 };
 
 function getparentQuery(cat, res, req) {

@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 // define the schema for our user model
 var categorySchema = mongoose.Schema({
-    name: String,
+    name: { type: String, required: true },
     categoriesId: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
     postsId: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
     parent: { type: Schema.Types.ObjectId, ref: 'Category' }

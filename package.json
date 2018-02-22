@@ -2,7 +2,7 @@
   "name": "node-authentication",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 10000 ./test/**"
+    "test": "mocha --exit --timeout 10000 ./test/**"
   },
   "dependencies": {
     "bcrypt-nodejs": "latest",
