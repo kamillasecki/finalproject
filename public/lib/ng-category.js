@@ -31,7 +31,7 @@ var mainController = function($scope, growl) {
             url: "api/category/getParents/" + id,
             success: function(r) {
                 if(r.status == "notfound") {
-                    window.location = "/404";
+                    window.location = "/category?id=5a650c8bb62a0c8536f056c7";
                 } else {
                     $scope.parents = r;
                 $scope.$apply();

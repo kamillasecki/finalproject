@@ -60,55 +60,58 @@ module.exports = function(app, passport) {
 
 	//POST API
 
+	//add a new post
 	app.post('/api/post', function(req, res) {
 		postCtrl.newPost(req, res);
 	});
-
-
+	//get post by ID
 	app.get('/api/post/:id', function(req, res) {
 		postCtrl.getPost(req, res);
 	});
-
+	//upvote post by ID
 	app.get('/api/post/upvote/:pid', function(req, res) {
 		postCtrl.upvote(req, res);
 	});
-
+	//downvote post by ID
 	app.get('/api/post/downvote/:pid', function(req, res) {
 		postCtrl.downvote(req, res);
 	});
-
-	app.get('/api/post/reply/upvote/:rid', function(req, res) {
-		postCtrl.upvoteRep(req, res);
-	});
-
-	app.get('/api/post/reply/downvote/:rid', function(req, res) {
-		postCtrl.downvoteRep(req, res);
-	});
-
-	app.post('/api/post/prep/:id', function(req, res) {
-		postCtrl.prep(req, res);
-	});
-
-	app.post('/api/post/rrep/:id', function(req, res) {
-		postCtrl.rrep(req, res);
-	});
-	
+	//delete the post
 	app.delete('/api/post/del/:id', function(req, res){
 		postCtrl.pdel(req, res);
 	});
-	
+	//update the post which has been already commented
 	app.put('/api/post/update/:id', function(req, res) {
 		postCtrl.pupd(req,res);	
 	});
-	
+	//update post's text before it has been comented on
 	app.put('/api/post/edit/:id', function(req, res) {
 		postCtrl.pedit(req,res);	
 	});
 	
+	//REPLY API
+	
+	//upvote reply by ID
+	app.get('/api/post/reply/upvote/:rid', function(req, res) {
+		postCtrl.upvoteRep(req, res);
+	});
+	//downvote reply
+	app.get('/api/post/reply/downvote/:rid', function(req, res) {
+		postCtrl.downvoteRep(req, res);
+	});
+	//add new reply
+	app.post('/api/post/prep/:id', function(req, res) {
+		postCtrl.prep(req, res);
+	});
+	//add new comment to reply
+	app.post('/api/post/rrep/:id', function(req, res) {
+		postCtrl.rrep(req, res);
+	});
+	//delete reply
 	app.delete('/api/post/reply/del/:id', function(req,res) {
 		postCtrl.rdel(req,res);
 	});
-	
+	//edit reply
 	app.put('/api/post/reply/edit/:id', function(req, res) {
 		postCtrl.redit(req,res);	
 	});

@@ -62,13 +62,20 @@ function getparentQuery(cat, res, req) {
 exports.getParents = function(req, res) {
     parentCategories = [];
     var requestedCategoryId = req.params.id;
-    var query = category.findOne();
-    query.where({ _id: requestedCategoryId })
+    category.findOne({ '_id': requestedCategoryId })
         .populate('categoriesId')
         .exec(function(err, result) {
-            if (err || (result == null || result == undefined || result == "")) {
+            if (err) {
                 console.log("Error when trying to access database: " + err);
-                res.render('notfound.ejs');
+                var r = {};
+                r.status = "notfound";
+                res.send(r);
+            }
+            else if (result == null || result == undefined || result == ""){
+                var r = {};
+                r.status = "notfound";
+                res.send(r);
+                //res.render('notfound.ejs');
             }
             else {
                 if (result.parent == null) {
@@ -92,12 +99,14 @@ exports.removeCategory = function(req, res) {
     query.where({ _id: requestedCategoryId })
         .exec(function(err, result) {
             if (err) { console.log("Error: " + err); }
-            //check if no posts are atttached
-            if (result.postsId.length != 0) {
+            else if (result == undefined || result == null){
+                res.setHeader("Content-Type", "text/html");
+                res.status(406);
+                res.send("Category which you are trying to delete doesnt't exist.");
+            } else if (result.postsId.length != 0) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("It is not possible to remove this category. There are posts under this category.");
-                console.log("It is not possible to remove this category. There are posts under this category.")
             }
             else {
                 //check if no other categories are attached
@@ -105,7 +114,6 @@ exports.removeCategory = function(req, res) {
                     res.setHeader("Content-Type", "text/html");
                     res.status(406);
                     res.send("It is not possible to remove this category. There are other categories attached to it.");
-                    console.log("It is not possible to remove this category. There are other categories attached to it.")
                 }
                 else {
                     //remove category starts here
@@ -135,7 +143,6 @@ exports.removeCategory = function(req, res) {
                     res.setHeader("Content-Type", "text/html");
                     res.status(200);
                     res.send("Item has been removed successfuly.");
-                    console.log("Item has been removed successfuly.")
                 }
             }
         });

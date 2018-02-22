@@ -10,7 +10,7 @@ chai.use(chaiHttp);
 
 
 //create initial state of categories
-  
+
 describe('POSTing new categories', () => {
     before((done) => {
         category.remove({}, () => {
@@ -21,7 +21,15 @@ describe('POSTing new categories', () => {
             c.name = "Main";
             c.parent = null;
             c.save(function() {
-                done();
+                var d = new category();
+                d._id = mongoose.Types.ObjectId("5a8da0428300037c02499fbe");
+                d.categoriesId = [];
+                d.postsId = [];
+                d.name = "Cooking";
+                d.parent = mongoose.Types.ObjectId("5a8d915c7d7d1e6c642e5745");
+                d.save(function() {
+                    done();
+                });
             });
         });
     });
@@ -40,7 +48,7 @@ describe('POSTing new categories', () => {
                 done();
             });
     });
-    
+
     it('it should not be able to add new category if name is missing', (done) => {
         let c = {
             category: null,
@@ -83,36 +91,46 @@ describe('GETing parents', () => {
                 done();
             });
     });
-    
-    it('it should render 404 if an ID does not exists', (done) => {
+
+    it('it should return "notfound" if an ID does not exists', (done) => {
         chai.request(server)
             .get('/api/category/getParents/111111111111111111111111')
             .end((err, res) => {
                 res.should.have.status(200);
-                res.should.have.property('text').contains("Error 404");
+                res.should.have.property('text').eql('{"status":"notfound"}');
                 done();
             });
     });
 });
 
-describe('GETing parents', () => {
-    it('it should GET all parents of requested id', (done) => {
+
+describe('DELETING category', () => {
+    it('it should delete the item by ID', (done) => {
         chai.request(server)
-            .get('/api/category/getParents/5a8d915c7d7d1e6c642e5745')
+            .delete('/api/category/5a8da0428300037c02499fbe')
             .end((err, res) => {
                 res.should.have.status(200);
-                res.body.should.be.a('array');
-                res.body.length.should.be.eql(1);
+                res.should.have.property('text').eql('Item has been removed successfuly.');
                 done();
             });
     });
     
-    it('it should render 404 if an ID does not exists', (done) => {
+    it('it should not be able to delete category with other categories attached it', (done) => {
         chai.request(server)
-            .get('/api/category/getParents/111111111111111111111111')
+            .delete('/api/category/5a8d915c7d7d1e6c642e5745')
             .end((err, res) => {
-                res.should.have.status(200);
-                res.should.have.property('text').contains("Error 404");
+                res.should.have.status(406);
+                res.should.have.property('text').eql('It is not possible to remove this category. There are other categories attached to it.');
+                done();
+            });
+    });
+    
+    it('it should not be able to delete invalid ID category', (done) => {
+        chai.request(server)
+            .delete('/api/category/111111111111111111111111')
+            .end((err, res) => {
+                res.should.have.status(406);
+                res.should.have.property('text').eql('Category which you are trying to delete doesnt\'t exist.');
                 done();
             });
     });
