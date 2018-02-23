@@ -65,22 +65,28 @@ var mainController = function($scope, growl) {
                 $scope.post = r;
                 $scope.$apply();
                 console.log(r);
-                if ($scope.post.settings.encryption.isEnabled) {
-                    if ($scope.phrase == "") {
-                        $("#loader").delay(800).fadeOut(400, function() {
-                            $("#pass").fadeIn(400);
-                            $("#phrase").focus();
-                        });
+                if ($scope.post.settings.isAllowed) {
+                    if ($scope.post.settings.encryption.isEnabled) {
+                        if ($scope.phrase == "") {
+                            $("#loader").delay(800).fadeOut(400, function() {
+                                $("#pass").fadeIn(400);
+                                $("#phrase").focus();
+                            });
+                        }
+                        else {
+                            $scope.decr();
+                            $scope.$apply();
+                        }
                     }
                     else {
-                        $scope.decr();
-                        $scope.$apply();
+                        $("#loader").delay(800).fadeOut(400, function() {
+                            $("#main").fadeIn(400);
+                        });
                     }
-                }
-                else {
+                } else {
                     $("#loader").delay(800).fadeOut(400, function() {
-                        $("#main").fadeIn(400);
-                    });
+                                $("#access").fadeIn(400);
+                            });
                 }
 
             },
@@ -383,7 +389,8 @@ var mainController = function($scope, growl) {
             }).fail(function(jqXHR, textStatus) {
                 console.log("Request failed: " + textStatus);
             });
-        } else {
+        }
+        else {
             $scope.error("Post message cannot be empty.")
         }
     };
@@ -453,19 +460,19 @@ var mainController = function($scope, growl) {
     };
 
     $scope.redit_show = function(id) {
-       $scope.temp = $("#trepedit_"+id).val();
+        $scope.temp = $("#trepedit_" + id).val();
         $("#reptext_" + id).hide();
         $("#repedit_" + id).show();
     };
 
     $scope.rupd = function(id) {
         var data;
-        if ($("#trepedit_"+id).val().trim() != "") {
+        if ($("#trepedit_" + id).val().trim() != "") {
             if ($scope.post.settings.encryption.isEnabled) {
-                data = { 'm': $scope.reen($("#trepedit_"+id).val().trim()) };
+                data = { 'm': $scope.reen($("#trepedit_" + id).val().trim()) };
             }
             else {
-                data = { 'm': $("#trepedit_"+id).val().trim() };
+                data = { 'm': $("#trepedit_" + id).val().trim() };
             }
             $.ajax({
                 method: "PUT",
@@ -484,7 +491,8 @@ var mainController = function($scope, growl) {
             }).fail(function(jqXHR, textStatus) {
                 console.log("Request failed: " + textStatus);
             });
-        } else {
+        }
+        else {
             $scope.error("Reply message cannot be empty.")
         }
     };

@@ -104,23 +104,45 @@ exports.getPost = function(req, res) {
             ]
         })
         .exec(function(err, doc) {
-            if (err) { console.log('Error while trying to get post from the database'); }
-            else if (doc == null || doc == undefined || doc == "") {
-                console.log("Post doesn't exist");
-                res.render('notfound.ejs');
-            }
-            else {
-                console.log(doc);
-                if(doc.settings.privacy != "pub") {
-                    doc.settings.access.isAdmin = false;
-                    for (var i=0; i<doc.settings.access.admin.length; i++){
-                        if (doc.settings.access.admin[i].toString() == req.user._id){
-                            doc.settings.isAdmin = true;
-                        } 
+            if (err) { 
+                console.log('Error while trying to get post from the database'); 
+            } else if (!doc) {
+                    console.log("Post doesn't exist");
+                    res.render('notfound.ejs');
+            } else if (doc.settings.privacy != "pub") {
+                doc.settings.access.isAdmin = false;
+                doc.settings.access.isRequested = false;
+                var isAllowed = false;
+                for (var i = 0; i < doc.settings.access.admin.length; i++) {
+                    if (doc.settings.access.admin[i].toString() == req.user._id) {
+                        doc.settings.isAdmin = true;
                     }
-                } else {
-                    
                 }
+                console.log("is allowed?");
+                for (var j = 0; j < doc.settings.access.allowed.length; j++) {
+                    if (doc.settings.access.allowed[j].toString() == req.user._id) {
+                        isAllowed = true;
+                        console.log("is allowed");
+                    }
+                }
+                for (var k = 0; k < doc.settings.access.allowed.length; k++) {
+                    if (doc.settings.access.requested[k].toString() == req.user._id) {
+                        doc.settings.access.isRequested = true;
+                    }
+                }
+                if(isAllowed) {
+                    doc.settings.access = null;
+                    res.send(doc);  
+                } else if(doc.settings.privacy == "cgp"){
+                    console.log("testing");
+                    doc.settings.access = null;
+                    doc.body = null;
+                    doc.replies = null;
+                    res.send(doc);
+                } else {
+                    res.render('notfound.ejs');
+                }
+            } else {
                 doc.settings.access = null;
                 res.send(doc);
             }

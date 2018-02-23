@@ -11,6 +11,7 @@ var postSchema = mongoose.Schema({
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
         encryption: { isEnabled: Boolean, checkword: String },
         isAdmin: Boolean,
+        isRequested: Boolean,
         access: {
             admin: [{ type: Schema.Types.ObjectId, ref: 'User'}],
             allowed:[{ type: Schema.Types.ObjectId, ref: 'User'}],

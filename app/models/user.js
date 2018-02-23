@@ -7,18 +7,22 @@ var userSchema = mongoose.Schema({
     local            : {
         username     : String,
         password     : String,
+        role: {
+            type: String,
+            enum: ['user', 'admin'],
+            default: 'user'
+        }
     },
     facebook         : {
         id           : String,
         token        : String,
         email        : String,
-        name         : String
-    },
-    twitter          : {
-        id           : String,
-        token        : String,
-        displayName  : String,
-        username     : String
+        name         : String,
+        role: {
+            type: String,
+            enum: ['user', 'admin'],
+            default: 'user'
+        }
     },
     google           : {
         id           : String,
@@ -42,5 +46,3 @@ userSchema.methods.validPassword = function(password) {
 
 // create the model for users and expose it to our app
 module.exports = mongoose.model('User', userSchema);
-
-var User = mongoose.model('User', userSchema);
