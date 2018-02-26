@@ -40,6 +40,15 @@ module.exports = function(app, passport) {
 		res.render('v-category.ejs');
 		//categoryCtrl.getCategoryPageById(req, res);
 	});
+	
+	// DISPLAY LIST OF POSTST PER CATEGORY =========
+	
+	app.get('/list', isLoggedIn, function(req, res) {
+		res.render('v-list.ejs', {
+			user: req.user
+		});
+	});
+
 
 	// decryption demo --------------------------
 	app.get('/demo', isLoggedIn, function(req, res) {
@@ -77,20 +86,25 @@ module.exports = function(app, passport) {
 		postCtrl.downvote(req, res);
 	});
 	//delete the post
-	app.delete('/api/post/del/:id', function(req, res){
+	app.delete('/api/post/del/:id', function(req, res) {
 		postCtrl.pdel(req, res);
 	});
 	//update the post which has been already commented
 	app.put('/api/post/update/:id', function(req, res) {
-		postCtrl.pupd(req,res);	
+		postCtrl.pupd(req, res);
 	});
 	//update post's text before it has been comented on
 	app.put('/api/post/edit/:id', function(req, res) {
-		postCtrl.pedit(req,res);	
+		postCtrl.pedit(req, res);
 	});
 	
+	//get posts by categoryID
+	app.get('/api/post/byCat/:id', function(req, res) {
+		postCtrl.postByCat(req,res);
+	});
+
 	//REPLY API
-	
+
 	//upvote reply by ID
 	app.get('/api/post/reply/upvote/:rid', function(req, res) {
 		postCtrl.upvoteRep(req, res);
@@ -108,12 +122,12 @@ module.exports = function(app, passport) {
 		postCtrl.rrep(req, res);
 	});
 	//delete reply
-	app.delete('/api/post/reply/del/:id', function(req,res) {
-		postCtrl.rdel(req,res);
+	app.delete('/api/post/reply/del/:id', function(req, res) {
+		postCtrl.rdel(req, res);
 	});
 	//edit reply
 	app.put('/api/post/reply/edit/:id', function(req, res) {
-		postCtrl.redit(req,res);	
+		postCtrl.redit(req, res);
 	});
 
 	//CATEGORY API
@@ -180,19 +194,6 @@ module.exports = function(app, passport) {
 			failureRedirect: '/'
 		}));
 
-	// twitter --------------------------------
-
-	// send to twitter to do the authentication
-	app.get('/auth/twitter', passport.authenticate('twitter', { scope: 'email' }));
-
-	// handle the callback after twitter has authenticated the user
-	app.get('/auth/twitter/callback',
-		passport.authenticate('twitter', {
-			successRedirect: '/profile',
-			failureRedirect: '/'
-		}));
-
-
 	// google ---------------------------------
 
 	// send to google to do the authentication
@@ -227,18 +228,6 @@ module.exports = function(app, passport) {
 	// handle the callback after facebook has authorized the user
 	app.get('/connect/facebook/callback',
 		passport.authorize('facebook', {
-			successRedirect: '/profile',
-			failureRedirect: '/'
-		}));
-
-	// twitter --------------------------------
-
-	// send to twitter to do the authentication
-	app.get('/connect/twitter', passport.authorize('twitter', { scope: 'email' }));
-
-	// handle the callback after twitter has authorized the user
-	app.get('/connect/twitter/callback',
-		passport.authorize('twitter', {
 			successRedirect: '/profile',
 			failureRedirect: '/'
 		}));
@@ -282,14 +271,6 @@ module.exports = function(app, passport) {
 		});
 	});
 
-	// twitter --------------------------------
-	app.get('/unlink/twitter', function(req, res) {
-		var user = req.user;
-		user.twitter.token = undefined;
-		user.save(function(err) {
-			res.redirect('/profile');
-		});
-	});
 
 	// google ---------------------------------
 	app.get('/unlink/google', function(req, res) {

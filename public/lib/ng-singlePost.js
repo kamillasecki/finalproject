@@ -65,7 +65,11 @@ var mainController = function($scope, growl) {
                 $scope.post = r;
                 $scope.$apply();
                 console.log(r);
-                if ($scope.post.settings.isAllowed) {
+                if($scope.post.settings.privacy == "pub"){
+                    $("#loader").delay(800).fadeOut(400, function() {
+                            $("#main").fadeIn(400);
+                        });
+                } else if ($scope.post.settings.isAllowed) {
                     if ($scope.post.settings.encryption.isEnabled) {
                         if ($scope.phrase == "") {
                             $("#loader").delay(800).fadeOut(400, function() {
@@ -83,10 +87,11 @@ var mainController = function($scope, growl) {
                             $("#main").fadeIn(400);
                         });
                     }
-                } else {
+                }
+                else {
                     $("#loader").delay(800).fadeOut(400, function() {
-                                $("#access").fadeIn(400);
-                            });
+                        $("#access").fadeIn(400);
+                    });
                 }
 
             },
@@ -263,7 +268,7 @@ var mainController = function($scope, growl) {
     }
 
     $scope.spr = function() {
-        console.log("$scope.prep:" + $scope.prep)
+        console.log("$scope.prep:" + $scope.prep);
         if ($scope.prep == undefined || $scope.prep == "") {
             $scope.error("Your responce cannot be empty.");
         }

@@ -89,19 +89,19 @@ var mainController = function($scope, growl) {
             //$( ".growl" ).empty();
             growl.info("Public post will be available for anyone to read and to registered users to replay to it.", { referenceId: 1 });
             $('#next_btn2').hide();
-            $('#send_btn').show();
+            $('#send_btn2').show();
         }
         else if ($scope.privacy == "cgp") {
             //$( ".growl" ).empty();
             growl.info("Closed group - public post will be visible for users when searching but users will not be able to access it unless they are allowed by an author.", { referenceId: 1 });
             $('#next_btn2').show();
-            $('#send_btn').hide();
+            $('#send_btn2').hide();
         }
         else if ($scope.privacy == "cgh") {
             //$( ".growl" ).empty();
             growl.info("Closed group - hidden post will not apper on search results, therefore only allowed users will know about its existence, and will be able to access it.", { referenceId: 1 });
             $('#next_btn2').show();
-            $('#send_btn').hide();
+            $('#send_btn2').hide();
         }
     };
 

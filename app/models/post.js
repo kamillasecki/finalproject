@@ -12,6 +12,7 @@ var postSchema = mongoose.Schema({
         encryption: { isEnabled: Boolean, checkword: String },
         isAdmin: Boolean,
         isRequested: Boolean,
+        isAllowed: Boolean,
         access: {
             admin: [{ type: Schema.Types.ObjectId, ref: 'User'}],
             allowed:[{ type: Schema.Types.ObjectId, ref: 'User'}],
