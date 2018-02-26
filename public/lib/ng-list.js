@@ -12,6 +12,9 @@ var mainController = function($scope, growl) {
     $scope.parents = [];
     $scope.posts = [];
     $scope.currentCat = {};
+    $scope.sortType = 'createdAt';
+    $scope.sortReverse  = true;
+    $scope.searchFish   = '';
 
     var url_string = window.location.href;
     var url = new URL(url_string);

@@ -19,7 +19,7 @@
 <body ng-controller="mainController">
     <% include ./index_partials/navbar %>
         <ol class="breadcrumb">
-            <li ng-repeat="cat in parents | orderBy:'-'"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+            <li ng-repeat="cat in parents | orderBy:'-'"><a href="/list?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
         </ol>
 
         <div class="row">
@@ -40,18 +40,50 @@
                         Create new post
                     </a>
                 </div>
+                <form>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                            <input type="text" class="form-control" placeholder="Search subject" ng-model="searchSubject">
+                        </div>
+                    </div>
+                </form>
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Subject</th>
-                            <th>Added</th>
-                            <th>Replies</th>
+                            <th>
+                                <a href="" ng-click="sortType = 'header.subject'; sortReverse = !sortReverse">
+                                    Subject
+                                    <span ng-show="sortType == 'header.subject' && !sortReverse" class="fa fa-caret-up"></span>
+                                    <span ng-show="sortType == 'header.subject' && sortReverse" class="fa fa-caret-down"></span>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="" ng-click="sortType = 'createdAt'; sortReverse = !sortReverse">
+                                    Added
+                                    <span ng-show="sortType == 'createdAt' && !sortReverse" class="fa fa-caret-up"></span>
+                                    <span ng-show="sortType == 'createdAt' && sortReverse" class="fa fa-caret-down"></span>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="" ng-click="sortType = 'replies.length'; sortReverse = !sortReverse">
+                                    Comments
+                                    <span ng-show="sortType == 'replies.length' && !sortReverse" class="fa fa-caret-up"></span>
+                                    <span ng-show="sortType == 'replies.length' && sortReverse" class="fa fa-caret-down"></span>
+                                </a>
+                            </th>
                             <th>Attributes</th>
-                            <th>Score</th>
+                            <th>
+                                <a href="" ng-click="sortType = 'header.votes.num'; sortReverse = !sortReverse">
+                                    Hot / Not
+                                    <span ng-show="sortType == 'header.votes.num' && !sortReverse" class="fa fa-caret-up"></span>
+                                    <span ng-show="sortType == 'header.votes.num' && sortReverse" class="fa fa-caret-down"></span>
+                                </a>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="post in posts">
+                        <tr ng-repeat="post in posts | orderBy:sortType:sortReverse  | filter:searchSubject">
                             <td>
                                 <a href="/post?id={{post._id}}" class="col-md-11" ng-bind="post.header.subject"></a>
                             </td>
@@ -74,7 +106,7 @@
                         </tr>
                     </tbody>
                 </table>
-            <% include ./index_partials/footer %>
+                <% include ./index_partials/footer %>
             </div>
             <div class="col-md-2"></div>
         </div>

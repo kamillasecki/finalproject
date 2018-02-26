@@ -363,6 +363,7 @@ var mainController = function($scope, growl) {
     };
 
     $scope.pedit2_close = function() {
+        $scope.editt = null;
         $("#postedit2").hide();
     };
 
@@ -407,6 +408,7 @@ var mainController = function($scope, growl) {
             url: "api/post/edit/" + id,
             data: { 'm': $scope.editt }
         }).done(function(r) {
+            $scope.editt = null;
             console.log("responce: ok" + r);
             if (r.status == "error") {
                 growl.error("<strong>" + r.m + "</strong>");
