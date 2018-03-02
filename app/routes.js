@@ -1,7 +1,7 @@
 module.exports = function(app, passport) {
 	var categoryCtrl = require("./controllers/contr-category.js");
 	var postCtrl = require("./controllers/contr-post.js");
-
+	var notifCtrl = require("./controllers/contr-notifications.js");
 
 	// ============================================================================
 	// PAGES ROUTES ===============================================================
@@ -40,13 +40,18 @@ module.exports = function(app, passport) {
 		res.render('v-category.ejs');
 		//categoryCtrl.getCategoryPageById(req, res);
 	});
-	
+
 	// DISPLAY LIST OF POSTST PER CATEGORY =========
-	
+
 	app.get('/list', isLoggedIn, function(req, res) {
-		res.render('v-list.ejs', {
-			user: req.user
-		});
+		
+		req.user.getCount(function(u) {
+			res.render('v-list.ejs', {
+				user: req.user,
+				nCount: u
+			});
+		})
+
 	});
 
 
@@ -97,10 +102,15 @@ module.exports = function(app, passport) {
 	app.put('/api/post/edit/:id', function(req, res) {
 		postCtrl.pedit(req, res);
 	});
-	
+
 	//get posts by categoryID
 	app.get('/api/post/byCat/:id', function(req, res) {
-		postCtrl.postByCat(req,res);
+		postCtrl.postByCat(req, res);
+	});
+
+	//request access to public closed group
+	app.post('/api/post/reqaccess/:id', function(req, res) {
+		postCtrl.reqAccess(req, res);
 	});
 
 	//REPLY API
@@ -124,6 +134,10 @@ module.exports = function(app, passport) {
 	//delete reply
 	app.delete('/api/post/reply/del/:id', function(req, res) {
 		postCtrl.rdel(req, res);
+	});
+	//delete reply comment
+	app.delete('/api/post/rreply/:id/:pid', function(req, res) {
+		postCtrl.rrdel(req, res);
 	});
 	//edit reply
 	app.put('/api/post/reply/edit/:id', function(req, res) {
@@ -164,7 +178,7 @@ module.exports = function(app, passport) {
 
 	// process the login form
 	app.post('/login', passport.authenticate('local-login', {
-		successRedirect: '/profile', // redirect to the secure profile section
+		successRedirect: '/list', // redirect to the secure profile section
 		failureRedirect: '/login', // redirect back to the signup page if there is an error
 		failureFlash: true // allow flash messages
 	}));
@@ -177,7 +191,7 @@ module.exports = function(app, passport) {
 
 	// process the signup form
 	app.post('/signup', passport.authenticate('local-signup', {
-		successRedirect: '/profile', // redirect to the secure profile section
+		successRedirect: '/list', // redirect to the secure profile section
 		failureRedirect: '/signup', // redirect back to the signup page if there is an error
 		failureFlash: true // allow flash messages
 	}));
@@ -190,7 +204,7 @@ module.exports = function(app, passport) {
 	// handle the callback after facebook has authenticated the user
 	app.get('/auth/facebook/callback',
 		passport.authenticate('facebook', {
-			successRedirect: '/profile',
+			successRedirect: '/list',
 			failureRedirect: '/'
 		}));
 
@@ -202,7 +216,7 @@ module.exports = function(app, passport) {
 	// the callback after google has authenticated the user
 	app.get('/auth/google/callback',
 		passport.authenticate('google', {
-			successRedirect: '/profile',
+			successRedirect: '/list',
 			failureRedirect: '/'
 		}));
 
@@ -284,6 +298,13 @@ module.exports = function(app, passport) {
 	app.use(function(req, res, next) {
 		res.status(404).render("notfound.ejs")
 	})
+
+	function getNotCount(req, res, next) {
+		if (notifCtrl.count(req))
+			console.log("AAA")
+		return next();
+
+	}
 
 };
 

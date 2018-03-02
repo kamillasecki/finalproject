@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
+var notification = require("../models/notification.js");
 
 // define the schema for our user model
 var userSchema = mongoose.Schema({
@@ -31,9 +32,32 @@ var userSchema = mongoose.Schema({
         name         : String
     }
 
+}, {
+    toObject: {
+        virtuals: true
+    },
+    toJSON: {
+        virtuals: true
+    }
 });
 
 // methods ======================
+
+userSchema.methods.getCount = function(cb) {
+    notification.count({owner:this._id}, function(err,c){
+        if(err){
+            console.log(err);
+        } else { 
+            console.log("C: " + c);
+            cb(c);
+        }
+    });
+};
+
+userSchema.virtual('nCount').get(function() {
+    return this._setnCount;
+});
+
 // generating a hash
 userSchema.methods.generateHash = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);

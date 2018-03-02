@@ -557,3 +557,9 @@ section.testimonials {
   /* bring your own prefixes */
   transform: translate(-50%, -50%);
 }
+.badge-notify{
+   background:red;
+   position:absolute;
+   top:5px;
+   left:40px;
+  }

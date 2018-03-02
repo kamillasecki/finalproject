@@ -1,11 +1,11 @@
 var post = require('../models/post.js');
 var reply = require('../models/reply.js');
 var category = require('../models/category.js');
+var notification = require('../models/notification.js');
 var mongoose = require('mongoose');
 
 //create new post
 exports.newPost = function(req, res) {
-    console.log('Your debug req: ' + JSON.stringify(req.body));
     category.findOne({ '_id': req.body.category }).exec(function(err, doc) {
 
         if (err) { console.log('Error while trying to get category from database'); }
@@ -62,7 +62,6 @@ exports.newPost = function(req, res) {
                 p.header.votes.num = 0;
                 p.header.votes.upVotes = [];
                 p.header.votes.downVotes = [];
-                console.log('post object: ' + p);
                 p.save(function(err, newPost) {
                     if (err) {
                         console.log("Error when saving new post: " + err);
@@ -276,7 +275,6 @@ exports.downvote = function(req, res) {
 };
 
 exports.upvoteRep = function(req, res) {
-    console.log('Your debug req: ' + JSON.stringify(req.user));
     var requestedRepId = req.params.rid;
     var alreadyUpVoted = false;
     var alreadyDownVoted = -1;
@@ -361,9 +359,7 @@ exports.downvoteRep = function(req, res) {
             else {
                 console.log("Not yet downvoted, processing... downvote");
                 for (var j = 0; j < r.votes.upVotes.length; j++) {
-                    console.log("checking pos: " + j + " in upVotes. Found: " + r.votes.upVotes[j])
                     if (r.votes.upVotes[j] == req.user._id) {
-                        console.log(r.votes.upVotes[j] + " matches current user")
                         alreadyUpVoted = j;
                     }
                 }
@@ -423,7 +419,6 @@ exports.prep = function(req, res) {
                 if (err) {
                     console.log("Error when saving new reply: " + err);
                 }
-                console.log("Saved new post: " + rep._id);
                 p.replies.push(mongoose.Types.ObjectId(rep._id));
                 p.save();
                 res.end();
@@ -453,7 +448,6 @@ exports.rrep = function(req, res) {
                 if (err) {
                     console.log("Error when saving new reply: " + err);
                 }
-                console.log("Saved new reply: " + rrep._id);
                 p.rreplies.push(mongoose.Types.ObjectId(rrep._id));
                 p.save();
                 res.end();
@@ -538,7 +532,6 @@ exports.pupd = function(req, res) {
                     res.render('notfound.ejs');
                 }
                 else {
-                    console.log("Updated new post: " + rep._id);
                     res.end();
                 }
             });
@@ -603,7 +596,6 @@ exports.rdel = function(req, res) {
                     res.render('notfound.ejs');
                 }
                 else {
-                    console.log(req.body);
                     post.update({ _id: req.body.pid }, { $pull: { replies: mongoose.Types.ObjectId(repId) } }, { multi: true },
                         function(err) {
                             if (err) {
@@ -657,6 +649,7 @@ exports.redit = function(req, res) {
 
 exports.postByCat = function(req, res) {
     var cId = req.params.id;
+    if(mongoose.Types.ObjectId.isValid(cId)){
     category.findOne({ _id: cId })
         .populate({
             path: 'postsId',
@@ -686,7 +679,94 @@ exports.postByCat = function(req, res) {
                     out[j].settings.access = null;
                 }
                 res.send(out);
-                console.log(out);
             }
         });
+    }
+};
+
+exports.rrdel = function(req, res) {
+    var repId = req.params.id;
+    var pid = req.params.pid;
+    reply.findOne({ _id: repId }).exec(function(err, r) {
+        if (err) {
+            res.render('notfound.ejs');
+            console.log('Error while trying to get post from the database');
+        }
+        else if (!r) {
+            //connection to DB successfull
+            console.log("No such a reply exists");
+            res.render('notfound.ejs');
+        } else {
+            reply.remove({ _id: repId }, function(err) {
+                if (err) {
+                    console.log('Error while trying to remove reply from the database');
+                    res.render('notfound.ejs');
+                }
+                else {
+                    reply.update({ _id: pid }, { $pull: { rreplies: mongoose.Types.ObjectId(repId) } }, { multi: true },
+                        function(err) {
+                            if (err) {
+                                console.log("Error when removing comment ref from reply: " + err);
+                            }
+                            else {
+                                r.status = "ok";
+                                r.m = "Your reply has been removed";
+                                res.send(r);
+                            }
+                        });
+                }
+            });
+        }
+    });
+};
+
+exports.reqAccess = function(req,res) {
+    var pId = req.params.id;
+    post.findOne({_id:pId}).exec(function(err,p){
+        if(err || !p){
+            res.render('notfound');
+        } else {
+            var fb={};
+            //check if already requested by the user
+            var found=false;
+            for(var i=0;i<p.settings.access.requested.length;i++){
+                if(p.settings.access.requested[i].toString()==req.user._id){
+                    found=true;
+                }
+            }
+            if(found){
+                fb.message = "You have already requeste access to this post.";
+                fb.status = "message";
+                res.send(fb);
+            } else {
+                //if not requested yet
+                //add user id to the post object
+                var me = new mongoose.Types.ObjectId(req.user._id);
+                p.settings.access.requested.push(me);
+                p.save(function(err){
+                    if(err){
+                        res.render('notfound');
+                    } else {
+                        //create new notification
+                        var n = new notification();
+                        n.owner = p.settings.author;
+                        n.creator = me;
+                        n.post = new mongoose.Types.ObjectId(pId);
+                        n.type = 'newRequest';
+                        n.message = req.body.m;
+                        n.save(function(err){
+                            if(err){
+                                console.log("error: " + err);
+                                res.render('notfound.ejs');
+                            } else {
+                                fb.status = "ok";
+                                fb.message = "Your request has been created";
+                                res.send(fb);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    });
 };

@@ -13,8 +13,8 @@ var mainController = function($scope, growl) {
     $scope.posts = [];
     $scope.currentCat = {};
     $scope.sortType = 'createdAt';
-    $scope.sortReverse  = true;
-    $scope.searchFish   = '';
+    $scope.sortReverse = true;
+    $scope.searchFish = '';
 
     var url_string = window.location.href;
     var url = new URL(url_string);
@@ -46,30 +46,35 @@ var mainController = function($scope, growl) {
     };
 
     $scope.getCategories = function getCategories() {
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/category/getParents/" + id,
-            success: function(r) {
-                if (r.status == "notfound") {
-                    window.location = "/list?id=5a650c8bb62a0c8536f056c7";
-                }
-                else {
-                    $scope.parents = r;
-                    $scope.$apply();
-                }
+        if (id) {
+            $.ajax({
+                method: "GET",
+                dataType: 'json',
+                url: "api/category/getParents/" + id,
+                success: function(r) {
+                    if (r.status == "notfound") {
+                        window.location = "/list?id=5a650c8bb62a0c8536f056c7";
+                    }
+                    else {
+                        $scope.parents = r;
+                        $scope.$apply();
+                    }
 
 
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
-            }
-        });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log("ERROR: " + textStatus, errorThrown);
+                }
+            });
+        } else {
+            alert("here")
+            window.location = "/list?id=5a650c8bb62a0c8536f056c7";
+        }
     };
 
     $(document).ready(function() {
         $scope.user = $("#user").val();
-        $('[data-toggle="tooltip"]').tooltip(); 
+        $('[data-toggle="tooltip"]').tooltip();
         $scope.getCategories();
         $scope.getList();
     });

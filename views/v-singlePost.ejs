@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeBoards</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">
+    <!--<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">-->
     <link rel="stylesheet" href="/lib/font-awesome/web-fonts-with-css/css/fontawesome-all.css">
     <link rel="stylesheet" href="/stylesheets/styles.min.css">
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
@@ -47,7 +47,10 @@
 
         <div id="access" class="centered" style="display:none">
             <h3>You are not allowed to access this post</h3>
-            <button class="btn btn-success" type="button" ng-href='#here' ng-click="areq()">Request </button>
+            <form>
+                <textarea class="form-control" ng-model="request_t"></textarea>
+                <button class="btn btn-success" type="button" ng-href='#here' ng-click="areq()">Request </button>
+            </form>
         </div>
 
         <!-- ================================================-->
@@ -238,6 +241,10 @@
                                                 <div class="col-md-12" ng-show="rep2.votes.num>=0" id="t_{{rep2._id}}">
                                                     <div>
                                                         <span><small>{{rep2.createdAtWords}}</small></span>
+                                                        <span ng-if="rep2.author._id==user">
+                                                            <button class="btn btn-light btn-xs" ng-click="redit_show(rep2._id)"><i class="fas fa-edit"></i></button>
+                                                            <button ng-click="rrdel(rep2._id,rep._id)" class="btn btn-danger btn-xs"><i class="fas fa-trash-alt"></i></button>
+                                                        </span>
                                                         <span class="btn-group pull-right" role="group" style="text-align: right">
                                                             <button ng-click="uvr(rep2._id)" class="btn btn-success btn-xs" type="button">
                                                                 <i class="fas fa-thumbs-up"></i>
@@ -253,7 +260,12 @@
                                                         </span>
                                                     </div>
                                                     <blockquote>
-                                                        <p class="mb-0 angular-with-newlines">{{rep2.text}}</p>
+                                                        <p id="reptext_{{rep2._id}}" class="mb-0 angular-with-newlines">{{rep2.text}}</p>
+                                                        <form id="repedit_{{rep2._id}}" hidden="">
+                                                            <textarea id="trepedit_{{rep2._id}}" class="form-control" ng-model="rep2.text"></textarea>
+                                                            <button class="btn btn-default" type="button" ng-href='#here' ng-click="rupd(rep2._id)">Save </button>
+                                                            <button class="btn btn-default" type="button" ng-href='#here' ng-click="load()">Cancel </button>
+                                                        </form>
                                                         <footer>by {{rep2.author.displayname}}</footer>
                                                     </blockquote>
                                                 </div>

@@ -29,29 +29,27 @@ var mainController = function($scope, growl) {
         growl.error("<strong>" + text + "</strong>");
     };
 
-    $scope.show = function(id) {
-        $('#t_' + id).removeClass("ng-hide");
-        $('#e_' + id).addClass("ng-hide");
+    $scope.show = function(sid) {
+        $('#t_' + sid).removeClass("ng-hide");
+        $('#e_' + sid).addClass("ng-hide");
     };
 
-    $scope.show_r = function(id) {
-        $('#re_' + id).show();
-        $('#relink_' + id).hide();
+    $scope.show_r = function(sid) {
+        $('#re_' + sid).show();
+        $('#relink_' + sid).hide();
     };
 
-    $scope.hide_r = function(id) {
-        $('#re_' + id).hide();
-        $('#relink_' + id).show();
+    $scope.hide_r = function(hid) {
+        $('#re_' + hid).hide();
+        $('#relink_' + hid).show();
     };
 
-    $scope.show_rellist = function(id) {
-        console.log("ok")
-        $('.relistlink_' + id).hide();
-        $('.relist_' + id).show();
+    $scope.show_rellist = function(rid) {
+        $('.relistlink_' + rid).hide();
+        $('.relist_' + rid).show();
     };
 
     $scope.hide_rellist = function(id) {
-        console.log("ok")
         $('.relistlink_' + id).show();
         $('.relist_' + id).hide();
     };
@@ -503,6 +501,47 @@ var mainController = function($scope, growl) {
             $scope.error("Reply message cannot be empty.")
         }
     };
+    
+    $scope.rrdel = function(rid, pid) {
+        $.ajax({
+            method: "DELETE",
+            url: "api/post/rreply/" + rid + "/" + pid
+        }).done(function(r) {
+            console.log("responce: ok" + r);
+            if (r.status == "error") {
+                growl.error("<strong>" + r.m + "</strong>");
+            }
+            else if (r.status == "ok") {
+                alert(r.m);
+                window.location = '/';
+            }
+        }).fail(function(jqXHR, textStatus) {
+            console.log("Request failed: " + textStatus);
+        });
+    };
+    
+    $scope.areq  =function () {
+        var data = { 'm': $scope.request_t };
+        $.ajax({
+            method: "POST",
+            dataType: 'json',
+            url: "api/post/reqaccess/" + id,
+            data: data,
+            success: function(r) {
+                if(r.status=="ok"){
+                    growl.info("<strong>" + r.message + "</strong>");
+                    window.location = "/list?id=" + $scope.post.settings.category;
+                } else {
+                    growl.error("<strong>" + r.message + "</strong>");
+                    window.location = "/list?id=" + $scope.post.settings.category;
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("ERROR: " + textStatus, errorThrown);
+            }
+        });
+    };
+
 };
 
 app.controller("mainController", ["$scope", "growl", mainController]);

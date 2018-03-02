@@ -62,32 +62,40 @@ function getparentQuery(cat, res, req) {
 exports.getParents = function(req, res) {
     parentCategories = [];
     var requestedCategoryId = req.params.id;
-    category.findOne({ '_id': requestedCategoryId })
-        .populate('categoriesId')
-        .exec(function(err, result) {
-            if (err) {
-                console.log("Error when trying to access database: " + err);
-                var r = {};
-                r.status = "notfound";
-                res.send(r);
-            }
-            else if (result == null || result == undefined || result == ""){
-                var r = {};
-                r.status = "notfound";
-                res.send(r);
-                //res.render('notfound.ejs');
-            }
-            else {
-                if (result.parent == null) {
-                    parentCategories.push(result);
-                    res.send(parentCategories);
+    if (mongoose.Types.ObjectId.isValid(requestedCategoryId)) {
+        category.findOne({ '_id': requestedCategoryId })
+            .populate('categoriesId')
+            .exec(function(err, result) {
+                if (err) {
+                    console.log("Error when trying to access database: " + err);
+                    var r = {};
+                    r.status = "notfound";
+                    res.send(r);
+                }
+                else if (result == null || result == undefined || result == "") {
+                    var r = {};
+                    r.status = "notfound";
+                    res.send(r);
+                    //res.render('notfound.ejs');
                 }
                 else {
-                    parentCategories.push(result);
-                    getparentQuery(result, res, req);
+                    if (result.parent == null) {
+                        parentCategories.push(result);
+                        res.send(parentCategories);
+                    }
+                    else {
+                        parentCategories.push(result);
+                        getparentQuery(result, res, req);
+                    }
                 }
-            }
-        });
+            });
+    }
+    else {
+        console.log("######################NOT VALID ID");
+        var r = {};
+        r.status = "notfound";
+        res.send(r);
+    }
 };
 
 exports.removeCategory = function(req, res) {
@@ -99,11 +107,12 @@ exports.removeCategory = function(req, res) {
     query.where({ _id: requestedCategoryId })
         .exec(function(err, result) {
             if (err) { console.log("Error: " + err); }
-            else if (result == undefined || result == null){
+            else if (result == undefined || result == null) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("Category which you are trying to delete doesnt't exist.");
-            } else if (result.postsId.length != 0) {
+            }
+            else if (result.postsId.length != 0) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("It is not possible to remove this category. There are posts under this category.");
