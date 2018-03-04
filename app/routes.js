@@ -9,20 +9,28 @@ module.exports = function(app, passport) {
 
 	// show the home page (will also have our login links)
 	app.get('/', function(req, res) {
-		res.render('index.ejs');
+		res.render('index.ejs', {
+			user: req.user,
+		});
 	});
 
 	// PROFILE SECTION =========================
 	app.get('/profile', isLoggedIn, function(req, res) {
-		res.render('profile.ejs', {
-			user: req.user
+		req.user.getCount(function(u) {
+			res.render('profile.ejs', {
+				user: req.user,
+				nCount: u
+			});
 		});
 	});
 
 	// NEW POST =================================
 	app.get('/newpost', isLoggedIn, function(req, res) {
-		res.render('v-newpost.ejs', {
-			user: req.user
+		req.user.getCount(function(u) {
+			res.render('v-newpost.ejs', {
+				user: req.user,
+				nCount: u
+			});
 		});
 	});
 
@@ -30,30 +38,45 @@ module.exports = function(app, passport) {
 	// DISPLAY SINGLE POST =========================
 
 	app.get('/post', isLoggedIn, function(req, res) {
-		res.render('v-singlePost.ejs', {
-			user: req.user
+		req.user.getCount(function(u) {
+			res.render('v-singlePost.ejs', {
+				user: req.user,
+				nCount: u
+			});
 		});
 	});
 
 	// CATEGORY MANAGEMENT =========================
 	app.get('/category', function(req, res) {
-		res.render('v-category.ejs');
-		//categoryCtrl.getCategoryPageById(req, res);
+		req.user.getCount(function(u) {
+			res.render('v-category.ejs', {
+				user: req.user,
+				nCount: u
+			});
+		});
 	});
 
 	// DISPLAY LIST OF POSTST PER CATEGORY =========
 
 	app.get('/list', isLoggedIn, function(req, res) {
-		
+
 		req.user.getCount(function(u) {
 			res.render('v-list.ejs', {
 				user: req.user,
 				nCount: u
 			});
-		})
-
+		});
 	});
 
+	// DISPLAY SEARCH RESULTS
+	app.get("/search", function(req, res) {
+		req.user.getCount(function(u) {
+			res.render('v-search.ejs', {
+				user: req.user,
+				nCount: u
+			});
+		});
+	});
 
 	// decryption demo --------------------------
 	app.get('/demo', isLoggedIn, function(req, res) {
@@ -73,6 +96,10 @@ module.exports = function(app, passport) {
 	// ============================================================================
 
 	//POST API
+	//search posts
+	app.post('/api/post/find', function(req, res) {
+		postCtrl.findp(req, res);
+	});
 
 	//add a new post
 	app.post('/api/post', function(req, res) {
@@ -91,7 +118,7 @@ module.exports = function(app, passport) {
 		postCtrl.downvote(req, res);
 	});
 	//delete the post
-	app.delete('/api/post/del/:id', function(req, res) {
+	app.delete('/api/post/:id', function(req, res) {
 		postCtrl.pdel(req, res);
 	});
 	//update the post which has been already commented
@@ -113,6 +140,7 @@ module.exports = function(app, passport) {
 		postCtrl.reqAccess(req, res);
 	});
 
+
 	//REPLY API
 
 	//upvote reply by ID
@@ -132,7 +160,7 @@ module.exports = function(app, passport) {
 		postCtrl.rrep(req, res);
 	});
 	//delete reply
-	app.delete('/api/post/reply/del/:id', function(req, res) {
+	app.delete('/api/post/reply/:id', function(req, res) {
 		postCtrl.rdel(req, res);
 	});
 	//delete reply comment

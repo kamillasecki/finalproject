@@ -43,8 +43,9 @@ var userSchema = mongoose.Schema({
 
 // methods ======================
 
+//get number of notifications
 userSchema.methods.getCount = function(cb) {
-    notification.count({owner:this._id}, function(err,c){
+    notification.count({owner:this._id,hasRead:false}, function(err,c){
         if(err){
             console.log(err);
         } else { 
@@ -53,10 +54,6 @@ userSchema.methods.getCount = function(cb) {
         }
     });
 };
-
-userSchema.virtual('nCount').get(function() {
-    return this._setnCount;
-});
 
 // generating a hash
 userSchema.methods.generateHash = function(password) {

@@ -2,7 +2,6 @@
 /*global $*/
 /*global CryptoJS*/
 var keySize = 256;
-var ivSize = 128;
 var iterations = 100;
 var app = angular.module('post', ['angular-growl']);
 var encryption = false;
@@ -53,7 +52,7 @@ app.config(['growlProvider', function(growlProvider) {
     growlProvider.globalPosition('bottom-center');
 }]);
 
-var mainController = function($scope, growl) {
+var mainController = function($scope, $http, growl) {
     $scope.message = '';
     $scope.tempMessage = '';
     $scope.parents = [];
@@ -64,11 +63,12 @@ var mainController = function($scope, growl) {
     var url = new URL(url_string);
     var id = url.searchParams.get("id");
 
+    //display error
     $scope.error = function(text) {
         growl.error(text, { referenceId: 1 });
-
     };
 
+    //get to the next step of post creation
     $scope.next2 = function() {
         if ($scope.subject == null || $scope.subject == "") {
             growl.error("Seems like the subject of the post is missing, you have to provide one..", { referenceId: 1 });
@@ -105,6 +105,7 @@ var mainController = function($scope, growl) {
         }
     };
 
+    //encryption
     $scope.encrypt = function(input, password) {
 
         var salt = CryptoJS.lib.WordArray.random(128 / 8);
@@ -127,34 +128,37 @@ var mainController = function($scope, growl) {
         $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
     };
 
-    $scope.getCategories = function getCategories() {
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/category/getParents/" + id,
-            success: function(response) {
-                if (response == "NotFound") {
-                    // data.redirect contains the string URL to redirect to
-                    window.location = "newpost?id=5a650c8bb62a0c8536f056c7"
-                }
-                else {
-                    $scope.parents = response;
-                    $scope.$apply();
-                    console.log(response);
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
-                window.location = "newpost?id=5a650c8bb62a0c8536f056c7"
-            }
-        });
+    //on successfull aquire list of parents categories
+    var onParentsComplete = function(r) {
+        $scope.parents = r.data;
+    };
+    
+    //on succesfull send
+    var onSendCompleeted = function(r) {
+        alert("Your post has been added successfully.");
+        window.location = "post?id=" + r.data.id;
     };
 
+    //on failure
+    var redirect = function() {
+        window.location = "/newpost?id=5a650c8bb62a0c8536f056c7";
+    };
+    
+    //onError
+    var onError = function(r) {
+        console.log(r);
+    };
 
-    $(document).ready(function() {
-        $scope.getCategories()
-    })
-
+    //load data
+    if (id) {
+        $http.get("api/category/getParents/" + id)
+            .then(onParentsComplete, redirect)
+            .catch(angular.noop);
+    }
+    else {
+        window.location = "/newpost?id=5a650c8bb62a0c8536f056c7";
+    }
+ 
     $scope.send = function sent() {
         if (($scope.secret == null || $scope.secret == "") && encryption) {
             growl.error("Please provide the secret phrase or disable an encryption.", { referenceId: 2 });
@@ -163,34 +167,19 @@ var mainController = function($scope, growl) {
             if (encryption) {
                 $scope.text = $scope.encrypted;
             }
-            $.ajax({
-                method: "POST",
-                url: "api/post",
-                data: {
+            //prepare data to be sent
+            var data = {
                     text: $scope.text,
                     subject: $scope.subject,
                     category: id,
                     privacy: $scope.privacy,
                     encryption: encryption,
                     checkword: $scope.checkword
-                },
-                success: function(r) {
-                    $scope.getCategories();
-                    alert("Your post has been added successfully.");
-                    if(r.status == "OK")
-                    {
-                        window.location = "post?id=" + r.id;
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.log("ERROR: " + textStatus, errorThrown);
-                    console.log("ERROR: " + jqXHR.responseText);
-
-                    growl.error(jqXHR.responseText, { referenceId: 1 });
-                }
-            });
+                };
+            //execute sent action
+            $http.post('api/post', data)
+            .then(onSendCompleeted,onError).catch(angular.noop);
         }
-
     };
 };
-app.controller("mainController", ["$scope", "growl", mainController]);
+app.controller("mainController", ["$scope", "$http", "growl", mainController]);

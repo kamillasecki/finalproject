@@ -1,37 +1,38 @@
 <nav class="navbar navbar-default">
     <div class="container-fluid">
-        <div class="navbar-header"><a class="navbar-brand" href="#">Safe boards</a>
+        <div class="navbar-header"><a class="navbar-brand" href="/">Safe boards</a>
             <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
         </div>
         <div class="collapse navbar-collapse" id="navcol-1">
             <ul class="nav navbar-nav">
-                <li class="active" role="presentation"><a href="#">New post</a></li>
-                <li role="presentation"><a href="#">My posts</a></li>
+                <li class="active" role="presentation"><a href="newpost?id=5a650c8bb62a0c8536f056c7">New post</a></li>
+                <li role="presentation"><a href="list?id=5a650c8bb62a0c8536f056c7">/Main</a></li>
             </ul>
             <form class="navbar-form navbar-left" target="_self">
                 <div class="form-group">
                     <label class="control-label" for="search-field"><i class="glyphicon glyphicon-search"></i></label>
-                    <input class="form-control search-field" type="search" name="search" placeholder="Search..." id="search-field">
+                    <input class="form-control search-field" ng-model="sfield" placeholder="Search...">
+                    <button class="btn" ng-click="search()">find</button>
                 </div>
             </form>
             <ul class="nav navbar-nav navbar-right">
-                <li class="active" role="presentation"><a href="#">You are logged in as:</a></li>
+                <li class="presentation">
+                    <a class="btn btn-default btn-xs btn-link" style="font-size:20px;">
+                        <span class="glyphicon glyphicon-bell"></span>
+                    </a>
+                    <span class="badge badge-notify"><%= nCount%></span>
+                </li>
+                <li role="presentation"><a>You are logged in as:</a></li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
                         <%= user.displayname%> <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li role="presentation"><a href="#">First Item</a></li>
-                        <li role="presentation"><a href="#">Second Item</a></li>
-                        <li role="presentation"><a href="#">Third Item</a></li>
+                        <li role="presentation"><a href="#">My posts</a></li>
+                        <li role="presentation"><a href="#">Notifications</a></li>
+                        <li role="presentation"><a href="#">Settings</a></li>
+                        <li role="presentation"><a href="/logout">Logout </a></li>
                     </ul>
                 </li>
-                <li class="presentation">
-                    <button class="btn btn-default btn-lg btn-link" style="font-size:36px;">
-                        <span class="glyphicon glyphicon-bell"></span>
-                    </button>
-                    <span class="badge badge-notify"><%= nCount%></span>
-                </li>
-                <li role="presentation"><a href="/logout">Logout </a></li>
             </ul>
         </div>
     </div>

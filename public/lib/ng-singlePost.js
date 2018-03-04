@@ -12,7 +12,7 @@ app.config(['growlProvider', function(growlProvider) {
     growlProvider.globalTimeToLive(5000);
 }]);
 
-var mainController = function($scope, growl) {
+var mainController = function($scope, $http, growl) {
     $scope.post = {};
     $scope.showing = {};
     $scope.checkword = "";
@@ -25,203 +25,204 @@ var mainController = function($scope, growl) {
     var url = new URL(url_string);
     var id = url.searchParams.get("id");
 
+    //if load is completed
+    var onPostLoadCompleted = function(r) {
+        $scope.post = r.data;
+        if ($scope.post.settings.privacy == "pub") {
+            $("#loader").delay(800).fadeOut(400, function() {
+                $("#main").fadeIn(400);
+            });
+        }
+        else if ($scope.post.settings.isAllowed) {
+            if ($scope.post.settings.encryption.isEnabled) {
+                if ($scope.phrase == "") {
+                    $("#loader").delay(800).fadeOut(400, function() {
+                        $("#pass").fadeIn(400);
+                        $("#phrase").focus();
+                    });
+                }
+                else {
+                    $scope.decr();
+                    $scope.$apply();
+                }
+            }
+            else {
+                $("#loader").delay(800).fadeOut(400, function() {
+                    $("#main").fadeIn(400);
+                });
+            }
+        }
+        else {
+            if ($scope.post.settings.isRequested) {
+                $("#loader").delay(800).fadeOut(400, function() {
+                    $("#access_wait").fadeIn(400);
+                });
+            }
+            else {
+                $("#loader").delay(800).fadeOut(400, function() {
+                    $("#access").fadeIn(400);
+                });
+            }
+        }
+    };
+
+    //if load post returns error
+    var onLoadError = function() {
+        window.location = "/404";
+    };
+
+    //load the data
+    if (id) {
+        $http.get('api/post/' + id)
+            .then(onPostLoadCompleted, onLoadError)
+            .catch(angular.noop);
+    }
+    else {
+        window.location = "/404";
+    }
+
+    //reload the data
+    $scope.reload = function() {
+        var onPostReloadCompleted = function(r) {
+            $scope.post = r.data;
+            if ($scope.post.settings.encryption.isEnabled) {
+                $scope.decr();
+            }
+        };
+
+        $http.get('api/post/' + id)
+            .then(onPostReloadCompleted, onLoadError)
+            .catch(angular.noop);
+    };
+
+    //display error
     $scope.error = function(text) {
         growl.error("<strong>" + text + "</strong>");
     };
 
+    //unhide low score post
     $scope.show = function(sid) {
         $('#t_' + sid).removeClass("ng-hide");
         $('#e_' + sid).addClass("ng-hide");
     };
 
+    //unhide reply to comment form
     $scope.show_r = function(sid) {
         $('#re_' + sid).show();
         $('#relink_' + sid).hide();
     };
 
+    //hide reply to comment form
     $scope.hide_r = function(hid) {
         $('#re_' + hid).hide();
         $('#relink_' + hid).show();
     };
 
+    //unhide repliest to the comment
     $scope.show_rellist = function(rid) {
         $('.relistlink_' + rid).hide();
         $('.relist_' + rid).show();
     };
 
+    //hide repliest to the comment
     $scope.hide_rellist = function(id) {
         $('.relistlink_' + id).show();
         $('.relist_' + id).hide();
     };
 
-    $scope.load = function() {
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/post/" + id,
-            success: function(r) {
-                $scope.post = r;
-                $scope.$apply();
-                console.log(r);
-                if($scope.post.settings.privacy == "pub"){
-                    $("#loader").delay(800).fadeOut(400, function() {
-                            $("#main").fadeIn(400);
-                        });
-                } else if ($scope.post.settings.isAllowed) {
-                    if ($scope.post.settings.encryption.isEnabled) {
-                        if ($scope.phrase == "") {
-                            $("#loader").delay(800).fadeOut(400, function() {
-                                $("#pass").fadeIn(400);
-                                $("#phrase").focus();
-                            });
-                        }
-                        else {
-                            $scope.decr();
-                            $scope.$apply();
-                        }
-                    }
-                    else {
-                        $("#loader").delay(800).fadeOut(400, function() {
-                            $("#main").fadeIn(400);
-                        });
-                    }
-                }
-                else {
-                    $("#loader").delay(800).fadeOut(400, function() {
-                        $("#access").fadeIn(400);
-                    });
-                }
-
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
-                $("#loader").delay(800).fadeOut(400, function() {
-                    $("#main").fadeIn(400);
-                });
-                window.location = "/404";
-            }
-        });
-    };
-
     $(document).ready(function() {
         $scope.user = $("#user").val();
-        $scope.load();
     });
 
-    $scope.uvp = function(u) {
-        console.log("upvoting" + id);
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/post/upvote/" + id,
-            success: function(r) {
-                console.log(r);
-                if (r.n) {
-                    //update the score
-                    $('#score').text(r.n);
-                }
-                else {
-                    //display error message
-                    growl.error("<strong>" + r.m + "</strong>");
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
+    //upvoting the post
+    $scope.uvp = function() {
+        var onComplete = function(r) {
+            if (r.data.n != null) {
+                //update the score
+                $('#score').text(r.data.n);
             }
-        });
-    };
-
-    $scope.dvp = function(u) {
-        console.log("downvoting" + id);
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/post/downvote/" + id,
-            success: function(r) {
-                console.log(r);
-                if (r.n) {
-                    //update the score
-                    $('#score').text(r.n);
-                }
-                else {
-                    //display error message
-                    growl.error("<strong>" + r.m + "</strong>");
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
+            else {
+                //display error message
+                growl.error("<strong>" + r.data.m + "</strong>");
             }
-        });
+        };
+
+        var onError = function(r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.get('api/post/upvote/' + id)
+            .then(onComplete, onError)
+            .catch(angular.noop);
     };
 
-    $scope.uvr = function(u) {
-        console.log("upvoting" + u);
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/post/reply/upvote/" + u,
-            success: function(r) {
-                console.log(r);
-                if (r.n) {
-                    //update the score
-                    $('#score' + u).text(r.n);
-                }
-                else {
-                    //display error message
-                    growl.error("<strong>" + r.m + "</strong>");
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
+    //downvoting the post
+    $scope.dvp = function() {
+        var onComplete = function(r) {
+            if (r.data.n != null) {
+                //update the score
+                $('#score').text(r.data.n);
             }
-        });
-    };
-
-    $scope.dvr = function(u) {
-        console.log("downvoting" + u);
-        $.ajax({
-            method: "GET",
-            dataType: 'json',
-            url: "api/post/reply/downvote/" + u,
-            success: function(r) {
-                console.log(r);
-                if (r.n) {
-                    //update the score
-                    $('#score' + u).text(r.n);
-                }
-                else {
-                    //display error message
-                    growl.error("<strong>" + r.m + "</strong>");
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
+            else {
+                //display error message
+                growl.error("<strong>" + r.data.m + "</strong>");
             }
-        });
+        };
+
+        var onError = function(r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.get('api/post/downvote/' + id)
+            .then(onComplete, onError)
+            .catch(angular.noop);
     };
 
-    $scope.encrypt = function(input, password) {
+    //upvoting comment
+    $scope.uvr = function(commentId) {
+        var onComplete = function(r) {
+            if (r.data.n != null) {
+                //update the score
+                $('#score' + commentId).text(r.data.n);
+            }
+            else {
+                //display error message
+                growl.error("<strong>" + r.data.m + "</strong>");
+            }
+        };
 
-        var salt = CryptoJS.lib.WordArray.random(128 / 8);
-        var key = CryptoJS.PBKDF2(password, salt, {
-            keySize: keySize / 32,
-            iterations: iterations
-        });
-        var iv = CryptoJS.lib.WordArray.random(128 / 8);
-        var encrypted = CryptoJS.AES.encrypt(input, key, {
-            iv: iv,
-            padding: CryptoJS.pad.Pkcs7,
-            mode: CryptoJS.mode.CBC
-        });
-        var checkword = CryptoJS.AES.encrypt("decrypted", key, {
-            iv: iv,
-            padding: CryptoJS.pad.Pkcs7,
-            mode: CryptoJS.mode.CBC
-        });
-        $scope.encrypted = salt.toString() + iv.toString() + encrypted.toString();
-        $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
+        var onError = function(r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.get('api/post/reply/upvote/' + commentId)
+            .then(onComplete, onError)
+            .catch(angular.noop);
     };
 
+    //downvoting comment
+    $scope.dvr = function(commentId) {
+        var onComplete = function(r) {
+            if (r.data.n != null) {
+                //update the score
+                $('#score' + commentId).text(r.data.n);
+            }
+            else {
+                //display error message
+                growl.error("<strong>" + r.data.m + "</strong>");
+            }
+        };
+
+        var onError = function(r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.get('api/post/reply/downvote/' + commentId)
+            .then(onComplete, onError)
+            .catch(angular.noop);
+    };
+
+    //re-encrypt using the same parameters
     $scope.reen = function(input) {
         var key = CryptoJS.PBKDF2($scope.phrase, $scope.salt, {
             keySize: keySize / 32,
@@ -235,6 +236,7 @@ var mainController = function($scope, growl) {
         return $scope.salt + $scope.iv + encrypted.toString();
     }
 
+    //decryption
     $scope.decrypt = function(message, pass) {
         if (pass != null) {
             $scope.salt = CryptoJS.enc.Hex.parse(message.substr(0, 32));
@@ -265,88 +267,82 @@ var mainController = function($scope, growl) {
         }
     }
 
+    //send post responce
     $scope.spr = function() {
-        console.log("$scope.prep:" + $scope.prep);
-        if ($scope.prep == undefined || $scope.prep == "") {
+        if ($scope.prep == undefined || $scope.prep.trim() == "") {
             $scope.error("Your responce cannot be empty.");
         }
         else {
-            var data;
-            if ($scope.post.settings.encryption.isEnabled) {
-                data = { 'm': $scope.reen($scope.prep) };
-            }
-            else {
-                data = { 'm': $scope.prep };
-            }
-            $.ajax({
-                method: "POST",
-                url: "api/post/prep/" + id,
-                data: data
-            }).done(function(r) {
-                console.log("responce: ok" + r);
-                $("#res").val('');
-                $scope.load();
-            }).fail(function(jqXHR, textStatus) {
-                console.log("Request failed: " + textStatus);
-            });
+            var data = ($scope.post.settings.encryption.isEnabled ? { 'm': $scope.reen($scope.prep) } : { 'm': $scope.prep });
+
+            var onComplete = function(r) {
+                $scope.prep = "";
+                $scope.reload();
+            };
+
+            var onError = function(r) {
+                growl.error("<strong>" + r.status + "</strong>");
+            };
+
+            $http.post('api/post/prep/' + id, data)
+                .then(onComplete, onError)
+                .catch(angular.noop);
         }
     };
 
-    $scope.srr = function(id) {
-        var rep = $("#rrep_" + id).val();
+    //send reply to comment
+    $scope.srr = function(rid) {
+        var rep = $("#rrep_" + rid).val();
 
-        if (rep == undefined || rep == "") {
+        if (rep == undefined || rep.trim() == "") {
             $scope.error("Your responce cannot be empty.");
         }
         else {
-            var data;
-            if ($scope.post.settings.encryption.isEnabled) {
-                data = { 'm': $scope.reen(rep) };
-            }
-            else {
-                data = { 'm': rep };
-            }
-            $.ajax({
-                method: "POST",
-                url: "api/post/rrep/" + id,
-                data: data
-            }).done(function(r) {
-                console.log("responce: ok" + r);
-                $("#rrep_" + id).val('');
-                console.log("reloading");
-                $scope.load();
-                console.log("reloaded");
-            }).fail(function(jqXHR, textStatus) {
-                console.log("Request failed: " + textStatus);
-            });
+            var data = ($scope.post.settings.encryption.isEnabled ? { 'm': $scope.reen(rep) } : { 'm': rep });
+
+            var onComplete = function(r) {
+                $("#rrep_" + rid).val('');
+                $scope.reload();
+            };
+
+            var onError = function(r) {
+                growl.error("<strong>" + r.status + "</strong>");
+            };
+
+            $http.post('api/post/rrep/' + rid, data)
+                .then(onComplete, onError)
+                .catch(angular.noop);
         }
     };
 
+    //delete post
     $scope.pdel = function() {
-        $.ajax({
-            method: "DELETE",
-            url: "api/post/del/" + id
-        }).done(function(r) {
-            console.log("responce: ok" + r);
-            if (r.status == "error") {
-                growl.error("<strong>" + r.m + "</strong>");
+        var onComplete = function(r) {
+            if (r.data.status == 'error') {
+                growl.error("<strong>" + r.data.m + "</strong>");
             }
-            else if (r.status == "ok") {
-                alert(r.m);
-                window.location = '/';
+            else if (r.data.status == 'ok') {
+                alert(r.data.m);
+                window.location = '/list';
             }
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
-    }
+        };
 
+        var onError = function(r) {
+            console.log(r)
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.delete('api/post/' + id)
+            .then(onComplete, onError)
+            .catch(angular.noop);
+    };
+
+    //unhide post edit form
     $scope.pedit_show = function() {
         if ($scope.post.replies.length > 0) {
-            console.log("already commented, allow update only");
             $("#postedit2").show();
         }
         else {
-            console.log("not yet commented, allow edit.");
             $scope.temp = $scope.post.body.text;
             $("#posttext").hide();
             $("#postedit").show();
@@ -354,78 +350,86 @@ var mainController = function($scope, growl) {
 
     };
 
+    //hide post edit form
     $scope.pedit_close = function() {
         $scope.post.body.text = $scope.temp;
         $("#posttext").show();
         $("#postedit").hide();
     };
 
+    //hide post update form
     $scope.pedit2_close = function() {
         $scope.editt = null;
         $("#postedit2").hide();
     };
 
-    $scope.pupd = function() {
-        console.log("Updating post to ..." + $scope.post.body.text);
-        var data;
+    //saving post edit
+    $scope.pedit = function() {
         if ($scope.post.body.text.trim() != "") {
-            if ($scope.post.settings.encryption.isEnabled) {
-                data = { 'm': $scope.reen($scope.post.body.text) };
-            }
-            else {
-                data = { 'm': $scope.post.body.text };
-            }
-            $.ajax({
-                method: "PUT",
-                url: "api/post/update/" + id,
-                data: data
-            }).done(function(r) {
-                console.log("responce: ok");
-                console.log("reloading");
-                if (r.status == "error") {
-                    growl.error("<strong>" + r.m + "</strong>");
+            var data = ($scope.post.settings.encryption.isEnabled ? { 'm': $scope.reen($scope.post.body.text) } : { 'm': $scope.post.body.text });
+
+            var onComplete = function(r) {
+                if (r.data.status == "error") {
+                    growl.error("<strong>" + r.data.m + "</strong>");
                 }
                 else {
-                    $scope.load();
+                    $scope.reload();
                     $scope.pedit_close();
-                    console.log("reloaded");
                 }
-            }).fail(function(jqXHR, textStatus) {
-                console.log("Request failed: " + textStatus);
-            });
+            };
+
+            var onError = function(r) {
+                growl.error("<strong>" + r.status + "</strong>");
+            };
+
+            $http.put('api/post/edit/' + id, data)
+                .then(onComplete, onError)
+                .catch(angular.noop);
         }
         else {
-            $scope.error("Post message cannot be empty.")
+            $scope.error("Post message cannot be empty.");
         }
     };
 
-    $scope.pedit = function() {
-        console.log("Updating post to ..." + $scope.editt);
-        $.ajax({
-            method: "PUT",
-            url: "api/post/edit/" + id,
-            data: { 'm': $scope.editt }
-        }).done(function(r) {
-            $scope.editt = null;
-            console.log("responce: ok" + r);
-            if (r.status == "error") {
-                growl.error("<strong>" + r.m + "</strong>");
-            }
-            else {
-                console.log("reloading");
-                $scope.load();
-                $scope.pedit2_close();
-                console.log("reloaded");
-            }
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
+    //adding an update to the post
+    $scope.pupd = function() {
+        if ($scope.editt.trim() != "") {
+            var data = ($scope.post.settings.encryption.isEnabled ? { 'm': $scope.reen($scope.editt) } : { 'm': $scope.editt });
+
+            var onComplete = function(r) {
+                $scope.editt = null;
+                if (r.data.status == "error") {
+                    growl.error("<strong>" + r.data.m + "</strong>");
+                }
+                else {
+                    $scope.reload();
+                    $scope.pedit2_close();
+                }
+            };
+
+            var onError = function(r) {
+                growl.error("<strong>" + r.status + "</strong>");
+            };
+
+            $http.put('api/post/update/' + id, data)
+                .then(onComplete, onError)
+                .catch(angular.noop);
+        }
+        else {
+            $scope.error("Post update message cannot be empty.");
+        }
     };
 
+    //post decryption
     $scope.decr = function() {
         var check = $scope.decrypt($scope.post.settings.encryption.checkword, $scope.phrase);
         if (check == "decrypted") {
             $scope.post.body.text = $scope.decrypt($scope.post.body.text, $scope.phrase);
+            if ($scope.post.body.updates.length > 0) {
+                for (var k = 0; k < $scope.post.body.updates.length; k++) {
+                    $scope.post.body.updates[k] = $scope.decrypt($scope.post.body.updates[k], $scope.phrase);
+                }
+            }
             if ($scope.post.replies.length > 0) {
                 for (var i = 0; i < $scope.post.replies.length; i++) {
                     $scope.post.replies[i].text = $scope.decrypt($scope.post.replies[i].text, $scope.phrase);
@@ -445,103 +449,106 @@ var mainController = function($scope, growl) {
 
     };
 
+    //delete reply
     $scope.rdel = function(rid) {
-        $.ajax({
-            method: "DELETE",
-            url: "api/post/reply/del/" + rid,
-            data: { 'pid': id }
-        }).done(function(r) {
-            console.log("responce: ok" + r);
-            if (r.status == "error") {
-                growl.error("<strong>" + r.m + "</strong>");
-            }
-            else if (r.status == "ok") {
-                alert(r.m);
-                window.location = '/';
-            }
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
-    };
-
-    $scope.redit_show = function(id) {
-        $scope.temp = $("#trepedit_" + id).val();
-        $("#reptext_" + id).hide();
-        $("#repedit_" + id).show();
-    };
-
-    $scope.rupd = function(id) {
-        var data;
-        if ($("#trepedit_" + id).val().trim() != "") {
-            if ($scope.post.settings.encryption.isEnabled) {
-                data = { 'm': $scope.reen($("#trepedit_" + id).val().trim()) };
+        var onComplete = function(r) {
+            if (r.status == 200) {
+                alert(r.data);
+                $scope.reload();
             }
             else {
-                data = { 'm': $("#trepedit_" + id).val().trim() };
+                growl.error("<strong>" + r.status + "</strong>");
             }
-            $.ajax({
-                method: "PUT",
-                url: "api/post/reply/edit/" + id,
-                data: data
-            }).done(function(r) {
-                console.log("responce: ok");
-                console.log("reloading");
-                if (r.status == "error") {
-                    growl.error("<strong>" + r.m + "</strong>");
+        };
+
+        var onError = function(r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.delete('api/post/reply/' + rid)
+            .then(onComplete, onError)
+            .catch(angular.noop);
+    };
+
+    //unhide comment reply form
+    $scope.redit_show = function(rid) {
+        $scope.temp = $("#trepedit_" + rid).val();
+        $("#reptext_" + rid).hide();
+        $("#repedit_" + rid).show();
+    };
+
+    //edit comment
+    $scope.rupd = function(rid) {
+        if ($("#trepedit_" + id).val().trim() != "") {
+            var data = ($scope.post.settings.encryption.isEnabled ? { 'm': $scope.reen($("#trepedit_" + id).val().trim()) } : { 'm': $("#trepedit_" + id).val().trim() });
+
+            var onComplete = function(r) {
+                if (r.data.status == "error") {
+                    growl.error("<strong>" + r.data.m + "</strong>");
                 }
                 else {
-                    $scope.load();
-                    console.log("reloaded");
+                    $scope.reload();
                 }
-            }).fail(function(jqXHR, textStatus) {
-                console.log("Request failed: " + textStatus);
-            });
+            };
+
+            var onError = function(r) {
+                growl.error("<strong>" + r.status + "</strong>");
+            };
+
+            $http.put('api/post/reply/edit/' + rid, data)
+                .then(onComplete, onError)
+                .catch(angular.noop);
         }
         else {
-            $scope.error("Reply message cannot be empty.")
+            $scope.error("Reply message cannot be empty.");
         }
     };
     
+    //delete comment reply
     $scope.rrdel = function(rid, pid) {
-        $.ajax({
-            method: "DELETE",
-            url: "api/post/rreply/" + rid + "/" + pid
-        }).done(function(r) {
-            console.log("responce: ok" + r);
-            if (r.status == "error") {
-                growl.error("<strong>" + r.m + "</strong>");
+        var onComplete = function (r) {
+            if (r.status == 200) {
+                alert(r.data);
+                $scope.reload();
             }
-            else if (r.status == "ok") {
-                alert(r.m);
-                window.location = '/';
+            else {
+                growl.error("<strong>" + r.status + "</strong>");
             }
-        }).fail(function(jqXHR, textStatus) {
-            console.log("Request failed: " + textStatus);
-        });
+        };
+        
+        var onError = function (r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+        
+        $http.delete('api/post/rreply/' + rid + "/" + pid)
+        .then(onComplete,onError)
+        .catch(angular.noop);
     };
-    
-    $scope.areq  =function () {
+
+    //request access to the post
+    $scope.areq = function() {
         var data = { 'm': $scope.request_t };
-        $.ajax({
-            method: "POST",
-            dataType: 'json',
-            url: "api/post/reqaccess/" + id,
-            data: data,
-            success: function(r) {
-                if(r.status=="ok"){
+        
+        var onComplete = function (r) {
+            if (r.data.status == "ok") {
                     growl.info("<strong>" + r.message + "</strong>");
                     window.location = "/list?id=" + $scope.post.settings.category;
-                } else {
-                    growl.error("<strong>" + r.message + "</strong>");
+                }
+                else {
+                    growl.error("<strong>" + r.data.message + "</strong>");
                     window.location = "/list?id=" + $scope.post.settings.category;
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("ERROR: " + textStatus, errorThrown);
-            }
-        });
+        };
+        
+        var onError = function (r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+        
+        $http.post('api/post/reqaccess/' + id, data)
+        .then(onComplete, onError)
+        .catch(angular.noop);
     };
 
 };
 
-app.controller("mainController", ["$scope", "growl", mainController]);
+app.controller("mainController", ["$scope", "$http", "growl", mainController]);

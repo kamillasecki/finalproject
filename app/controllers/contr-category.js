@@ -66,17 +66,8 @@ exports.getParents = function(req, res) {
         category.findOne({ '_id': requestedCategoryId })
             .populate('categoriesId')
             .exec(function(err, result) {
-                if (err) {
-                    console.log("Error when trying to access database: " + err);
-                    var r = {};
-                    r.status = "notfound";
-                    res.send(r);
-                }
-                else if (result == null || result == undefined || result == "") {
-                    var r = {};
-                    r.status = "notfound";
-                    res.send(r);
-                    //res.render('notfound.ejs');
+                if (err || !result) {
+                    res.status(406).end();
                 }
                 else {
                     if (result.parent == null) {
@@ -91,10 +82,7 @@ exports.getParents = function(req, res) {
             });
     }
     else {
-        console.log("######################NOT VALID ID");
-        var r = {};
-        r.status = "notfound";
-        res.send(r);
+        res.status(406).end();
     }
 };
 

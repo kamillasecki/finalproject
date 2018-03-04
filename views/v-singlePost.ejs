@@ -5,15 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeBoards</title>
-    <!--<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic">-->
-    <link rel="stylesheet" href="/lib/font-awesome/web-fonts-with-css/css/fontawesome-all.css">
-    <link rel="stylesheet" href="/stylesheets/styles.min.css">
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/lib/angular-growl-v2/build/angular-growl.min.css">
-    <script src="/lib/angular/angular.min.js"></script>
+    <% include ./index_partials/head %>
     <script src="/lib/crypto-js/crypto-js.js"></script>
-    <script src="/lib/jquery/dist/jquery.min.js"></script>
-    <script src="/lib/angular-growl-v2/build/angular-growl.js"></script>
 </head>
 
 <body ng-controller="mainController as mainCtrl">
@@ -51,6 +44,12 @@
                 <textarea class="form-control" ng-model="request_t"></textarea>
                 <button class="btn btn-success" type="button" ng-href='#here' ng-click="areq()">Request </button>
             </form>
+        </div>
+        
+        <div id="access_wait" class="centered" style="display:none">
+            <h3>This post is available for allowed users only.</h3>
+            <h3>You have already requested access to this post.</h3>
+            <h3>Your request is awaiting for administator review.</h3>
         </div>
 
         <!-- ================================================-->
@@ -101,13 +100,13 @@
 
                                 <form id="postedit" hidden="">
                                     <textarea id="update" class="form-control" ng-model="post.body.text"></textarea>
-                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit()">Save </button>
                                     <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit_close()">Cancel </button>
                                 </form>
                                 <form id="postedit2" hidden="">
-                                    <label>EDIT #{{post.body.updates.length+1}}:</label>
-                                    <textarea id="edit" class="form-control" ng-model="editt">EDIT : #{{post.body.updates.length}}</textarea>
-                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit()">Save </button>
+                                    <label>UPDATE #{{post.body.updates.length+1}}:</label>
+                                    <textarea id="edit" class="form-control" ng-model="editt">UPDATE : #{{post.body.updates.length}}</textarea>
+                                    <button class="btn btn-default" type="button" ng-href='#here' ng-click="pupd()">Save </button>
                                     <button class="btn btn-default" type="button" ng-href='#here' ng-click="pedit2_close()">Cancel </button>
                                 </form>
                                 <footer>by {{post.settings.author.displayname}}</footer>
