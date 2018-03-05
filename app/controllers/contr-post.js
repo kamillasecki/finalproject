@@ -8,14 +8,9 @@ var mongoose = require('mongoose');
 exports.newPost = function(req, res) {
     category.findOne({ '_id': req.body.category }).exec(function(err, doc) {
 
-        if (err) { console.log('Error while trying to get category from database'); }
-        if (doc == null || doc == undefined || doc == "") {
-            console.log("No such a parent category exists");
-            res.writeHead(302, {
-                'Location': '404'
-            });
-            res.redirect('/post?id=5a650c8bb62a0c8536f056c7');
-            res.end();
+        if (err || !doc) {
+            res.status(406);
+            res.send("Is teems that there was a problem with category you have chosen.");
         }
         else {
             if (req.body.privacy == "" || req.body.privacy == null || req.body.privacy == undefined) {
@@ -23,19 +18,19 @@ exports.newPost = function(req, res) {
                 res.status(406);
                 res.send("You have to choose the privacy setting");
             }
-            else if (req.body.text == "" || req.body.text == null || req.body.text == undefined) {
+            else if (req.body.text.trim() == "" || req.body.text == null || req.body.text == undefined) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("Seems like the text of the post is missing, you have to write something.");
             }
-            else if (req.body.subject == "" || req.body.subject == null || req.body.subject == undefined) {
+            else if (req.body.subject.trim() == "" || req.body.subject == null || req.body.subject == undefined) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("Seems like the subject of the post is missing, you have to provide one.");
             }
             else {
                 var p = new post();
-                var me = new mongoose.Types.ObjectId(req.user._id)
+                var me = new mongoose.Types.ObjectId(req.user._id);
                 p.settings.author = me;
                 p.settings.category = new mongoose.Types.ObjectId(req.body.category);
                 p.settings.privacy = req.body.privacy;
@@ -64,15 +59,13 @@ exports.newPost = function(req, res) {
                 p.header.votes.downVotes = [];
                 p.save(function(err, newPost) {
                     if (err) {
-                        console.log("Error when saving new post: " + err);
+                        res.status(406);
+                        res.send("An error occured when saving your post to the database. Please try again.");
                     }
-                    console.log("Saved new post: " + newPost._id);
                     doc.postsId.push(mongoose.Types.ObjectId(newPost._id));
                     doc.save();
-                    var r = {};
-                    r.status = "OK";
-                    r.id = newPost._id;
-                    res.send(r);
+                    res.status(200);
+                    res.send(newPost._id);
                 });
             }
         }
@@ -113,21 +106,29 @@ exports.getPost = function(req, res) {
                 doc.settings.isAdmin = false;
                 doc.settings.isRequested = false;
                 doc.settings.isAllowed = false;
-                for (var i = 0; i < doc.settings.access.admin.length; i++) {
-                    if (doc.settings.access.admin[i].toString() == req.user._id) {
-                        doc.settings.isAdmin = true;
+                if (req.user) {
+                    //check if user is an admin
+                    for (var i = 0; i < doc.settings.access.admin.length; i++) {
+                        if (doc.settings.access.admin[i].toString() == req.user._id) {
+                            doc.settings.isAdmin = true;
+                        }
+                    }
+
+                    //check if user is allowed to access the post
+                    for (var j = 0; j < doc.settings.access.allowed.length; j++) {
+                        if (doc.settings.access.allowed[j].toString() == req.user._id) {
+                            doc.settings.isAllowed = true;
+                        }
+                    }
+
+                    //check if user is awaiting to get access to the post
+                    for (var k = 0; k < doc.settings.access.requested.length; k++) {
+                        if (doc.settings.access.requested[k].toString() == req.user._id) {
+                            doc.settings.isRequested = true;
+                        }
                     }
                 }
-                for (var j = 0; j < doc.settings.access.allowed.length; j++) {
-                    if (doc.settings.access.allowed[j].toString() == req.user._id) {
-                        doc.settings.isAllowed = true;
-                    }
-                }
-                for (var k = 0; k < doc.settings.access.requested.length; k++) {
-                    if (doc.settings.access.requested[k].toString() == req.user._id) {
-                        doc.settings.isRequested = true;
-                    }
-                }
+
                 if (doc.settings.isAllowed) {
                     doc.settings.access = null;
                     res.send(doc);
@@ -571,7 +572,8 @@ exports.pupd = function(req, res) {
 };
 
 exports.rdel = function(req, res) {
-    var repId = req.params.id;
+    var repId = req.params.rid;
+    var posId = req.params.pid;
     reply.findOne({ _id: repId }).exec(function(err, r) {
         if (err) {
             res.render('notfound.ejs');
@@ -594,7 +596,7 @@ exports.rdel = function(req, res) {
                         res.render('notfound.ejs');
                     }
                     else {
-                        post.update({ _id: req.body.pid }, { $pull: { replies: mongoose.Types.ObjectId(repId) } }, { multi: true },
+                        post.update({ _id: posId }, { $pull: { replies: mongoose.Types.ObjectId(repId) } }, { multi: true },
                             function(err) {
                                 if (err) {
                                     console.log("Error when removing reply ref from post category:" + err);
@@ -649,7 +651,9 @@ exports.redit = function(req, res) {
 
 exports.postByCat = function(req, res) {
     var cId = req.params.id;
+    //check if cId is valid mongoose id
     if (mongoose.Types.ObjectId.isValid(cId)) {
+        //get category from DB
         category.findOne({ _id: cId })
             .populate({
                 path: 'postsId',
@@ -661,13 +665,17 @@ exports.postByCat = function(req, res) {
                 else {
                     var out = [];
                     out = c.postsId;
+                    //check each post
                     for (var i = 0; i < c.postsId.length; i++) {
                         var isMember = false;
+                        //if posts privacy is closed group - hidden
                         if (c.postsId[i].settings.privacy == "cgh") {
                             out[i].settings.isAdmin = false;
-                            for (var k = 0; k < c.postsId[i].settings.access.allowed.length; k++) {
-                                if (c.postsId[i].settings.access.allowed[k].toString() == req.user._id) {
-                                    isMember = true;
+                            if (req.user) {
+                                for (var k = 0; k < c.postsId[i].settings.access.allowed.length; k++) {
+                                    if (c.postsId[i].settings.access.allowed[k].toString() == req.user._id) {
+                                        isMember = true;
+                                    }
                                 }
                             }
                             out[i].settings.access = null;

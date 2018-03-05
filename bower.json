@@ -22,7 +22,8 @@
     "angular-sanitize": "^1.6.7",
     "bootstrap": "~3.3.7",
     "crypto-js": "^3.1.9",
-    "location": "^1.0.11"
+    "location": "^1.0.11",
+    "angular": "^1.6.9"
   },
   "resolutions": {
     "bootstrap": "~3.3.7"

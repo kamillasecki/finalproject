@@ -21,7 +21,6 @@ var mainController = function($scope, $http, growl) {
         $http.get("/api/post/byCat/" + id)
         .then(onPostByCatComplete,redirect)
         .catch(angular.noop);
-
     };
 
     //on successfull aquire list of posts
@@ -43,7 +42,6 @@ var mainController = function($scope, $http, growl) {
         window.location = "/list?id=5a650c8bb62a0c8536f056c7";
     }
 
-    
     $scope.search = function() {
         var data = { 's': $scope.sfield };
         $.ajax({

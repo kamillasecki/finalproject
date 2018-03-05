@@ -14,9 +14,14 @@
             <li ng-repeat="cat in parents | orderBy:'-'"><a href="/list?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
         </ol>
 
-        <div class="row">
+        <div class="contact-clean smp row">
             <div class="col-md-2" style="padding:36px;">
-                Subcategories:
+                <div>
+                    <a href="/newpost?id={{id}}" class="btn btn-success">
+                            Create new post
+                        </a>
+                </div>
+                <hr/> Subcategories:
                 <ul class="list-group">
                     <li class="list-group-item" ng-repeat="catt in parents[0].categoriesId" style="padding-bottom: 30px;">
                         <a href="/list?id={{catt._id}}" class="col-md-11" ng-bind="catt.name"></a>
@@ -27,20 +32,16 @@
             <!--===========MAIN=============-->
 
             <div class="col-md-8" style="margin:0px;padding:30px;">
-                <div>
-                    <a href="/newpost?id={{id}}" class="btn btn-success">
-                        Create new post
-                    </a>
-                </div>
-                <hr/>
+
                 <form>
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                            <input type="text" class="form-control" placeholder="Search subject" ng-model="searchSubject">
+                            <input type="text" class="form-control" placeholder="Filter subjects" ng-model="searchSubject">
                         </div>
                     </div>
                 </form>
+
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
@@ -99,12 +100,12 @@
                         </tr>
                     </tbody>
                 </table>
-                <% include ./index_partials/footer %>
+
             </div>
             <div class="col-md-2"></div>
         </div>
-
-        <script src="/lib/ng-list.js"></script>
+        <% include ./index_partials/footer %>
+            <script src="/lib/ng-list.js"></script>
 </body>
 
 </html>

@@ -37,13 +37,22 @@ module.exports = function(app, passport) {
 
 	// DISPLAY SINGLE POST =========================
 
-	app.get('/post', isLoggedIn, function(req, res) {
-		req.user.getCount(function(u) {
-			res.render('v-singlePost.ejs', {
-				user: req.user,
-				nCount: u
+	app.get('/post', function(req, res) {
+
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-singlePost.ejs', {
+					user: req.user,
+					nCount: u
+				});
 			});
-		});
+		}
+		else {
+			res.render('v-singlePost.ejs', {
+				user: null,
+				nCount: null
+			});
+		}
 	});
 
 	// CATEGORY MANAGEMENT =========================
@@ -58,14 +67,21 @@ module.exports = function(app, passport) {
 
 	// DISPLAY LIST OF POSTST PER CATEGORY =========
 
-	app.get('/list', isLoggedIn, function(req, res) {
-
-		req.user.getCount(function(u) {
-			res.render('v-list.ejs', {
-				user: req.user,
-				nCount: u
+	app.get('/list', function(req, res) {
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-list.ejs', {
+					user: req.user,
+					nCount: u
+				});
 			});
-		});
+		}
+		else {
+			res.render('v-list.ejs', {
+				user: null,
+				nCount: null
+			});
+		}
 	});
 
 	// DISPLAY SEARCH RESULTS
@@ -160,7 +176,7 @@ module.exports = function(app, passport) {
 		postCtrl.rrep(req, res);
 	});
 	//delete reply
-	app.delete('/api/post/reply/:id', function(req, res) {
+	app.delete('/api/post/:pid/reply/:rid', function(req, res) {
 		postCtrl.rdel(req, res);
 	});
 	//delete reply comment

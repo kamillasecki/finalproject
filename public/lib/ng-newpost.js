@@ -52,7 +52,7 @@ app.config(['growlProvider', function(growlProvider) {
     growlProvider.globalPosition('bottom-center');
 }]);
 
-var mainController = function($scope, $http, growl) {
+var mainController = function($scope, $http, $log, growl) {
     $scope.message = '';
     $scope.tempMessage = '';
     $scope.parents = [];
@@ -136,7 +136,7 @@ var mainController = function($scope, $http, growl) {
     //on succesfull send
     var onSendCompleeted = function(r) {
         alert("Your post has been added successfully.");
-        window.location = "post?id=" + r.data.id;
+        window.location = "post?id=" + r.data;
     };
 
     //on failure
@@ -146,7 +146,9 @@ var mainController = function($scope, $http, growl) {
     
     //onError
     var onError = function(r) {
-        console.log(r);
+        $scope.error(r.data);
+        $log.error(r.data);
+        
     };
 
     //load data
@@ -160,7 +162,7 @@ var mainController = function($scope, $http, growl) {
     }
  
     $scope.send = function sent() {
-        if (($scope.secret == null || $scope.secret == "") && encryption) {
+        if (($scope.secret == null || $scope.secret.trim() == "") && encryption) {
             growl.error("Please provide the secret phrase or disable an encryption.", { referenceId: 2 });
         }
         else {
@@ -182,4 +184,4 @@ var mainController = function($scope, $http, growl) {
         }
     };
 };
-app.controller("mainController", ["$scope", "$http", "growl", mainController]);
+app.controller("mainController", ["$scope", "$http", "$log", "growl", mainController]);
