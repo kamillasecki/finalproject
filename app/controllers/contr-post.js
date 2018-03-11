@@ -96,11 +96,14 @@ exports.getPost = function(req, res) {
         })
         .exec(function(err, doc) {
             if (err) {
-                console.log('Error while trying to get post from the database');
+                res.setHeader("Content-Type", "text/html");
+                res.status(406);
+                res.send("An error on connection to the database occured");
             }
             else if (!doc) {
-                console.log("Post doesn't exist");
-                res.render('notfound.ejs');
+                res.setHeader("Content-Type", "text/html");
+                res.status(404);
+                res.send("No such a post exists.");
             }
             else if (doc.settings.privacy != "pub") {
                 doc.settings.isAdmin = false;
@@ -145,6 +148,7 @@ exports.getPost = function(req, res) {
                 }
             }
             else {
+                //post is public
                 doc.settings.access = null;
                 res.send(doc);
             }
@@ -657,37 +661,13 @@ exports.postByCat = function(req, res) {
         category.findOne({ _id: cId })
             .populate({
                 path: 'postsId',
-                select: ['header', 'createdAt', 'settings', 'replies']
+                select: '-body'
             }).exec(function(err, c) {
                 if (err || !c) {
                     res.status(400).end();
                 }
                 else {
-                    var out = [];
-                    out = c.postsId;
-                    //check each post
-                    for (var i = 0; i < c.postsId.length; i++) {
-                        var isMember = false;
-                        //if posts privacy is closed group - hidden
-                        if (c.postsId[i].settings.privacy == "cgh") {
-                            out[i].settings.isAdmin = false;
-                            if (req.user) {
-                                for (var k = 0; k < c.postsId[i].settings.access.allowed.length; k++) {
-                                    if (c.postsId[i].settings.access.allowed[k].toString() == req.user._id) {
-                                        isMember = true;
-                                    }
-                                }
-                            }
-                            out[i].settings.access = null;
-                            if (!isMember) {
-                                out.splice(i, 1);
-                            }
-                        }
-                    }
-                    for (var j = 0; j < out.length; j++) {
-                        out[j].settings.access = null;
-                    }
-                    res.send(out);
+                    res.send(filter(c.postsId, req.user));
                 }
             });
     }
@@ -787,13 +767,47 @@ exports.reqAccess = function(req, res) {
 };
 
 exports.findp = function(req, res) {
-    post.find({ $text: { $search: req.body.s } }).exec(function(err, p) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log(p);
-            res.send(p);
-        }
-    });
+    post.find({ $text: { $search: req.params.search } })
+        .select('-body')
+        .exec(function(err, p) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                if (err || !p) {
+                    res.status(400).end();
+                }
+                else {
+                    res.send(filterPosts(p, req.user));
+                }
+            }
+        });
 };
+
+function filterPosts(postsArray, user) {
+    var out = [];
+    out = postsArray;
+    //check each post
+    for (var i = 0; i < postsArray.length; i++) {
+        var isMember = false;
+        //if posts privacy is closed group - hidden
+        if (postsArray[i].settings.privacy == "cgh") {
+            out[i].settings.isAdmin = false;
+            if (user) {
+                for (var k = 0; k < postsArray[i].settings.access.allowed.length; k++) {
+                    if (postsArray[i].settings.access.allowed[k].toString() == user._id) {
+                        isMember = true;
+                    }
+                }
+            }
+            out[i].settings.access = null;
+            if (!isMember) {
+                out.splice(i, 1);
+            }
+        }
+    }
+    for (var j = 0; j < out.length; j++) {
+        out[j].settings.access = null;
+    }
+    return out;
+}

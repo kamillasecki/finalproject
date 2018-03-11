@@ -1,3 +1,10 @@
+<script>
+    function search() {
+        var input = document.getElementById("sfield");
+        window.location = "/search?f=" + input.value;
+    }
+</script>
+
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header"><a class="navbar-brand" href="/">Safe boards</a>
@@ -11,37 +18,36 @@
             <form class="navbar-form navbar-left" target="_self">
                 <div class="form-group">
                     <label class="control-label" for="search-field"><i class="glyphicon glyphicon-search"></i></label>
-                    <input class="form-control search-field" ng-model="sfield" placeholder="Search...">
-                    <button class="btn" ng-click="search()">find</button>
+                    <input class="form-control search-field" id="sfield" placeholder="Search...">
+                    <button class="btn" onclick="search()">find</button>
                 </div>
             </form>
             <ul class="nav navbar-nav navbar-right">
                 <% if (nCount) { %>
-                <li class="presentation">
-                    <a class="btn btn-default btn-xs btn-link" style="font-size:20px;">
+                    <li class="presentation">
+                        <a class="btn btn-default btn-xs btn-link" style="font-size:20px;">
                         <span class="glyphicon glyphicon-bell"></span>
                     </a>
-                    <span class="badge badge-notify"><%= nCount%></span>
-                </li>
-                <% } %>
-                <% if (user) { %>
-                <li role="presentation"><a>You are logged in as:</a></li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
-                        <%= user.displayname%> <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li role="presentation"><a href="#">My posts</a></li>
-                        <li role="presentation"><a href="#">Notifications</a></li>
-                        <li role="presentation"><a href="#">Settings</a></li>
-                        <li role="presentation"><a href="/logout">Logout </a></li>
-                    </ul>
-                    <% } else { %>
-                    <li role="presentation"><a href="/">Login </a></li>
+                        <span class="badge badge-notify"><%= nCount%></span>
+                    </li>
                     <% } %>
-                </li>
+                        <% if (user) { %>
+                            <li role="presentation"><a>You are logged in as:</a></li>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                    <%= user.displayname%> <span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li role="presentation"><a href="#">My posts</a></li>
+                                    <li role="presentation"><a href="#">Notifications</a></li>
+                                    <li role="presentation"><a href="#">Settings</a></li>
+                                    <li role="presentation"><a href="/logout">Logout </a></li>
+                                </ul>
+                                <% } else { %>
+                                    <li role="presentation"><a href="/">Login </a></li>
+                                    <% } %>
+                            </li>
             </ul>
         </div>
     </div>
 </nav>
 <div></div>
-    

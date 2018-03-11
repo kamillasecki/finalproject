@@ -19,6 +19,7 @@ var mainController = function($scope, $http, $log, growl) {
     
     //if load is completed
     var onPostLoadCompleted = function(r) {
+        console.log(r);
         $scope.post = r.data;
         if ($scope.post.settings.privacy == "pub") {
             $("#loader").delay(800).fadeOut(400, function() {
@@ -26,8 +27,11 @@ var mainController = function($scope, $http, $log, growl) {
             });
         }
         else if ($scope.post.settings.isAllowed) {
+            console.log("IS ALLOWED")
             if ($scope.post.settings.encryption.isEnabled) {
-                if ($scope.phrase == "") {
+                console.log("ENCRYPTION ENABLED")
+                console.log($scope.phrase)
+                if (!$scope.phrase) {
                     $("#loader").delay(800).fadeOut(400, function() {
                         $("#pass").fadeIn(400);
                         $("#phrase").focus();

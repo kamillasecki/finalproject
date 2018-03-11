@@ -86,19 +86,20 @@ module.exports = function(app, passport) {
 
 	// DISPLAY SEARCH RESULTS
 	app.get("/search", function(req, res) {
-		req.user.getCount(function(u) {
-			res.render('v-search.ejs', {
-				user: req.user,
-				nCount: u
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-search.ejs', {
+					user: req.user,
+					nCount: u
+				});
 			});
-		});
-	});
-
-	// decryption demo --------------------------
-	app.get('/demo', isLoggedIn, function(req, res) {
-		res.render('encodingdemo.ejs', {
-			user: req.user
-		});
+		}
+		else {
+			res.render('v-search.ejs', {
+				user: null,
+				nCount: null
+			});
+		}
 	});
 
 	// PAGE NOT FOUND --------------------------
@@ -113,7 +114,7 @@ module.exports = function(app, passport) {
 
 	//POST API
 	//search posts
-	app.post('/api/post/find', function(req, res) {
+	app.get('/api/post/find/:search', function(req, res) {
 		postCtrl.findp(req, res);
 	});
 

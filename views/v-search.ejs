@@ -10,26 +10,28 @@
 
 <body ng-controller="mainController">
     <% include ./index_partials/navbar %>
-        <ol class="breadcrumb">
-            <li ng-repeat="cat in parents | orderBy:'-'"><a href="/list?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
-        </ol>
-
-        <div class="row">
+        <div class="contact-clean smp row">
             <div class="col-md-2" style="padding:36px;">
-                
+                <div>
+                    <a href="/newpost?id={{id}}" class="btn btn-success">
+                            Create new post
+                        </a>
+                </div>
             </div>
 
             <!--===========MAIN=============-->
 
             <div class="col-md-8" style="margin:0px;padding:30px;">
+
                 <form>
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                            <input type="text" class="form-control" placeholder="Search subject" ng-model="searchSubject">
+                            <input type="text" class="form-control" placeholder="Filter subjects" ng-model="searchSubject">
                         </div>
                     </div>
                 </form>
+
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
@@ -88,12 +90,12 @@
                         </tr>
                     </tbody>
                 </table>
-                <% include ./index_partials/footer %>
+
             </div>
             <div class="col-md-2"></div>
         </div>
-
-        <script src="/lib/ng-list.js"></script>
+        <% include ./index_partials/footer %>
+            <script src="/lib/ng-search.js"></script>
 </body>
 
 </html>
