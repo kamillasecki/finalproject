@@ -42,10 +42,6 @@ var mainController = function($scope, $http, growl) {
         window.location = "/list?id=5a650c8bb62a0c8536f056c7";
     }
 
-    $scope.search = function() {
-        window.location = "/search?f=" + $scope.sfield ;
-    };
-
     $(document).ready(function() {
         $scope.user = $("#user").val();
         $('[data-toggle="tooltip"]').tooltip();

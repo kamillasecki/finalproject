@@ -64,6 +64,13 @@
                                     <span ng-show="sortType == 'header.votes.num' && sortReverse" class="fa fa-caret-down"></span>
                                 </a>
                             </th>
+                            <th>
+                                <a href="" ng-click="sortType = 'settings.category.name'; sortReverse = !sortReverse">
+                                   Category
+                                    <span ng-show="sortType == 'settings.category.name' && !sortReverse" class="fa fa-caret-up"></span>
+                                    <span ng-show="sortType == 'settings.category.name' && sortReverse" class="fa fa-caret-down"></span>
+                                </a>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,6 +93,9 @@
                             </td>
                             <td>
                                 {{post.header.votes.num}}
+                            </td>
+                            <td>
+                                {{post.settings.category.name}}
                             </td>
                         </tr>
                     </tbody>

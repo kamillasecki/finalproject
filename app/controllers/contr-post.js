@@ -667,7 +667,7 @@ exports.postByCat = function(req, res) {
                     res.status(400).end();
                 }
                 else {
-                    res.send(filter(c.postsId, req.user));
+                    res.send(filterPosts(c.postsId, req.user));
                 }
             });
     }
@@ -768,6 +768,7 @@ exports.reqAccess = function(req, res) {
 
 exports.findp = function(req, res) {
     post.find({ $text: { $search: req.params.search } })
+        .populate('settings.category')
         .select('-body')
         .exec(function(err, p) {
             if (err) {
@@ -778,6 +779,7 @@ exports.findp = function(req, res) {
                     res.status(400).end();
                 }
                 else {
+                    console.log(filterPosts(p, req.user));
                     res.send(filterPosts(p, req.user));
                 }
             }
