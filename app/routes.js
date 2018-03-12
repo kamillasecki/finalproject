@@ -1,7 +1,7 @@
 module.exports = function(app, passport) {
 	var categoryCtrl = require("./controllers/contr-category.js");
 	var postCtrl = require("./controllers/contr-post.js");
-	var notifCtrl = require("./controllers/contr-notifications.js");
+	var notificationCtrl = require("./controllers/contr-notifications.js");
 
 	// ============================================================================
 	// PAGES ROUTES ===============================================================
@@ -100,6 +100,16 @@ module.exports = function(app, passport) {
 				nCount: null
 			});
 		}
+	});
+	
+	// DISPLAY NOTIFICATIONS
+	app.get("/notifications", isLoggedIn, function(req,res) {
+		req.user.getCount(function(u) {
+				res.render('v-notifications.ejs', {
+					user: req.user,
+					nCount: u
+				});
+			});
 	});
 
 	// PAGE NOT FOUND --------------------------
@@ -201,6 +211,28 @@ module.exports = function(app, passport) {
 
 	app.get('/api/category/getParents/:id', function(req, res) {
 		categoryCtrl.getParents(req, res);
+	});
+	
+	//NOTIFICATIONS API
+	
+	app.get('/api/notifications/:user', function(req,res) {
+		notificationCtrl.getByUser(req,res);	
+	});
+	
+	app.post('/api/notifications/denyPostAccess/:id', function(req,res) {
+		notificationCtrl.denyPostAccess(req,res);	
+	});
+	
+	app.post('/api/notifications/allowPostAccess/:id', function(req,res) {
+		notificationCtrl.allowPostAccess(req,res);	
+	});
+	
+	app.put('/api/notification/read/:id', function(req,res) {
+		notificationCtrl.read(req,res);	
+	});
+	
+	app.delete('/api/notification/:id', function(req,res){
+		notificationCtrl.delete(req,res);
 	});
 
 	//LOGOUT
@@ -343,13 +375,6 @@ module.exports = function(app, passport) {
 	app.use(function(req, res, next) {
 		res.status(404).render("notfound.ejs")
 	})
-
-	function getNotCount(req, res, next) {
-		if (notifCtrl.count(req))
-			console.log("AAA")
-		return next();
-
-	}
 
 };
 

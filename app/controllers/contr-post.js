@@ -462,9 +462,10 @@ exports.rrep = function(req, res) {
 exports.pdel = function(req, res) {
     var id = req.params.id;
     var r = {};
+    //find the post
     post.findOne({ _id: id }).exec(function(err, p) {
         if (err) { console.log('Error while trying to get post from the database'); }
-        else if (p == null || p == undefined || p == "") {
+        else if (!p) {
             res.render('notfound.ejs');
         }
         else if (p.replies.length != 0) {

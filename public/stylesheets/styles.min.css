@@ -526,7 +526,7 @@ section.testimonials {
 }
 
 .angular-with-newlines {
-    white-space: pre-wrap;
+    white-space: pre-line;
 }
 
 .loader {
@@ -592,4 +592,12 @@ section.testimonials {
 
 .smp {
     padding: 20px 10px;
+}
+
+.details h5 {
+    display: inline-block;
+}
+
+.details a {
+    float: right;
 }
