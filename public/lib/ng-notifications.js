@@ -13,7 +13,7 @@ var mainController = function($scope, $http, growl) {
     $scope.message = '';
     $scope.notifications = [];
     $scope.sortType = 'createdAt';
-    $scope.displaying = '123';
+    $scope.displaying = '';
     $scope.sortReverse = true;
 
     $scope.getMyCtrlScope = function() {

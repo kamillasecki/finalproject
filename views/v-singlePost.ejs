@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeBoards</title>
     <% include ./index_partials/head %>
-    <script src="/lib/crypto-js/crypto-js.js"></script>
+        <script src="/lib/crypto-js/crypto-js.js"></script>
 </head>
 
 <body ng-controller="mainController as mainCtrl">
@@ -45,14 +45,14 @@
                 <button class="btn btn-success" type="button" ng-href='#here' ng-click="areq()">Request </button>
             </form>
         </div>
-        
+
         <div id="access_wait" class="centered" style="display:none">
             <h3>This post is available for allowed users only.</h3>
             <h3>You have already requested access to this post.</h3>
             <h3>Your request is awaiting for administator review.</h3>
         </div>
-        
-         <div id="access_noUser" class="centered" style="display:none">
+
+        <div id="access_noUser" class="centered" style="display:none">
             <h3>This post is available for allowed users only.</h3>
             <h3>Please, login to confirm your identity.</h3>
         </div>
@@ -61,11 +61,18 @@
         <!-- =====================MAIN=======================-->
         <!-- ================================================-->
 
-        <div id="main" style="display:none">
-            <div class="container">
+        <div class="contact-clean smp row" id="main" style="display:none">
                 <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-10">
+                    <div class="col-md-0 col-lg-1"></div>
+                    <div class="col-md-2 col-lg-2" style="padding:36px;">
+                        <hr/> Users who can access this post:
+                        <ul class="list-group">
+                            <li class="list-group-item" ng-repeat="user in post.settings.access.allowed" style="padding-bottom: 30px;">
+                                {{user.displayname}}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-8 col-lg-6">
                         <div class="row well well-sm">
                             <div class="col-md-11">
                                 <h1>{{post.header.subject}}</h1>
@@ -279,9 +286,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1"></div>
+                    <div class="col-md-2 col-lg-2"></div>
+                    <div class="col-md-0 col-lg-1"></div>
                 </div>
-            </div>
+         
             <% include ./index_partials/footer %>
         </div>
         </div>

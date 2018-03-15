@@ -133,8 +133,26 @@ exports.getPost = function(req, res) {
                 }
 
                 if (doc.settings.isAllowed) {
-                    doc.settings.access = null;
-                    res.send(doc);
+                    var resolve = function(a) {
+                        console.log(a.settings.access.allowed);
+                        res.send(a);
+                    }
+                    var reject = function(a) {
+                        console.log(a);
+                    }
+                    console.log("is allowed")
+                    if (doc.settings.isAdmin) {
+                        doc.populate({
+                            path: 'settings.access.allowed',
+                            select: 'displayname',
+                            model: 'User'
+                        }).
+                        execPopulate().then(resolve, reject);
+                        
+                    } else {
+                        doc.settings.access = null;
+                        res.send(doc);
+                    }
                 }
                 else if (doc.settings.privacy == "cgp") {
                     console.log("testing");
@@ -496,6 +514,11 @@ exports.pdel = function(req, res) {
                             r.status = "ok";
                             r.m = "Your post has been removed";
                             res.send(r);
+                        }
+                    });
+                    notification.remove({ post: id }, function(err) {
+                        if (err) {
+                            console.log(err);
                         }
                     });
                 }

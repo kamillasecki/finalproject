@@ -59,6 +59,7 @@ function getparentQuery(cat, res, req) {
     });
 }
 
+
 exports.getParents = function(req, res) {
     parentCategories = [];
     var requestedCategoryId = req.params.id;
