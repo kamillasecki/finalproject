@@ -616,6 +616,8 @@ exports.rdel = function(req, res) {
             if (r.rreplies.length > 0) {
                 r.isDeleted = true;
                 r.save();
+                res.status(200);
+                res.send("Your reply has been removed");
             }
             else {
                 reply.remove({ _id: repId }, function(err) {
@@ -630,6 +632,7 @@ exports.rdel = function(req, res) {
                                     console.log("Error when removing reply ref from post category:" + err);
                                 }
                                 else {
+                                    res.status(200);
                                     res.send("Your reply has been removed");
                                 }
                             });

@@ -3,7 +3,7 @@
 /*global CryptoJS*/
 var keySize = 256;
 var iterations = 100;
-var app = angular.module('post', ['angular-growl']);
+var app = angular.module('post', ['angular-growl', 'ngMaterial', 'ngMessages']);
 var encryption = false;
 
 app.config(['growlProvider', function(growlProvider) {
@@ -11,23 +11,60 @@ app.config(['growlProvider', function(growlProvider) {
     growlProvider.globalTimeToLive(5000);
 }]);
 
-var mainController = function($scope, $http, $log, growl) {
+app.config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+        .primaryPalette('pink')
+        .accentPalette('orange');
+});
 
+var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialog) {
+
+    var self = this;
+
+    self.selectedItem = null;
+    self.searchText = null;
+    self.querySearch = querySearch;
+    var usersList = [];
     var url_string = window.location.href;
     var url = new URL(url_string);
     var id = url.searchParams.get("id");
-    
+
     //if load is completed
     var onPostLoadCompleted = function(r) {
-        console.log(r);
+        var onComplete = function(r) {
+            if (r.status == 200) {
+                var newX = r.data.map(function(user) {
+                    return {
+                        value: user.displayname.toLowerCase(),
+                        display: user.displayname
+                    };
+                });
+                console.log(newX)
+                usersList = newX;
+            }
+            else {
+                $log.error(r.status);
+            }
+        };
+
+        var onError = function(r) {
+            $log.error(r.data);
+        };
+
+        if (r.data.settings.isAdmin) {
+            $http.get('api/users')
+                .then(onComplete, onError)
+                .catch(angular.noop);
+        }
+
         $scope.post = r.data;
+        
         if ($scope.post.settings.privacy == "pub") {
             $("#loader").delay(800).fadeOut(400, function() {
                 $("#main").fadeIn(400);
             });
         }
         else if ($scope.post.settings.isAllowed) {
-            console.log("IS ALLOWED")
             if ($scope.post.settings.encryption.isEnabled) {
                 console.log("ENCRYPTION ENABLED")
                 console.log($scope.phrase)
@@ -53,7 +90,8 @@ var mainController = function($scope, $http, $log, growl) {
                 $("#loader").delay(800).fadeOut(400, function() {
                     $("#access_noUser").fadeIn(400);
                 });
-            } else if ($scope.post.settings.isRequested) {
+            }
+            else if ($scope.post.settings.isRequested) {
                 $("#loader").delay(800).fadeOut(400, function() {
                     $("#access_wait").fadeIn(400);
                 });
@@ -99,7 +137,7 @@ var mainController = function($scope, $http, $log, growl) {
     $scope.error = function(text) {
         growl.error("<strong>" + text + "</strong>");
     };
-    
+
     //re-encrypt using the same parameters
     $scope.reen = function(input) {
         var key = CryptoJS.PBKDF2($scope.phrase, $scope.salt, {
@@ -144,7 +182,7 @@ var mainController = function($scope, $http, $log, growl) {
             }
         }
     }
-    
+
     //post decryption
     $scope.decr = function() {
         var check = $scope.decrypt($scope.post.settings.encryption.checkword, $scope.phrase);
@@ -173,35 +211,35 @@ var mainController = function($scope, $http, $log, growl) {
         }
 
     };
-    
+
     //request access to the post
     $scope.areq = function() {
         var data = { 'm': $scope.request_t };
-        
-        var onComplete = function (r) {
+
+        var onComplete = function(r) {
             if (r.data.status == "ok") {
-                    growl.info("<strong>" + r.message + "</strong>");
-                    window.location = "/list?id=" + $scope.post.settings.category;
-                }
-                else {
-                    growl.error("<strong>" + r.data.message + "</strong>");
-                    window.location = "/list?id=" + $scope.post.settings.category;
-                }
+                growl.info("<strong>" + r.message + "</strong>");
+                window.location = "/list?id=" + $scope.post.settings.category;
+            }
+            else {
+                growl.error("<strong>" + r.data.message + "</strong>");
+                window.location = "/list?id=" + $scope.post.settings.category;
+            }
         };
-        
-        var onError = function (r) {
+
+        var onError = function(r) {
             growl.error("<strong>" + r.status + "</strong>");
         };
-        
+
         $http.post('api/post/reqaccess/' + id, data)
-        .then(onComplete, onError)
-        .catch(angular.noop);
+            .then(onComplete, onError)
+            .catch(angular.noop);
     };
-    
+
     $(document).ready(function() {
         $scope.user = $("#user").val();
     });
-    
+
     // ###########################
     // ######SHOW / DISPLAY#######
     // ###########################
@@ -235,7 +273,7 @@ var mainController = function($scope, $http, $log, growl) {
         $('.relistlink_' + id).show();
         $('.relist_' + id).hide();
     };
-    
+
     //unhide post edit form
     $scope.pedit_show = function() {
         if ($scope.post.replies.length > 0) {
@@ -261,7 +299,7 @@ var mainController = function($scope, $http, $log, growl) {
         $scope.editt = null;
         $("#postedit2").hide();
     };
-    
+
     //unhide comment reply form
     $scope.redit_show = function(rid) {
         $scope.temp = $("#trepedit_" + rid).val();
@@ -360,11 +398,11 @@ var mainController = function($scope, $http, $log, growl) {
             .then(onComplete, onError)
             .catch(angular.noop);
     };
-    
+
     // ###########################
     // ########## POST ###########
     // ###########################
-    
+
     //delete post
     $scope.pdel = function() {
         var onComplete = function(r) {
@@ -386,7 +424,7 @@ var mainController = function($scope, $http, $log, growl) {
             .then(onComplete, onError)
             .catch(angular.noop);
     };
-    
+
     //saving post edit
     $scope.pedit = function() {
         if ($scope.post.body.text.trim() != "") {
@@ -443,14 +481,35 @@ var mainController = function($scope, $http, $log, growl) {
             $scope.error("Post update message cannot be empty.");
         }
     };
+    
+    //inviting user to closed group
+    $scope.inviteUser = function(user) {
+        var onComplete = function(r) {
+            if (r.data.status == 'error') {
+                growl.error("<strong>" + r.data.m + "</strong>");
+            }
+            else if (r.data.status == 'ok') {
+                alert(r.data.m);
+                
+            }
+        };
+
+        var onError = function(r) {
+            console.log(r)
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+        
+        $http.post("/api/user/" + user + "/invite/post/" + id)
+            .then(onComplete, onError)
+            .catch(angular.noop);
+    };
 
     // ###########################
     // ######## COMMENT ##########
     // ###########################
-    
+
     //send post responce
     $scope.spr = function() {
-        console.log($scope)
         if ($scope.prep == undefined || $scope.prep.trim() == "") {
             $scope.error("Your responce cannot be empty.");
         }
@@ -471,14 +530,21 @@ var mainController = function($scope, $http, $log, growl) {
                 .catch(angular.noop);
         }
     };
-    
+
     //delete comment
     $scope.rdel = function(rid) {
-        var data = {}
-        
         var onComplete = function(r) {
             if (r.status == 200) {
-                alert(r.data);
+                $mdDialog.show(
+                    $mdDialog.alert()
+                    .clickOutsideToClose(true)
+                    .title('Removed')
+                    .textContent(r.data)
+                    .ariaLabel('Removed')
+                    .ok('ok')
+                    .openFrom('#left')
+                    .closeTo('#right')
+                );
                 $scope.reload();
             }
             else {
@@ -487,6 +553,7 @@ var mainController = function($scope, $http, $log, growl) {
         };
 
         var onError = function(r) {
+            
             growl.error("<strong>" + r.status + "</strong>");
         };
 
@@ -521,11 +588,11 @@ var mainController = function($scope, $http, $log, growl) {
             $scope.error("Reply message cannot be empty.");
         }
     };
-    
+
     // ###########################
     // ########## REPLY ##########
     // ###########################
-    
+
     //send reply to comment
     $scope.srr = function(rid) {
         var rep = $("#rrep_" + rid).val();
@@ -553,25 +620,52 @@ var mainController = function($scope, $http, $log, growl) {
 
     //delete comment reply
     $scope.rrdel = function(rid, pid) {
-        var onComplete = function (r) {
+        var onComplete = function(r) {
             if (r.status == 200) {
-                alert(r.data);
+                $mdDialog.show(
+                    $mdDialog.alert()
+                    .clickOutsideToClose(true)
+                    .title('Removed')
+                    .textContent(r.data)
+                    .ariaLabel('Removed')
+                    .ok('ok')
+                    .openFrom('#left')
+                    .closeTo('#right')
+                );
                 $scope.reload();
             }
             else {
                 growl.error("<strong>" + r.status + "</strong>");
             }
         };
-        
-        var onError = function (r) {
+
+        var onError = function(r) {
             growl.error("<strong>" + r.status + "</strong>");
         };
-        
+
         $http.delete('api/post/rreply/' + rid + "/" + pid)
-        .then(onComplete,onError)
-        .catch(angular.noop);
+            .then(onComplete, onError)
+            .catch(angular.noop);
     };
+
+    function querySearch(query) {
+        console.log(query);
+        console.log(usersList);
+        var results = query ? usersList.filter(createFilterFor(query)) : usersList;
+        var deferred = $q.defer();
+        deferred.resolve(results);
+        return deferred.promise;
+    }
+
+    function createFilterFor(query) {
+        var lowercaseQuery = angular.lowercase(query);
+
+        return function filterFn(state) {
+            return (state.value.indexOf(lowercaseQuery) === 0);
+        };
+
+    }
 
 };
 
-app.controller("mainController", ["$scope", "$http", "$log", "growl", mainController]);
+app.controller("mainController", ["$scope", "$http", "$log", "growl", "$q", "$timeout", "$mdDialog", mainController]);

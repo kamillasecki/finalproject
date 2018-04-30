@@ -167,5 +167,11 @@ exports.delete = function(req, res) {
             }
         });
 
-
 };
+
+exports.inviteUser = function(req,res) {
+    var pId = req.params.pid;
+    var user = req.params.user;
+    console.log("user: " + user);
+    console.log("pid: " + pId);
+}

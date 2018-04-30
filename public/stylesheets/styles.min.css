@@ -601,3 +601,8 @@ section.testimonials {
 .details a {
     float: right;
 }
+
+.row .no-float {
+  display: table-cell;
+  float: none;
+}

@@ -85,7 +85,7 @@ var mainController = function($scope, $http, growl) {
             .then(actionConfirmed, error)
             .catch(angular.noop);
     };
-
+    
     $scope.delete = function(id) {
         if (id) {
             $http.delete('/api/notification/' + id)

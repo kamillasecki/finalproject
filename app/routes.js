@@ -1,6 +1,7 @@
 module.exports = function(app, passport) {
 	var categoryCtrl = require("./controllers/contr-category.js");
 	var postCtrl = require("./controllers/contr-post.js");
+	var userCtrl = require("./controllers/contr-user.js");
 	var notificationCtrl = require("./controllers/contr-notifications.js");
 
 	// ============================================================================
@@ -122,6 +123,11 @@ module.exports = function(app, passport) {
 	// API ROUTES =================================================================
 	// ============================================================================
 
+	//USEERS
+	app.get('/api/users' , function(req,res) {
+		userCtrl.getAllUsers(req, res);
+	});
+
 	//POST API
 	//search posts
 	app.get('/api/post/find/:search', function(req, res) {
@@ -235,6 +241,9 @@ module.exports = function(app, passport) {
 		notificationCtrl.delete(req,res);
 	});
 
+	app.get('/api/user/:user/invite/post/:pid' , function(req,res) {
+		notificationCtrl.inviteUser(req, res);
+	});
 	//LOGOUT
 
 	app.get('/logout', function(req, res) {
