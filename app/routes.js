@@ -10,9 +10,20 @@ module.exports = function(app, passport) {
 
 	// show the home page (will also have our login links)
 	app.get('/', function(req, res) {
-		res.render('index.ejs', {
-			user: req.user,
-		});
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-list.ejs', {
+					user: req.user,
+					nCount: u
+				});
+			});
+		}
+		else {
+			res.render('v-list.ejs', {
+				user: null,
+				nCount: null
+			});
+		}
 	});
 
 	// PROFILE SECTION =========================
@@ -259,7 +270,21 @@ module.exports = function(app, passport) {
 	// LOGIN ===============================
 	// show the login form
 	app.get('/login', function(req, res) {
-		res.render('login.ejs', { message: req.flash('loginMessage') });
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-list.ejs', {
+					user: req.user,
+					nCount: u
+				});
+			});
+		}
+		else {
+			res.render('login.ejs', {
+				user: null,
+				nCount: null,
+				message: req.flash('loginMessage')
+			});
+		}
 	});
 
 	// process the login form
@@ -392,5 +417,5 @@ function isLoggedIn(req, res, next) {
 	if (req.isAuthenticated())
 		return next();
 
-	res.redirect('/');
+	res.redirect('/login');
 }

@@ -1,4 +1,5 @@
-<html>
+<html ng-app="login">
+
 <head>
     <title>Node Authentication</title>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
@@ -6,43 +7,65 @@
     <link rel="stylesheet" href="/stylesheets/style.css">
     <script src="/lib/jquery/dist/jquery.js"></script>
     <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <style>
-        body        { padding-top:80px; }
-    </style>
+    <% include ./index_partials/head %>
+
 </head>
-<body>
-<div class="container">
 
-<div class="col-sm-6 col-sm-offset-3">
+<body ng-controller="mainController as mainCtrl">
+    <% include ./index_partials/navbar %>
+        <br/>
+        <md-content>
+            <div class="col-md-2 col-md-offset-5">
+                <h1><span class="fa fa-sign-in"></span> Login</h1>
+                <br/>
+                <!-- show any messages that come back with authentication -->
+                <% if (message.length > 0) { %>
+                    <div class="alert alert-danger">
+                        <%= message %>
+                    </div>
+                    <% } %>
+                        <!-- LOGIN FORM -->
 
-    <h1><span class="fa fa-sign-in"></span> Login</h1>
+                        <form name="login" action="/login" method="post">
+                            <div layout="row">
+                                <md-input-container flex>
+                                    <label>Username</label>
+                                    <input required type="text" class="form-control" name="uname">
+                                </md-input-container>
+                            </div>
+                            <div layout="row">
+                                <md-input-container flex>
+                                    <label>Password</label>
+                                    <input required type="password" class="form-control" name="password">
+                                </md-input-container>
+                            </div>
+                            <div layout="row">
+                                <md-button type="submit" class="md-primary md-raised edgePadding md-ink-ripple" flex>Login</md-button>
+                            </div>
+                        </form>
+                        <div class="text-center">
+                            or login with:
+                        </div>
+                        <br/>
+                        <div class="text-center">
+                            <a href="/auth/facebook" class="btn btn-primary"><i class="fab fa-facebook-f"></i> Facebook</a>
+                            <a href="/auth/google" class="btn btn-danger"><i class="fab fa-google-plus-g "></i> Google+</a>
+                        </div>
+                        <hr/>
+                        <div class="text-center">
+                        <p>Need an account? <a href="/signup">Signup</a></p>
+                        </div>
+                        <div class="text-center">
+                        <p>Or go <a href="/">home</a>.</p>
+                        </div>
+                        <br/>
+                        <br/>
+                        <br/>
+            </div>
 
-    <!-- show any messages that come back with authentication -->
-    <% if (message.length > 0) { %>
-        <div class="alert alert-danger"><%= message %></div>
-    <% } %>
-
-    <!-- LOGIN FORM -->
-    <form action="/login" method="post">
-        <div class="form-group">
-            <label>User name</label>
-            <input type="text" class="form-control" name="uname">
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" class="form-control" name="password">
-        </div>
-
-        <button type="submit" class="btn btn-warning btn-lg">Login</button>
-    </form>
-
-    <hr>
-
-    <p>Need an account? <a href="/signup">Signup</a></p>
-    <p>Or go <a href="/">home</a>.</p>
-
-</div>
-
-</div>
+            <% include ./index_partials/footer %>
+                <script src="/lib/ng-login.js"></script>
+        </md-content>
 </body>
+
 </html>
