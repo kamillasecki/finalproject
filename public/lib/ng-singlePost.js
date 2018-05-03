@@ -39,7 +39,6 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                         display: user.displayname
                     };
                 });
-                console.log(newX)
                 usersList = newX;
             }
             else {
@@ -66,8 +65,6 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         }
         else if ($scope.post.settings.isAllowed) {
             if ($scope.post.settings.encryption.isEnabled) {
-                console.log("ENCRYPTION ENABLED")
-                console.log($scope.phrase)
                 if (!$scope.phrase) {
                     $("#loader").delay(800).fadeOut(400, function() {
                         $("#pass").fadeIn(400);
@@ -416,7 +413,6 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         };
 
         var onError = function(r) {
-            console.log(r)
             growl.error("<strong>" + r.status + "</strong>");
         };
 
@@ -483,7 +479,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     };
     
     //inviting user to closed group
-    $scope.inviteUser = function(user) {
+    $scope.invite = function() {
         var onComplete = function(r) {
             if (r.data.status == 'error') {
                 growl.error("<strong>" + r.data.m + "</strong>");
@@ -495,11 +491,10 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         };
 
         var onError = function(r) {
-            console.log(r)
             growl.error("<strong>" + r.status + "</strong>");
         };
         
-        $http.post("/api/user/" + user + "/invite/post/" + id)
+        $http.put("/api/user/" + $scope.mainCtrl.searchText + "/invite/post/" + id)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -649,8 +644,6 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     };
 
     function querySearch(query) {
-        console.log(query);
-        console.log(usersList);
         var results = query ? usersList.filter(createFilterFor(query)) : usersList;
         var deferred = $q.defer();
         deferred.resolve(results);
@@ -660,11 +653,42 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     function createFilterFor(query) {
         var lowercaseQuery = angular.lowercase(query);
 
-        return function filterFn(state) {
-            return (state.value.indexOf(lowercaseQuery) === 0);
+        return function filterFn(user) {
+            return (user.value.indexOf(lowercaseQuery) === 0);
         };
 
     }
+    
+    $scope.showAdvanced = function(ev) {
+    $mdDialog.show({
+      controller: DialogController,
+      templateUrl: 'dialog1.tmpl.html',
+      parent: angular.element(document.body),
+      targetEvent: ev,
+      clickOutsideToClose:true,
+      fullscreen: false
+    })
+    .then(function(answer) {
+      $scope.status = 'You said the information was "' + answer + '".';
+    }, function() {
+      $scope.status = 'You cancelled the dialog.';
+    });
+    
+    function DialogController($scope, $mdDialog) {
+    $scope.hide = function() {
+      $mdDialog.hide();
+    };
+
+    $scope.cancel = function() {
+      $mdDialog.cancel();
+    };
+
+    $scope.answer = function(answer) {
+      $mdDialog.hide(answer);
+    };
+  }
+  
+  };
 
 };
 

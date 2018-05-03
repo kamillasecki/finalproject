@@ -252,7 +252,7 @@ module.exports = function(app, passport) {
 		notificationCtrl.delete(req,res);
 	});
 
-	app.get('/api/user/:user/invite/post/:pid' , function(req,res) {
+	app.put('/api/user/:user/invite/post/:pid' , function(req,res) {
 		notificationCtrl.inviteUser(req, res);
 	});
 	//LOGOUT

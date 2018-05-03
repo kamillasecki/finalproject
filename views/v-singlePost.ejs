@@ -67,7 +67,7 @@
                     <div class="col-md-1" id="left"></div>
                     <div class="col-md-2" style="padding:36px;">
                         <form ng-if="post.settings.isAdmin && post.settings.privacy!='pub'" ng-submit="$event.preventDefault()" name="searchForm">
-                            <md-autocomplete flex md-input-name="inviteUser" md-no-cache="mainCtrl.noCache" md-selected-item="mainCtrl.selectedItem" md-search-text="mainCtrl.searchText" md-items="item in mainCtrl.querySearch(mainCtrl.searchText)" md-item-text="item.display" md-require-match
+                            <md-autocomplete ng-model="inviteUser" flex md-input-name="inviteUser" md-no-cache="mainCtrl.noCache" md-selected-item="mainCtrl.selectedItem" md-search-text="mainCtrl.searchText" md-items="item in mainCtrl.querySearch(mainCtrl.searchText)" md-item-text="item.display" md-require-match
                                 md-floating-label="Invite new user">
                                 <md-item-template>
                                     <span md-highlight-text="mainCtrl.searchText">{{item.display}}</span>
@@ -75,7 +75,7 @@
                                 <div ng-messages="searchForm.inviteUser.$error" ng-if="searchForm.inviteUser.$touched">
                                     <div ng-message="md-require-match">Please select an existing state.</div>
                                 </div>
-                                <md-button class="md-primary md-raised edgePadding" ng-click="sendInvitation()">Send an invitation</md-button>
+                                <md-button class="md-primary md-raised edgePadding" ng-click="invite()">Send an invitation</md-button>
                             </md-autocomplete>
 
                         </form>
@@ -97,7 +97,7 @@
                                 <h1 style="margin-top: 0px;">{{post.header.subject}}</h1>
                             </div>
                             <div class="col-md-2" ng-if="post.settings.author._id==user" style="text-align: right">
-                                <md-icon md-svg-src="img/icons/settings.svg" style="width:30px;height:30px;" ng-click="pedit_show()"></md-icon>
+                                <md-icon md-svg-src="img/icons/settings.svg" style="width:30px;height:30px;" ng-click="showAdvanced($event)"></md-icon>
                                 <md-icon md-svg-src="img/icons/edit.svg" style="width:30px;height:30px;" ng-click="pedit_show()"></md-icon>
                                 <md-icon ng-if="post.replies.length==0" ng-click="pdel()" md-svg-src="img/icons/dustbin.svg" style="color: #f00;width:30px;height:30px;"></md-icon>
                             </div>
@@ -154,7 +154,7 @@
                         <!-- ===================================================-->
 
                         <div ng-repeat="rep in post.replies | orderBy:'-'" class="row">
-                            </br>
+                            <br/>
 
                             <!--HIDDEN DUE LOW QUALITY-->
 
@@ -279,7 +279,7 @@
                                                         <span class="btn-group pull-right" role="group">
                                                             <md-icon ng-click="uvr(rep2._id)" md-svg-src="img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
                                                             <span class="badge" id="score{{rep2._id}}">{{rep2.votes.num}}</span>
-                                                            <md-icon ng-click="dvr(rep2._id)" md-svg-src="img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
+                                                        <md-icon ng-click="dvr(rep2._id)" md-svg-src="img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
                                                         </span>
                                                     </div>
                                                     <blockquote>
@@ -306,6 +306,60 @@
             <% include ./index_partials/footer %>
         </div>
         <script src="/lib/ng-singlePost.js"></script>
+        <script type="text/ng-template" id="dialog1.tmpl.html">
+            <md-dialog aria-label="Settings">
+                <form ng-cloak>
+                    <md-toolbar>
+                        <div class="md-toolbar-tools">
+                            <h2>Settings</h2>
+                            <span flex></span>
+                            <md-button class="md-icon-button" ng-click="cancel()">
+                                <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+                            </md-button>
+                        </div>
+                    </md-toolbar>
+
+                    <md-dialog-content>
+                        <div class="md-dialog-content">
+                            <h2>Change the privacy settings</h2>
+                            <p>
+                                Below you can change the settings of your post.
+                            </p>
+                            <p>
+                                By choosing <strong>'Private - Hidden'</strong> setting: <br/> - your post will NOT be listed on boards<br/> - your post will NOT appear in the search results<br/> - only invited users will know about its
+                                existence<br/>
+                            </p>
+                            <p>
+                                By choosing <strong>'Private - Open'</strong> setting: <br/> - your post's subject WILL be listed on boards<br/> - your post's subject WILL appear in the search results<br/> - only allowed users will be able ro see the content of the post<br/> - users will be able to send you a notification requesting an access to the post<br/>
+                            </p>
+                            <md-select ng-model="newPrivacy" placeholder="Privacy Setting">
+                                <md-option value="cgh">Private - Hidden</md-option>
+                                <md-option value="cgp">Private - Open</md-option>
+                            </md-select>
+                            <p>
+                                By using the button below, you can make this post PUBLIC, this means:<br/>
+                                - everyone will be able to read the content of your post<br/>
+                                - any logged in user will be able to reply to your post<br/>
+                                - you will lose all permission settings from your private post<br/>
+                            </p>
+                        </div>
+                    </md-dialog-content>
+
+                    <md-dialog-actions layout="row">
+                        <md-button ng-click="answer('not useful')" target="_blank" md-autofocus>
+                            Make this post Public
+                        </md-button>
+                        <span flex></span>
+                        <md-button ng-click="answer('not useful')">
+                            Save
+                        </md-button>
+                        <md-button ng-click="answer('useful')">
+                            Cancel
+                        </md-button>
+                    </md-dialog-actions>
+                </form>
+            </md-dialog>
+        </script>
         <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
 </body>
 

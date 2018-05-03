@@ -1,5 +1,7 @@
 var post = require('../models/post.js');
 var notification = require('../models/notification.js');
+var user = require('../models/user.js');
+var mongoose = require('mongoose');
 
 //create new post
 exports.count = function(id) {
@@ -169,9 +171,60 @@ exports.delete = function(req, res) {
 
 };
 
-exports.inviteUser = function(req,res) {
+exports.inviteUser = function(req, res) {
     var pId = req.params.pid;
-    var user = req.params.user;
+    var username = req.params.user;
+    post.findOne({ _id: pId }).exec(function(err, p) {
+        if (err || !p) {
+            res.status(404);
+            res.send("Incorrect post");
+        } else if (p.settings.author.toString() != req.user.id) {
+            res.status(200);
+            res.send("You are not authorized to invite users for this post.");
+        } else if (p.settings.privacy == "pub") {
+            res.status(200);
+            res.send("This is post is Public, and does not need an invitation.");
+        }
+        else {
+            //check if invited user exists
+            user.findOne({ displayname: username }).exec(function(err, u) {
+                if (err || !u) {
+                    res.status(200);
+                    res.send("Incorrect username");
+                } else {
+                    //add user to the invited list
+                    var me = new mongoose.Types.ObjectId(req.user._id);
+                    p.settings.access.requested.push(me);
+                    p.save(function(err) {
+                        if (err) {
+                            res.status(404);
+                            res.send("Error when adding to invites");
+                        }
+                        else {
+                            //create new notification
+                            var n = new notification();
+                            n.owner = u;
+                            n.creator = me;
+                            n.post = new mongoose.Types.ObjectId(pId);
+                            n.type = 'newInvite';
+                            n.save(function(err) {
+                            if (err) {
+                                res.status(404);
+                                res.send("Error when adding new invitation");
+                            }
+                            else {
+                                res.status(200);
+                                res.send("An invitation has been sent succesfully");
+                            }
+                        });
+                        }
+                    });
+                }
+            });
+
+        }
+    });
+    console.log("user: ");
     console.log("user: " + user);
     console.log("pid: " + pId);
 }
