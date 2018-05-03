@@ -481,8 +481,9 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     //inviting user to closed group
     $scope.invite = function() {
         var onComplete = function(r) {
+            console.log(r.data);
             if (r.data.status == 'error') {
-                growl.error("<strong>" + r.data.m + "</strong>");
+                growl.error("<strong>" + r.data.message + "</strong>");
             }
             else if (r.data.status == 'ok') {
                 alert(r.data.m);

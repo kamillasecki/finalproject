@@ -174,57 +174,92 @@ exports.delete = function(req, res) {
 exports.inviteUser = function(req, res) {
     var pId = req.params.pid;
     var username = req.params.user;
+    var fn = {};
     post.findOne({ _id: pId }).exec(function(err, p) {
         if (err || !p) {
-            res.status(404);
-            res.send("Incorrect post");
-        } else if (p.settings.author.toString() != req.user.id) {
-            res.status(200);
-            res.send("You are not authorized to invite users for this post.");
-        } else if (p.settings.privacy == "pub") {
-            res.status(200);
-            res.send("This is post is Public, and does not need an invitation.");
+            fn.status = "error";
+            fn.message = "Incorrect post";
+            res.send(fn);
+        }
+        else if (p.settings.author.toString() != req.user.id) {
+            fn.status = "error";
+            fn.message = "You are not authorized to invite users for this post.";
+            res.send(fn);
+        }
+        else if (p.settings.privacy == "pub") {
+            fn.status = "error";
+            fn.message = "This is post is Public, and does not need an invitation.";
+            res.send(fn);
         }
         else {
             //check if invited user exists
             user.findOne({ displayname: username }).exec(function(err, u) {
                 if (err || !u) {
-                    res.status(200);
-                    res.send("Incorrect username");
-                } else {
-                    //add user to the invited list
-                    var me = new mongoose.Types.ObjectId(req.user._id);
-                    p.settings.access.requested.push(me);
-                    p.save(function(err) {
-                        if (err) {
-                            res.status(404);
-                            res.send("Error when adding to invites");
+                    fn.status = "error";
+                    fn.message = "Incorrect username.";
+                    res.send(fn);
+                }
+                else {
+                    var found = false;
+                    var found2 = false;
+                    for (var i = 0; i < p.settings.access.invited.length; i++) {
+                        if (p.settings.access.invited[i].toString() == u._id.toString()) {
+                            found = true;
                         }
-                        else {
-                            //create new notification
-                            var n = new notification();
-                            n.owner = u;
-                            n.creator = me;
-                            n.post = new mongoose.Types.ObjectId(pId);
-                            n.type = 'newInvite';
-                            n.save(function(err) {
+                    }
+                    for (var k = 0; k < p.settings.access.allowed.length; k++) {
+                        if (p.settings.access.allowed[k].toString() == u._id.toString()) {
+                            found2 = true;
+                        }
+                    }
+                    if (found) {
+                        fn.message = "You have already invited this user.";
+                        fn.status = "error";
+                        res.send(fn);
+                    } else if (found2) {
+                        fn.message = "This user already have access to your post.";
+                        fn.status = "error";
+                        res.send(fn);
+                    } else if (req.user._id.toString() == u._id.toString()) {
+                        fn.message = "You cannot invite yourself.";
+                        fn.status = "error";
+                        res.send(fn);
+                    }
+                    else {
+                        //add user to the invited list
+                        var me = new mongoose.Types.ObjectId(req.user._id.toString());
+                        p.settings.access.invited.push(u);
+                        p.save(function(err) {
                             if (err) {
-                                res.status(404);
-                                res.send("Error when adding new invitation");
+                                fn.status = "error";
+                                fn.message = "Error when adding to invites.";
+                                res.send(fn);
                             }
                             else {
-                                res.status(200);
-                                res.send("An invitation has been sent succesfully");
+                                //create new notification
+                                var n = new notification();
+                                n.owner = u;
+                                n.creator = me;
+                                n.post = new mongoose.Types.ObjectId(pId);
+                                n.type = 'newInvite';
+                                n.save(function(err) {
+                                    if (err) {
+                                        fn.status = "error";
+                                        fn.message = "Error when adding new invitation.";
+                                        res.send(fn);
+                                    }
+                                    else {
+                                        fn.status = "ok";
+                                        fn.message = "An invitation has been sent succesfully.";
+                                        res.send(fn);
+                                    }
+                                });
                             }
                         });
-                        }
-                    });
+                    }
                 }
             });
 
         }
     });
-    console.log("user: ");
-    console.log("user: " + user);
-    console.log("pid: " + pId);
 }
