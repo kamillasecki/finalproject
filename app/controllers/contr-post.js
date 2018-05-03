@@ -148,8 +148,9 @@ exports.getPost = function(req, res) {
                             model: 'User'
                         }).
                         execPopulate().then(resolve, reject);
-                        
-                    } else {
+
+                    }
+                    else {
                         doc.settings.access = null;
                         res.send(doc);
                     }
@@ -811,6 +812,105 @@ exports.findp = function(req, res) {
                 }
             }
         });
+};
+
+exports.changePrivSett = function(req, res) {
+    var pid = req.params.id;
+    var newStatus = req.body.s;
+    var a = {};
+    console.log(pid);
+
+    post.findOne({ _id: pid }).exec(function(err, p) {
+        if (newStatus != 'pub' && newStatus != 'cgh' && newStatus != 'cgp') {
+            a.status = "error";
+            a.message = "Incorrect privacy settings.";
+            res.send(a);
+        } else if (!p || err) {
+            a.status = "error";
+            a.message = "Post not found!";
+            res.send(a);
+        }
+        else if (p.settings.author.toString() != req.user.id) {
+            a.status = "error";
+            a.message = "You are not authorized to invite users for this post.";
+            res.send(a);
+        }
+        else if (p.settings.privacy == newStatus) {
+            a.status = "ok";
+            a.message = "New status is the same as current.";
+            res.send(a);
+        }
+        else if (newStatus == "pub") {
+            if (p.settings.encryption.isEncrypted) {
+                a.status = "ok";
+                a.message = "Encryption must be swiched off before making your post Public.";
+                res.send(a);
+            }
+            else {
+                p.settings.privacy = newStatus;
+                p.settings.access.admin = [];
+                p.settings.access.allowed = [];
+                p.settings.access.requested = [];
+                p.settings.access.invited = [];
+                p.save(function(err) {
+                    if (err) {
+                        a.status = "error";
+                        a.message = "Problem when saving new settings.";
+                        res.send(a);
+                    }
+                    else {
+                        //remove all notifications for this post 
+                        notification.deleteMany({ post: p._id, type: { $in: ['newRequest', 'requestDen', 'requestAcc', 'newInvite', 'inviteDen', 'inviteAcc'] } }, function(err) {
+                            if (err) {
+                                a.status = "error";
+                                a.message = "Problem when saving new settingsdeleting notifications.";
+                                res.send(a);
+                            }
+                            else {
+                                a.status = "ok";
+                                a.message = "Your new privacy setting is now: Public.";
+                                res.send(a);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        else if (p.settings.privacy == "pub") {
+            p.settings.privacy = newStatus;
+            p.settings.access.admin = p.settings.author;
+            p.settings.access.allowed = p.settings.author;
+            p.settings.access.requested = [];
+            p.settings.access.invited = [];
+            p.save(function(err) {
+                if (err) {
+                    a.status = "error";
+                    a.message = "Problem when saving new settings.";
+                    res.send(a);
+                }
+                else {
+                    a.status = "ok";
+                    a.message = "Your privacy settings has been changed.";
+                    res.send(a);
+                }
+            });
+        }
+        else {
+            p.settings.privacy = newStatus;
+            p.save(function(err) {
+                if (err) {
+                    a.status = "error";
+                    a.message = "Problem when saving new settings.";
+                    res.send(a);
+                }
+                else {
+                    a.status = "ok";
+                    a.message = "Your privacy settings has been changed.";
+                    res.send(a);
+                }
+            })
+        }
+    });
 };
 
 function filterPosts(postsArray, user) {

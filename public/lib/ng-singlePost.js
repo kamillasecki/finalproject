@@ -57,7 +57,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         }
 
         $scope.post = r.data;
-        
+
         if ($scope.post.settings.privacy == "pub") {
             $("#loader").delay(800).fadeOut(400, function() {
                 $("#main").fadeIn(400);
@@ -477,24 +477,41 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             $scope.error("Post update message cannot be empty.");
         }
     };
-    
+
     //inviting user to closed group
     $scope.invite = function() {
         var onComplete = function(r) {
             console.log(r.data);
             if (r.data.status == 'error') {
-                growl.error("<strong>" + r.data.message + "</strong>");
+                $mdDialog.show(
+                    $mdDialog.alert()
+                    .clickOutsideToClose(true)
+                    .title('Problem')
+                    .textContent(r.data.message)
+                    .ariaLabel('Problem')
+                    .ok('ok')
+                    .openFrom('#left')
+                    .closeTo('#right')
+                );
             }
             else if (r.data.status == 'ok') {
-                alert(r.data.m);
-                
+                $mdDialog.show(
+                    $mdDialog.alert()
+                    .clickOutsideToClose(true)
+                    .title('Invited')
+                    .textContent(r.data.message)
+                    .ariaLabel('Invited')
+                    .ok('ok')
+                    .openFrom('#left')
+                    .closeTo('#right')
+                );
             }
         };
 
         var onError = function(r) {
             growl.error("<strong>" + r.status + "</strong>");
         };
-        
+
         $http.put("/api/user/" + $scope.mainCtrl.searchText + "/invite/post/" + id)
             .then(onComplete, onError)
             .catch(angular.noop);
@@ -549,7 +566,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         };
 
         var onError = function(r) {
-            
+
             growl.error("<strong>" + r.status + "</strong>");
         };
 
@@ -644,6 +661,10 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             .catch(angular.noop);
     };
 
+    // ###########################
+    // ####### SETTINGS ##########
+    // ###########################
+
     function querySearch(query) {
         var results = query ? usersList.filter(createFilterFor(query)) : usersList;
         var deferred = $q.defer();
@@ -659,37 +680,45 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         };
 
     }
-    
-    $scope.showAdvanced = function(ev) {
-    $mdDialog.show({
-      controller: DialogController,
-      templateUrl: 'dialog1.tmpl.html',
-      parent: angular.element(document.body),
-      targetEvent: ev,
-      clickOutsideToClose:true,
-      fullscreen: false
-    })
-    .then(function(answer) {
-      $scope.status = 'You said the information was "' + answer + '".';
-    }, function() {
-      $scope.status = 'You cancelled the dialog.';
-    });
-    
-    function DialogController($scope, $mdDialog) {
-    $scope.hide = function() {
-      $mdDialog.hide();
+
+    $scope.showSettings = function(ev) {
+        $mdDialog.show({
+            contentElement: '#myDialog',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true
+        });
     };
 
     $scope.cancel = function() {
-      $mdDialog.cancel();
+        $mdDialog.cancel();
     };
 
-    $scope.answer = function(answer) {
-      $mdDialog.hide(answer);
+    $scope.changePrivacy = function(newPrivacy) {
+        var data = { 's': newPrivacy };
+
+        var onComplete = function(r) {
+            $mdDialog.show(
+                $mdDialog.alert()
+                .clickOutsideToClose(true)
+                .title(r.data.status)
+                .textContent(r.data.message)
+                .ariaLabel(r.data.status)
+                .ok('ok')
+                .openFrom('#left')
+                .closeTo('#right')
+            );
+            $scope.reload();
+        };
+
+        var onError = function(r) {
+            growl.error("<strong>" + r.status + "</strong>");
+        };
+
+        $http.post("/api/post/" + id + "/settings/privacy", data)
+            .then(onComplete, onError)
+            .catch(angular.noop);
     };
-  }
-  
-  };
 
 };
 

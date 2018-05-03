@@ -183,6 +183,11 @@ module.exports = function(app, passport) {
 	app.post('/api/post/reqaccess/:id', function(req, res) {
 		postCtrl.reqAccess(req, res);
 	});
+	
+	//change privacy settings
+	app.post('/api/post/:id/settings/privacy', function(req,res){
+		postCtrl.changePrivSett(req,res);
+	});
 
 
 	//REPLY API
