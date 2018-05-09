@@ -6,12 +6,6 @@
         'callbackURL'   : 'https://finalproject-kamillasecki.c9users.io/auth/facebook/callback'
     },
 
-    'twitterAuth' : {
-        'consumerKey'       : 'jFcZtX0McNafYEPLRRmZOYNC0',
-        'consumerSecret'    : 'SQMEEpSSnmfQjyOEfXC0upMWGGwRoglHy4zTSupf4BOqhPMa6M',
-        'callbackURL'       : 'https://finalproject-kamillasecki.c9users.io/auth/twitter/callback'
-    },
-
     'googleAuth' : {
         'clientID'      : '391680781363-3carf8125qs655m0lr7nm48es4fgabu9.apps.googleusercontent.com',
         'clientSecret'  : '3y4RRO1Nz2wNeBH5SOV81GxK',

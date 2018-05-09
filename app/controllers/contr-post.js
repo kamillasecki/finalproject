@@ -99,11 +99,13 @@ exports.getPost = function(req, res) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("An error on connection to the database occured");
+                console.log(err)
             }
             else if (!doc) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(404);
                 res.send("No such a post exists.");
+                console.log("no doc")
             }
             else if (doc.settings.privacy != "pub") {
                 doc.settings.isAdmin = false;
@@ -163,7 +165,9 @@ exports.getPost = function(req, res) {
                     res.send(doc);
                 }
                 else {
-                    res.render('notfound.ejs');
+                    res.setHeader("Content-Type", "text/html");
+                    res.status(404);
+                    res.send("No such a post exists.");
                 }
             }
             else {
@@ -415,7 +419,6 @@ exports.downvoteRep = function(req, res) {
 };
 
 exports.prep = function(req, res) {
-    console.log("start processung reply...");
     var postId = req.params.id;
     post.findOne({ _id: postId }).exec(function(err, p) {
         if (err) {
@@ -428,18 +431,23 @@ exports.prep = function(req, res) {
             res.render('notfound.ejs');
         }
         else {
+            //create new instance of reply
             var r = new reply();
+            //add author's id form the session
             r.author = new mongoose.Types.ObjectId(req.user._id);
+            //populate rst of the object
             r.text = req.body.m;
             r.replies = [];
             r.votes = {};
             r.votes.num = 0;
             r.votes.upVotes = [];
             r.votes.downVotes = [];
+            //save the object to the DB
             r.save(function(err, rep) {
                 if (err) {
-                    console.log("Error when saving new reply: " + err);
+                    throw(err);
                 }
+                //push an ID of newly created reply to the post's array
                 p.replies.push(mongoose.Types.ObjectId(rep._id));
                 p.save();
                 res.end();
@@ -493,12 +501,14 @@ exports.pdel = function(req, res) {
             res.send(r);
         }
         else if (p.settings.author.toString() == req.user._id) {
+            //remove the post
             post.remove({ _id: id }, function(err) {
                 if (err) {
-                    console.log('Error while trying to remove post from the database');
-                    res.render('notfound.ejs');
+                    res.status(404);
+                    res.send('Error while trying to remove post from the database');
                 }
                 else {
+                    //remove the refference to the post from the category
                     var cid = p.settings.category;
                     //search conditions
                     var conditions = { _id: cid };
@@ -509,7 +519,7 @@ exports.pdel = function(req, res) {
                     //Execute query
                     category.update(conditions, update, options, function(err) {
                         if (err) {
-                            console.log("Error when removing from category:" + err);
+                            throw(err);
                         }
                         else {
                             r.status = "ok";
@@ -517,6 +527,8 @@ exports.pdel = function(req, res) {
                             res.send(r);
                         }
                     });
+                    
+                //remove all notifications reffering to deleted post
                     notification.remove({ post: id }, function(err) {
                         if (err) {
                             console.log(err);
@@ -615,6 +627,7 @@ exports.rdel = function(req, res) {
         }
         else if (r.author.toString() == req.user._id) {
             if (r.rreplies.length > 0) {
+                r.text="";
                 r.isDeleted = true;
                 r.save();
                 res.status(200);
@@ -822,55 +835,60 @@ exports.changePrivSett = function(req, res) {
 
     post.findOne({ _id: pid }).exec(function(err, p) {
         if (newStatus != 'pub' && newStatus != 'cgh' && newStatus != 'cgp') {
-            a.status = "error";
-            a.message = "Incorrect privacy settings.";
+            a.status = "Problem";
+            a.message = "You have provided an incorrect privacy settings.";
             res.send(a);
-        } else if (!p || err) {
-            a.status = "error";
-            a.message = "Post not found!";
+        }
+        else if (!p || err) {
+            a.status = "Problem";
+            a.message = "Requested post has been not found!";
             res.send(a);
         }
         else if (p.settings.author.toString() != req.user.id) {
-            a.status = "error";
+            a.status = "Problem";
             a.message = "You are not authorized to invite users for this post.";
             res.send(a);
         }
         else if (p.settings.privacy == newStatus) {
-            a.status = "ok";
-            a.message = "New status is the same as current.";
+            a.status = "Problem";
+            a.message = "Requested new status is the same as current. No change has been applied.";
             res.send(a);
         }
         else if (newStatus == "pub") {
             if (p.settings.encryption.isEncrypted) {
-                a.status = "ok";
+                a.status = "Problem";
                 a.message = "Encryption must be swiched off before making your post Public.";
                 res.send(a);
             }
             else {
+                //set new privacy
                 p.settings.privacy = newStatus;
+                //clear all the access controll
                 p.settings.access.admin = [];
                 p.settings.access.allowed = [];
                 p.settings.access.requested = [];
                 p.settings.access.invited = [];
                 p.save(function(err) {
                     if (err) {
-                        a.status = "error";
+                        a.status = "Problem";
                         a.message = "Problem when saving new settings.";
                         res.send(a);
                     }
                     else {
                         //remove all notifications for this post 
-                        notification.deleteMany({ post: p._id, type: { $in: ['newRequest', 'requestDen', 'requestAcc', 'newInvite', 'inviteDen', 'inviteAcc'] } }, function(err) {
-                            if (err) {
-                                a.status = "error";
-                                a.message = "Problem when saving new settingsdeleting notifications.";
-                                res.send(a);
-                            }
-                            else {
-                                a.status = "ok";
-                                a.message = "Your new privacy setting is now: Public.";
-                                res.send(a);
-                            }
+                        notification.deleteMany({ 
+                            post: p._id, type: 
+                                { $in: ['newRequest', 'requestDen', 'requestAcc', 'newInvite', 'inviteDen', 'inviteAcc'] } }, function(err) {
+                                    if (err) {
+                                        a.status = "Problem";
+                                        a.message = "Problem when deleting notifications.";
+                                        res.send(a);
+                                    }
+                                    else {
+                                        a.status = "Completed";
+                                        a.message = "Your privacy settings has been applied.";
+                                        res.send(a);
+                                    }
                         });
                     }
                 });
@@ -878,19 +896,19 @@ exports.changePrivSett = function(req, res) {
         }
         else if (p.settings.privacy == "pub") {
             p.settings.privacy = newStatus;
-            p.settings.access.admin = p.settings.author;
-            p.settings.access.allowed = p.settings.author;
+            p.settings.access.admin = [p.settings.author];
+            p.settings.access.allowed = [p.settings.access.allowed];
             p.settings.access.requested = [];
             p.settings.access.invited = [];
             p.save(function(err) {
                 if (err) {
-                    a.status = "error";
+                    a.status = "Problem";
                     a.message = "Problem when saving new settings.";
                     res.send(a);
                 }
                 else {
-                    a.status = "ok";
-                    a.message = "Your privacy settings has been changed.";
+                    a.status = "Completed";
+                    a.message = "Your privacy settings has been applied.";
                     res.send(a);
                 }
             });
@@ -899,18 +917,166 @@ exports.changePrivSett = function(req, res) {
             p.settings.privacy = newStatus;
             p.save(function(err) {
                 if (err) {
-                    a.status = "error";
+                    a.status = "Problem";
                     a.message = "Problem when saving new settings.";
                     res.send(a);
                 }
                 else {
-                    a.status = "ok";
-                    a.message = "Your privacy settings has been changed.";
+                    a.status = "Completed";
+                    a.message = "Your privacy settings has been applied.";
                     res.send(a);
                 }
             })
         }
     });
+};
+
+exports.applyEncryption = function(req, res) {
+    var pId = req.params.id;
+    var encPost = req.body;
+
+    //find the post
+    var a = {};
+    post.findOne({ _id: pId }).exec(function(err, p) {
+        if (!p || err) {
+            a.status = "Problem";
+            a.message = "Requested post has been not found!";
+            res.send(a);
+        }
+        //check users authorisation
+        else if (p.settings.author.toString() != req.user.id) {
+            a.status = "Problem";
+            a.message = "You are not authorized to change settings of this post.";
+            res.send(a);
+        }
+        else {
+            p.settings.encryption.isEnabled = true;
+            p.settings.encryption.checkword = encPost.settings.encryption.checkword;
+            p.body = encPost.body;
+            p.save(function(err) {
+                if (err) {
+                    a.status = "Problem";
+                    a.message = "A problem occured when saving encrypted post to the database. Please try again.";
+                    res.send(a);
+                }
+                else {
+                    //encrypt replies
+                    if (encPost.replies.length > 0) {
+                        for (var i = 0; i < encPost.replies.length; i++) {
+                            reply.update({
+                                    _id: encPost.replies[i]._id
+                                }, {
+                                    $set: { text: encPost.replies[i].text }
+                                },
+                                function(err) {
+                                    if (err) {
+                                        a.status = "Problem";
+                                        a.message = "A problem occured when saving encrypted post to the database. Please try again.";
+                                        res.send(a);
+                                    }
+                                });
+
+                            for (var j = 0; j < encPost.replies[i].rreplies.length; j++) {
+                                reply.update({
+                                        _id: encPost.replies[i].rreplies[j]._id
+                                    }, {
+                                        $set: { text: encPost.replies[i].rreplies[j].text }
+                                    },
+                                    function(err) {
+                                        if (err) {
+                                            a.status = "Problem";
+                                            a.message = "A problem occured when saving encrypted post to the database. Please try again.";
+                                            res.send(a);
+                                        }
+                                    });
+                            }
+                        }
+                    }
+
+                    a.status = "Completed";
+                    a.message = "The post has been encrypted.";
+                    res.send(a);
+                }
+            });
+
+
+        }
+    });
+};
+
+exports.removeEncryption = function(req, res) {
+    var pId = req.params.id;
+    var encPost = req.body;
+    
+    //find the post
+    var a = {};
+    post.findOne({ _id: pId }).exec(function(err, p) {
+        if (!p || err) {
+            a.status = "Problem";
+            a.message = "Requested post has been not found!";
+            res.send(a);
+        }
+        //check users authorisation
+        else if (p.settings.author.toString() != req.user.id) {
+            a.status = "Problem";
+            a.message = "You are not authorized to change settings of this post.";
+            res.send(a);
+        }
+        else {
+            p.settings.encryption.isEnabled = false;
+            p.settings.encryption.checkword = null;
+            //decrypt the post body with all the updates
+            p.body = encPost.body;
+            p.save(function(err) {
+                if (err) {
+                    a.status = "Problem";
+                    a.message = "A problem occured when saving encrypted post to the database. Please try again.";
+                    res.send(a);
+                }
+                else {
+                    //decrypt replies
+                    if (encPost.replies.length > 0) {
+                        for (var i = 0; i < encPost.replies.length; i++) {
+                            reply.update({
+                                    _id: encPost.replies[i]._id
+                                }, {
+                                    $set: { text: encPost.replies[i].text }
+                                },
+                                function(err) {
+                                    if (err) {
+                                        a.status = "Problem";
+                                        a.message = "A problem occured when saving encrypted post to the database. Please try again.";
+                                        res.send(a);
+                                    }
+                                });
+                            //decrypt reply's replies
+                            for (var j = 0; j < encPost.replies[i].rreplies.length; j++) {
+                                reply.update({
+                                        _id: encPost.replies[i].rreplies[j]._id
+                                    }, {
+                                        $set: { text: encPost.replies[i].rreplies[j].text }
+                                    },
+                                    function(err) {
+                                        if (err) {
+                                            a.status = "Problem";
+                                            a.message = "A problem occured when saving encrypted post to the database. Please try again.";
+                                            res.send(a);
+                                        }
+                                    });
+                            }
+                        }
+                    }
+
+                    a.status = "Completed";
+                    a.message = "An encrypted has been removed from the post.";
+                    res.send(a);
+                }
+            });
+
+
+        }
+    });
+    
 };
 
 function filterPosts(postsArray, user) {

@@ -375,10 +375,10 @@
                                                 <div layout="row">
                                                     <md-input-container flex>
                                                         <label>Encryption phrase</label>
-                                                        <input required type="text" class="form-control" ng-model="phrase">
+                                                        <input ng-model="$parent.$parent.newphrase" required type="text" class="form-control">
                                                     </md-input-container>
                                                 </div>
-                                                <md-button class="md-primary md-raised edgePadding" ng-click="startEncryption()">Start using encryption</md-button>
+                                                <md-button class="md-primary md-raised edgePadding" ng-click="applyEncription()">Start using encryption</md-button>
                                             </div>
                                             <div ng-if="post.settings.encryption.isEnabled">
                                                 <h4>
@@ -395,10 +395,9 @@
                                                 <div layout="row">
                                                     <md-input-container flex>
                                                         <label>Secret phrase</label>
-                                                        <input required type="text" class="form-control" ng-model="phrase2">
                                                     </md-input-container>
                                                 </div>
-                                                <md-button class="md-primary md-raised edgePadding" ng-click="startEncryption()">Disable encryption</md-button>
+                                                <md-button class="md-primary md-raised edgePadding" ng-click="removeEncription()">Disable encryption</md-button>
                                             </div>
                                         </md-tab>
                                         <md-tab label="Management">

@@ -55,6 +55,21 @@
                                 <!--################ NOTIFICATIONS ###############-->
 
                                 <td>
+                                    <span ng-if="notification.type=='newInvite'">
+                                    <a href="" ng-click="notificationClick(notification.id)">
+                                        <span ng-if="!notification.hasRead" class="badge progress-bar-danger">NEW</span> Invitation to closed group post: "{{notification.post.header.subject}}".
+                                    </a>
+                                    </span>
+                                    <span ng-if="notification.type=='inviteDen'">
+                                    <a href="" ng-click="notificationClick(notification.id)">
+                                        <span ng-if="!notification.hasRead" class="badge progress-bar-danger">NEW</span> User {{notification.creator.displayname}} declined your invitation.
+                                    </a>
+                                    </span>
+                                    <span ng-if="notification.type=='inviteAcc'">
+                                    <a href="" ng-click="notificationClick(notification.id)">
+                                        <span ng-if="!notification.hasRead" class="badge progress-bar-danger">NEW</span> User {{notification.creator.displayname}} accepted your invitation.
+                                    </a>
+                                    </span>
                                     <span ng-if="notification.type=='newRequest'">
                                     <a href="" ng-click="notificationClick(notification.id)">
                                         <span ng-if="!notification.hasRead" class="badge progress-bar-danger">NEW</span> User {{notification.creator.displayname}} requested access to your post.
@@ -81,15 +96,73 @@
                                 <!--################ TYPE ###############-->
 
                                 <td>
+                                    <span ng-if="notification.type=='newInvite'">Invitation to post</span>
                                     <span ng-if="notification.type=='newRequest'">Post access request</span>
                                     <span ng-if="notification.type=='requestDen'">Access revoked</span>
                                     <span ng-if="notification.type=='requestAcc'">Access granted</span>
+                                    <span ng-if="notification.type=='info'">Information</span>
+                                    <span ng-if="notification.type=='newFollowedRep'">New reply on followed post</span>
+                                    <span ng-if="notification.type=='newMessage'">New message from user</span>
+                                    <span ng-if="notification.type=='inviteDen'">Declined invitation</span>
+                                    <span ng-if="notification.type=='inviteAcc'">Accepted invitation</span>
                                 </td>
                             </tr>
 
                             <!--################ DETAILS ###############-->
 
                             <tr ng-repeat-end>
+                                <td colspan="3" ng-if="notification.type=='inviteAcc'" ng-show="displaying == notification._id">
+                                    <div class="container">
+                                        <h4>
+                                            <div>
+                                                <p>
+                                                    User <i>{{notification.creator.displayname}}</i> accepted your invitation to post: "<a href="/post?id={{notification.post._id}}" ng-bind="notification.post.header.subject"></a>".
+                                                </p>
+                                                </br>
+                                            </div>
+                                        </h4>
+                                        <div>
+                                            <button class="btn btn-danger" ng-click="delete(notification._id)">Dismiss</button>
+                                        </div>
+                                        </h4>
+                                    </div>
+                                </td>
+                                
+                                <td colspan="3" ng-if="notification.type=='inviteDen'" ng-show="displaying == notification._id">
+                                    <div class="container">
+                                        <h4>
+                                            <div>
+                                                <p>
+                                                    User <i>{{notification.creator.displayname}}</i> declined your invitation to post: "<a href="/post?id={{notification.post._id}}" ng-bind="notification.post.header.subject"></a>".
+                                                </p>
+                                                </br>
+                                            </div>
+                                        </h4>
+                                        <div>
+                                            <button class="btn btn-danger" ng-click="delete(notification._id)">Dismiss</button>
+                                        </div>
+                                        </h4>
+                                    </div>
+                                </td>
+                                
+                                <td colspan="3" ng-if="notification.type=='newInvite'" ng-show="displaying == notification._id">
+                                    <div class="container">
+                                        <h4>
+                                            <div>
+                                                <p>
+                                                    You have been invited to join new Closed Group post: "<a href="/post?id={{notification.post._id}}" ng-bind="notification.post.header.subject"></a>".
+                                                </p>
+                                                </br>
+                                            </div>
+                                        </h4>
+                                        <div>
+                                            <button class="btn btn-success" ng-click="invitationAccept(notification._id)">Accept</button>
+                                            <button class="btn btn-danger" ng-click="invitationDecline(notification._id)">Decline</button>
+                                        </div>
+                                        </h4>
+                                    </div>
+                                </td>
+                                
                                 <td colspan="3" ng-if="notification.type=='newRequest'" ng-show="displaying == notification._id">
                                     <div class="container">
                                         <h4>
@@ -126,7 +199,7 @@
                                             </div>
                                         </h4>
                                         <div>
-                                            <button class="btn btn-danger" ng-click="delete(notification._id)">Delete notification</button>
+                                            <button class="btn btn-danger" ng-click="delete(notification._id)">Dismiss</button>
                                         </div>
                                         </h4>
                                     </div>
@@ -142,7 +215,7 @@
                                             </div>
                                         </h4>
                                         <div>
-                                            <button class="btn btn-danger" ng-click="delete(notification._id)">Delete notification</button>
+                                            <button class="btn btn-danger" ng-click="delete(notification._id)">Dismiss</button>
                                         </div>
                                         </h4>
                                     </div>

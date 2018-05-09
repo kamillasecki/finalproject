@@ -70,8 +70,6 @@ var mainController = function($scope, $http, growl) {
         //window.location = "/list?id=5a650c8bb62a0c8536f056c7";
     }
 
-
-
     //allowing post access
     $scope.accessReqAllow = function(id) {
         $http.post("/api/notifications/allowPostAccess/" + id)
@@ -82,6 +80,20 @@ var mainController = function($scope, $http, growl) {
     //denying post access
     $scope.accessReqDeny = function(id) {
         $http.post("/api/notifications/denyPostAccess/" + id)
+            .then(actionConfirmed, error)
+            .catch(angular.noop);
+    };
+    
+    //accepting an invitation
+    $scope.invitationAccept = function(id) {
+        $http.post("/api/notifications/"+id+"/inviteAccept")
+            .then(actionConfirmed, error)
+            .catch(angular.noop);
+    };
+    
+    //declining an invitation
+    $scope.invitationDecline = function(id) {
+        $http.post("/api/notifications/"+id+"/inviteDecline")
             .then(actionConfirmed, error)
             .catch(angular.noop);
     };

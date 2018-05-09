@@ -68,7 +68,7 @@ module.exports = function(app, passport) {
 	});
 
 	// CATEGORY MANAGEMENT =========================
-	app.get('/category', function(req, res) {
+	app.get('/category', isLoggedIn, function(req, res) {
 		req.user.getCount(function(u) {
 			res.render('v-category.ejs', {
 				user: req.user,
@@ -113,15 +113,15 @@ module.exports = function(app, passport) {
 			});
 		}
 	});
-	
+
 	// DISPLAY NOTIFICATIONS
-	app.get("/notifications", isLoggedIn, function(req,res) {
+	app.get("/notifications", isLoggedIn, function(req, res) {
 		req.user.getCount(function(u) {
-				res.render('v-notifications.ejs', {
-					user: req.user,
-					nCount: u
-				});
+			res.render('v-notifications.ejs', {
+				user: req.user,
+				nCount: u
 			});
+		});
 	});
 
 	// PAGE NOT FOUND --------------------------
@@ -135,7 +135,7 @@ module.exports = function(app, passport) {
 	// ============================================================================
 
 	//USEERS
-	app.get('/api/users' , function(req,res) {
+	app.get('/api/users', function(req, res) {
 		userCtrl.getAllUsers(req, res);
 	});
 
@@ -183,12 +183,21 @@ module.exports = function(app, passport) {
 	app.post('/api/post/reqaccess/:id', function(req, res) {
 		postCtrl.reqAccess(req, res);
 	});
-	
-	//change privacy settings
-	app.post('/api/post/:id/settings/privacy', function(req,res){
-		postCtrl.changePrivSett(req,res);
-	});
 
+	//change privacy settings
+	app.post('/api/post/:id/settings/privacy', function(req, res) {
+		postCtrl.changePrivSett(req, res);
+	});
+	
+	//apply encryption
+	app.put('/api/post/:id/encrypt', function(req, res) {
+		postCtrl.applyEncryption(req, res);
+	});
+	
+	//remove encryption
+	app.put('/api/post/:id/decrypt', function(req, res) {
+		postCtrl.removeEncryption(req, res);
+	});
 
 	//REPLY API
 
@@ -234,32 +243,41 @@ module.exports = function(app, passport) {
 	app.get('/api/category/getParents/:id', function(req, res) {
 		categoryCtrl.getParents(req, res);
 	});
-	
+
 	//NOTIFICATIONS API
-	
-	app.get('/api/notifications/:user', function(req,res) {
-		notificationCtrl.getByUser(req,res);	
-	});
-	
-	app.post('/api/notifications/denyPostAccess/:id', function(req,res) {
-		notificationCtrl.denyPostAccess(req,res);	
-	});
-	
-	app.post('/api/notifications/allowPostAccess/:id', function(req,res) {
-		notificationCtrl.allowPostAccess(req,res);	
-	});
-	
-	app.put('/api/notification/read/:id', function(req,res) {
-		notificationCtrl.read(req,res);	
-	});
-	
-	app.delete('/api/notification/:id', function(req,res){
-		notificationCtrl.delete(req,res);
+
+	app.get('/api/notifications/:user', function(req, res) {
+		notificationCtrl.getByUser(req, res);
 	});
 
-	app.put('/api/user/:user/invite/post/:pid' , function(req,res) {
+	app.post('/api/notifications/:id/inviteAccept', function(req, res) {
+		notificationCtrl.acceptInvitation(req, res);
+	});
+
+	app.post('/api/notifications/:id/inviteDecline', function(req, res) {
+		notificationCtrl.declineInvitation(req, res);
+	});
+
+	app.post('/api/notifications/denyPostAccess/:id', function(req, res) {
+		notificationCtrl.denyPostAccess(req, res);
+	});
+
+	app.post('/api/notifications/allowPostAccess/:id', function(req, res) {
+		notificationCtrl.allowPostAccess(req, res);
+	});
+
+	app.put('/api/notification/read/:id', function(req, res) {
+		notificationCtrl.read(req, res);
+	});
+
+	app.delete('/api/notification/:id', function(req, res) {
+		notificationCtrl.delete(req, res);
+	});
+
+	app.post('/api/user/:user/invite/post/:pid', function(req, res) {
 		notificationCtrl.inviteUser(req, res);
 	});
+
 	//LOGOUT
 
 	app.get('/logout', function(req, res) {

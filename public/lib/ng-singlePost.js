@@ -33,19 +33,17 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     var onPostLoadCompleted = function(r) {
         var onComplete = function(r) {
             if (r.status == 200) {
-                var newX = r.data.map(function(user) {
+                usersList = r.data.map(function(user) {
                     return {
                         value: user.displayname.toLowerCase(),
                         display: user.displayname
                     };
                 });
-                usersList = newX;
             }
             else {
                 $log.error(r.status);
             }
         };
-
         var onError = function(r) {
             $log.error(r.data);
         };
@@ -83,6 +81,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             }
         }
         else {
+            console.log("here")
             if (!$scope.user) {
                 $("#loader").delay(800).fadeOut(400, function() {
                     $("#access_noUser").fadeIn(400);
@@ -94,6 +93,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                 });
             }
             else {
+                console.log("here")
                 $("#loader").delay(800).fadeOut(400, function() {
                     $("#access").fadeIn(400);
                 });
@@ -141,6 +141,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             keySize: keySize / 32,
             iterations: iterations
         });
+
         var encrypted = CryptoJS.AES.encrypt(input, key, {
             iv: $scope.iv,
             padding: CryptoJS.pad.Pkcs7,
@@ -182,17 +183,22 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
 
     //post decryption
     $scope.decr = function() {
+        //check user's phrase if is valid
         var check = $scope.decrypt($scope.post.settings.encryption.checkword, $scope.phrase);
         if (check == "decrypted") {
+            //decrypt the body
             $scope.post.body.text = $scope.decrypt($scope.post.body.text, $scope.phrase);
+            //decrypt an updates
             if ($scope.post.body.updates.length > 0) {
                 for (var k = 0; k < $scope.post.body.updates.length; k++) {
                     $scope.post.body.updates[k] = $scope.decrypt($scope.post.body.updates[k], $scope.phrase);
                 }
             }
+            //decrypt replies
             if ($scope.post.replies.length > 0) {
                 for (var i = 0; i < $scope.post.replies.length; i++) {
                     $scope.post.replies[i].text = $scope.decrypt($scope.post.replies[i].text, $scope.phrase);
+                    //decrypt the replies of replies
                     for (var j = 0; j < $scope.post.replies[i].rreplies.length; j++) {
                         $scope.post.replies[i].rreplies[j].text = $scope.decrypt($scope.post.replies[i].rreplies[j].text, $scope.phrase);
                     }
@@ -665,6 +671,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     // ####### SETTINGS ##########
     // ###########################
 
+    //filter out the user display names on user input
     function querySearch(query) {
         var results = query ? usersList.filter(createFilterFor(query)) : usersList;
         var deferred = $q.defer();
@@ -715,7 +722,128 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.post("/api/post/" + id + "/settings/privacy", data)
+        if (newPrivacy == "pub") {
+            $mdDialog.show(
+                $mdDialog.confirm()
+                .clickOutsideToClose(true)
+                .title("Are you sure you want to make this post public?")
+                .textContent('All invitations and access will be forgoten and all users will be able to access this post.')
+                .ariaLabel("Confirm")
+                .ok('ok')
+                .cancel('cancel')
+                .openFrom('#left')
+                .closeTo('#right')
+            ).then(function() {
+                $http.post("/api/post/" + id + "/settings/privacy", data)
+                    .then(onComplete, onError)
+                    .catch(angular.noop);
+            }, function() {
+
+            });
+        }
+        else {
+            $http.post("/api/post/" + id + "/settings/privacy", data)
+                .then(onComplete, onError)
+                .catch(angular.noop);
+        }
+
+    };
+
+    $scope.applyEncription = function() {
+        //create copy of post to be encrypted
+        var encPost = $.extend(true, {}, $scope.post);
+
+        //set the iv, salt, and phase
+        $scope.salt = CryptoJS.lib.WordArray.random(128 / 8);
+        $scope.iv = CryptoJS.lib.WordArray.random(128 / 8);
+        $scope.phrase = $scope.newphrase;
+
+        var key = CryptoJS.PBKDF2($scope.phrase, $scope.salt, {
+            keySize: keySize / 32,
+            iterations: iterations
+        });
+
+        //set the checkWord
+        var checkword = CryptoJS.AES.encrypt("decrypted", key, {
+            iv: $scope.iv,
+            padding: CryptoJS.pad.Pkcs7,
+            mode: CryptoJS.mode.CBC
+        });
+
+        var checkphase = $scope.salt.toString() + $scope.iv.toString() + checkword.toString();
+
+        console.log(checkword)
+
+        encPost.settings.encryption.checkword = "";
+        encPost.settings.encryption.checkword = checkphase;
+
+        //encrypt body
+        encPost.body.text = $scope.reen(encPost.body.text);
+        console.log(encPost.body.text)
+        //encrypt updates if any
+        if (encPost.body.updates.length > 0) {
+            for (var k = 0; k < encPost.body.updates.length; k++) {
+                encPost.body.updates[k] = $scope.reen(encPost.body.updates[k]);
+            }
+        }
+        //encrypt replies
+        if (encPost.replies.length > 0) {
+            for (var i = 0; i < encPost.replies.length; i++) {
+                encPost.replies[i].text = $scope.reen(encPost.replies[i].text);
+                for (var j = 0; j < encPost.replies[i].rreplies.length; j++) {
+                    encPost.replies[i].rreplies[j].text = $scope.reen(encPost.replies[i].rreplies[j].text);
+                }
+            }
+        }
+
+        var onComplete = function(r) {
+            $mdDialog.show(
+                $mdDialog.alert()
+                .clickOutsideToClose(true)
+                .title(r.data.status)
+                .textContent(r.data.message)
+                .ariaLabel(r.data.status)
+                .ok('ok')
+                .openFrom('#left')
+                .closeTo('#right')
+            );
+            $scope.reload();
+        };
+
+        var onError = function(r) {
+            console.log(r)
+            growl.error("<strong>" + r + "</strong>");
+        };
+
+        $http.put('api/post/' + id + '/encrypt', encPost)
+            .then(onComplete, onError)
+            .catch(angular.noop);
+
+        console.log(encPost);
+    };
+
+    $scope.removeEncription = function() {
+
+        var onComplete = function(r) {
+            $mdDialog.show(
+                $mdDialog.alert()
+                .clickOutsideToClose(true)
+                .title(r.data.status)
+                .textContent(r.data.message)
+                .ariaLabel(r.data.status)
+                .ok('ok')
+                .openFrom('#left')
+                .closeTo('#right')
+            );
+            $scope.reload();
+        };
+
+        var onError = function(r) {
+            console.log(r)
+            growl.error("<strong>" + r + "</strong>");
+        };
+
+        $http.put('api/post/' + id + '/decrypt', $scope.post)
             .then(onComplete, onError)
             .catch(angular.noop);
     };

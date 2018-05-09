@@ -263,3 +263,105 @@ exports.inviteUser = function(req, res) {
         }
     });
 }
+
+exports.acceptInvitation = function(req,res) {
+    var nId = req.params.id;
+    
+    notification.findOne({ _id: nId })
+        .exec(function(err, n) {
+            if (!n || err) {
+                res.status(400).end();
+            }
+            else if (n.owner.toString() == req.user._id.toString()) {
+                //remove user from requested array
+                var conditions = { _id: n.post };
+                var update = { $pull: { 'settings.access.invited': n.owner }, $push: { 'settings.access.allowed': n.owner } };
+                var options = { multi: true };
+                post.update(conditions, update, options, function(err) {
+                    if (err) {
+                        res.status(400).end();
+                    }
+                    else {
+                        //create new notification which will be sent back to the requestor 
+                        //informing him that his invitation has been accepted
+                        var n2 = new notification();
+                        n2.owner = n.creator;
+                        n2.creator = n.owner;
+                        n2.post = n.post;
+                        n2.type = 'inviteAcc';
+                        n2.save(function(err) {
+                            if (err) {
+                                res.status(400).end();
+                            }
+                            else {
+                                n.remove(function(err) {
+                                    if (err) {
+                                        res.status(400).end();
+                                    }
+                                    else {
+                                        //send respont to the browser
+                                        res.send("An invitation has been accepted.");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+                //user not allowed to perform operation on notification
+                res.status(401).end();
+            }
+        });
+};
+
+exports.declineInvitation = function(req,res) {
+    var nId = req.params.id;
+    
+    notification.findOne({ _id: nId })
+        .exec(function(err, n) {
+            if (!n || err) {
+                res.status(400).end();
+            }
+            else if (n.owner.toString() == req.user._id.toString()) {
+                //remove user from requested array
+                var conditions = { _id: n.post };
+                var update = { $pull: { 'settings.access.invited': n.owner }};
+                var options = { multi: true };
+                post.update(conditions, update, options, function(err) {
+                    if (err) {
+                        res.status(400).end();
+                    }
+                    else {
+                        //create new notification which will be sent back to the requestor 
+                        //informing him that his invitation has been declined
+                        var n2 = new notification();
+                        n2.owner = n.creator;
+                        n2.creator = n.owner;
+                        n2.post = n.post;
+                        n2.type = 'inviteDen';
+                        n2.save(function(err) {
+                            if (err) {
+                                res.status(400).end();
+                            }
+                            else {
+                                n.remove(function(err) {
+                                    if (err) {
+                                        res.status(400).end();
+                                    }
+                                    else {
+                                        //send respont to the browser
+                                        res.send("An invitation has been declined.");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+                //user not allowed to perform operation on notification
+                res.status(401).end();
+            }
+        });
+};

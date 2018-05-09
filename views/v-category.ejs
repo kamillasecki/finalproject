@@ -9,6 +9,7 @@
 </head>
 
 <body ng-controller="mainController">
+    <% include ./index_partials/navbar %>
     <ol class="breadcrumb">
         <li ng-repeat="cat in parents | orderBy:'-'"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
     </ol>
