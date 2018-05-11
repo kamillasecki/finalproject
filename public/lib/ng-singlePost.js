@@ -518,7 +518,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.put("/api/user/" + $scope.mainCtrl.searchText + "/invite/post/" + id)
+        $http.post("/api/user/" + $scope.mainCtrl.searchText + "/invite/post/" + id)
             .then(onComplete, onError)
             .catch(angular.noop);
     };

@@ -3,6 +3,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var GoogleStrategy = require('passport-google-oauth2').Strategy;
 
+
 // load up the user model
 var User = require('../app/models/user');
 
@@ -54,7 +55,7 @@ module.exports = function(passport) {
                     // all is well, return user
                     else
                         //create displayneme id one doesyn't exist using id
-                        if (user.displayname == null || user.displayName == undefined) {
+                        if (user.displayname == null || user.displayname == undefined) {
                             user.displayname = "user_" + user._id;
                             user.save();
                         }

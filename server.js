@@ -11,6 +11,7 @@ var bodyParser   = require('body-parser');
 var session      = require('express-session');
 var configDB = require('./config/database.js');
 var configDBtest = require('./config/databaseTest.js');
+var expressVaildator = require("express-validator");
 var app = express();
 
 // configuration ===============================================================
@@ -26,6 +27,7 @@ require('./config/passport')(passport); // passport configuration
 // set up our express application
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser()); // get information from html forms
+app.use(expressVaildator());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 

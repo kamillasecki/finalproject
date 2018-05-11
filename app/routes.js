@@ -27,9 +27,9 @@ module.exports = function(app, passport) {
 	});
 
 	// PROFILE SECTION =========================
-	app.get('/profile', isLoggedIn, function(req, res) {
+	app.get('/settings', isLoggedIn, function(req, res) {
 		req.user.getCount(function(u) {
-			res.render('profile.ejs', {
+			res.render('v-settings.ejs', {
 				user: req.user,
 				nCount: u
 			});
@@ -96,6 +96,25 @@ module.exports = function(app, passport) {
 		}
 	});
 
+	// DISPLAY LIST OF POSTST PER CATEGORY =========
+
+	app.get('/myList', function(req, res) {
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-myList.ejs', {
+					user: req.user,
+					nCount: u
+				});
+			});
+		}
+		else {
+			res.render('v-list.ejs', {
+				user: null,
+				nCount: null
+			});
+		}
+	});
+
 	// DISPLAY SEARCH RESULTS
 	app.get("/search", function(req, res) {
 		if (req.user) {
@@ -138,6 +157,15 @@ module.exports = function(app, passport) {
 	app.get('/api/users', function(req, res) {
 		userCtrl.getAllUsers(req, res);
 	});
+	
+	app.put('/api/user/changedname', function(req,res){
+		userCtrl.changeDisplayname(req,res);
+	});
+	
+	app.put('/api/user/changepass', function(req,res){
+		req.check('newPass', 'New password does not math minimum requirements.').isLength({min: 7}).isAlphanumeric();
+		userCtrl.changePass(req,res);
+	});
 
 	//POST API
 	//search posts
@@ -149,6 +177,13 @@ module.exports = function(app, passport) {
 	app.post('/api/post', function(req, res) {
 		postCtrl.newPost(req, res);
 	});
+
+	//get posts per user
+	app.get('/api/post/myposts', function(req, res) {
+		console.log("here")
+		postCtrl.myPosts(req, res);
+	});
+
 	//get post by ID
 	app.get('/api/post/:id', function(req, res) {
 		postCtrl.getPost(req, res);
@@ -188,12 +223,12 @@ module.exports = function(app, passport) {
 	app.post('/api/post/:id/settings/privacy', function(req, res) {
 		postCtrl.changePrivSett(req, res);
 	});
-	
+
 	//apply encryption
 	app.put('/api/post/:id/encrypt', function(req, res) {
 		postCtrl.applyEncryption(req, res);
 	});
-	
+
 	//remove encryption
 	app.put('/api/post/:id/decrypt', function(req, res) {
 		postCtrl.removeEncryption(req, res);
@@ -363,7 +398,7 @@ module.exports = function(app, passport) {
 		res.render('connect-local.ejs', { message: req.flash('loginMessage') });
 	});
 	app.post('/connect/local', passport.authenticate('local-signup', {
-		successRedirect: '/profile', // redirect to the secure profile section
+		successRedirect: '/settings', // redirect to the secure profile section
 		failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
 		failureFlash: true // allow flash messages
 	}));
@@ -376,7 +411,7 @@ module.exports = function(app, passport) {
 	// handle the callback after facebook has authorized the user
 	app.get('/connect/facebook/callback',
 		passport.authorize('facebook', {
-			successRedirect: '/profile',
+			successRedirect: '/settings',
 			failureRedirect: '/'
 		}));
 
@@ -389,7 +424,7 @@ module.exports = function(app, passport) {
 	// the callback after google has authorized the user
 	app.get('/connect/google/callback',
 		passport.authorize('google', {
-			successRedirect: '/profile',
+			successRedirect: '/settings',
 			failureRedirect: '/'
 		}));
 
@@ -406,7 +441,7 @@ module.exports = function(app, passport) {
 		//user.local.uname    = undefined;
 		user.local.password = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/settings');
 		});
 	});
 
@@ -415,7 +450,7 @@ module.exports = function(app, passport) {
 		var user = req.user;
 		user.facebook.token = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/settings');
 		});
 	});
 
@@ -425,7 +460,7 @@ module.exports = function(app, passport) {
 		var user = req.user;
 		user.google.token = undefined;
 		user.save(function(err) {
-			res.redirect('/profile');
+			res.redirect('/settings');
 		});
 	});
 

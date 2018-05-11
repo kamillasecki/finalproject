@@ -1079,6 +1079,20 @@ exports.removeEncryption = function(req, res) {
     
 };
 
+exports.myPosts = function(req,res) {
+    console.log(req.user._id);
+    post.find({ 'settings.author': req.user._id})
+    .populate('settings.category')
+    .select('-body')
+    .exec(function(err, p) {
+        if(err) {
+            throw(err);
+        } else {
+            res.send(p);
+        }
+    });
+};
+
 function filterPosts(postsArray, user) {
     var out = [];
     out = postsArray;

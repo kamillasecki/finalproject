@@ -1,13 +1,19 @@
 /*global angular*/
 /*global $*/
-var app = angular.module('list', ['angular-growl']);
+var app = angular.module('list', ['angular-growl', 'ngMaterial', 'ngMessages']);
 
 app.config(['growlProvider', function(growlProvider) {
     growlProvider.globalPosition('top-center');
     growlProvider.globalTimeToLive(5000);
 }]);
 
-var mainController = function($scope, $http, growl) {
+app.config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+        .primaryPalette('pink')
+        .accentPalette('orange');
+});
+
+var mainController = function($scope, $http, growl, $mdDialog) {
 
     $scope.user = $("#user").val();
     $scope.message = '';
@@ -48,7 +54,18 @@ var mainController = function($scope, $http, growl) {
     };
 
     var actionConfirmed = function(r) {
-        growl.info("<strong>" + r.data + "</strong>" , { referenceId: 1 });
+        console.log(r)
+        $mdDialog.show(
+            $mdDialog.alert()
+            .clickOutsideToClose(true)
+            .title(r.data.status)
+            .textContent(r.data.message)
+            .ariaLabel(r.data.status)
+            .ok('ok')
+            .openFrom('#left')
+            .closeTo('#right')
+        );
+
         $http.get("/api/notifications/" + $scope.user)
             .then(onComplete, error)
             .catch(angular.noop);
@@ -83,21 +100,21 @@ var mainController = function($scope, $http, growl) {
             .then(actionConfirmed, error)
             .catch(angular.noop);
     };
-    
+
     //accepting an invitation
     $scope.invitationAccept = function(id) {
-        $http.post("/api/notifications/"+id+"/inviteAccept")
+        $http.post("/api/notifications/" + id + "/inviteAccept")
             .then(actionConfirmed, error)
             .catch(angular.noop);
     };
-    
+
     //declining an invitation
     $scope.invitationDecline = function(id) {
-        $http.post("/api/notifications/"+id+"/inviteDecline")
+        $http.post("/api/notifications/" + id + "/inviteDecline")
             .then(actionConfirmed, error)
             .catch(angular.noop);
     };
-    
+
     $scope.delete = function(id) {
         if (id) {
             $http.delete('/api/notification/' + id)
@@ -106,4 +123,4 @@ var mainController = function($scope, $http, growl) {
         }
     };
 };
-app.controller("mainController", ["$scope", "$http", "growl", mainController]);
+app.controller("mainController", ["$scope", "$http", "growl", "$mdDialog", mainController]);

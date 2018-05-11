@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html ng-app="profSet">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User settings</title>
+    <% include ./index_partials/head %>
+</head>
+
+<body ng-controller="mainController" ng-cloak>
+    <% include ./index_partials/navbar %>
+        <md-content>
+            <div class="container">
+                <div class="row">
+                    <!-- LOCAL INFORMATION -->
+                    <div class="col-sm-1" class="left"></div>
+                    <div class="col-sm-10">
+                        <md-content class="md-padding" layout-xs="column" layout="row">
+                            <div flex-xs flex-gt-xs="50" layout="column">
+                                <md-card>
+                                    <md-card-title>
+                                        <md-card-title-text>
+                                            <h3><span class="fas fa-user"></span> Local account</h3>
+                                        </md-card-title-text>
+                                    </md-card-title>
+                                    <md-card-content>
+
+                                        <% if (user.local.username) { %>
+                                            <p>
+                                                <strong>id</strong>:
+                                                <%= user._id %><br>
+                                                    <strong>Username</strong>:
+                                                    <%= user.local.username %><br>
+                                            </p>
+                                    </md-card-content>
+                                    <md-card-actions layout="row" layout-align="end center">
+                                        <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/unlink/local">Unlink</md-button>
+                                    </md-card-actions>
+                                    <% } else { %>
+                                        You do not have a local account.
+                                        </md-card-content>
+                                        <md-card-actions layout="row" layout-align="end center">
+                                            <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/connect/local">Connect</md-button>
+                                        </md-card-actions>
+                                        <% } %>
+                                </md-card>
+
+                                <md-card>
+                                    <md-card-title>
+                                        <md-card-title-text>
+                                            <h3 class="text-primary"><span class="fab fa-facebook-f"> </span> Facebook</h3>
+                                        </md-card-title-text>
+                                    </md-card-title>
+                                    <md-card-content>
+
+                                        <% if (user.facebook.token) { %>
+                                            <p>
+                                                <strong>id</strong>:
+                                                <%= user.facebook.id %><br>
+                                                    <strong>email</strong>:
+                                                    <%= user.facebook.email %><br>
+                                                        <strong>name</strong>:
+                                                        <%= user.facebook.name %><br>
+                                            </p>
+                                    </md-card-content>
+                                    <md-card-actions layout="row" layout-align="end center">
+                                        <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/unlink/facebook">Unlink</md-button>
+                                    </md-card-actions>
+                                    <% } else { %>
+                                        You do not have facebook account linked.
+                                        </md-card-content>
+                                        <md-card-actions layout="row" layout-align="end center">
+                                            <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/connect/facebook">Connect</md-button>
+                                        </md-card-actions>
+                                        <% } %>
+                                </md-card>
+
+                                <md-card>
+                                    <md-card-title>
+                                        <md-card-title-text>
+                                            <h3 class="text-danger"><span class="fab fa-google-plus"></span> Google+</h3>
+                                        </md-card-title-text>
+                                    </md-card-title>
+                                    <md-card-content>
+
+                                        <% if (user.google.token) { %>
+                                            <p>
+                                                <strong>id</strong>:
+                                                <%= user.google.id %><br>
+                                                    <strong>email</strong>:
+                                                    <%= user.google.email %><br>
+                                                        <strong>name</strong>:
+                                                        <%= user.google.name %>
+                                            </p>
+                                    </md-card-content>
+                                    <md-card-actions layout="row" layout-align="end center">
+                                        <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/unlink/local">Unlink</md-button>
+                                    </md-card-actions>
+                                    <% } else { %>
+                                        You do not have Google account linked.
+                                        </md-card-content>
+                                        <md-card-actions layout="row" layout-align="end center">
+                                            <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/connect/local">Connect</md-button>
+                                        </md-card-actions>
+                                        <% } %>
+                                </md-card>
+
+
+                            </div>
+                            <div flex-xs flex-gt-xs="50" layout="column">
+                                <md-card>
+                                    <md-card-title>
+                                        <md-card-title-text>
+                                            <span class="md-headline">Change display name</span>
+                                        </md-card-title-text>
+                                    </md-card-title>
+                                    <md-card-content>
+                                        <p>
+                                            Your currently displayed name is: <strong><%=user.displayname %></strong>
+                                        </p>
+                                        <form name="namechange">
+                                            <div layout="row">
+                                                <md-input-container flex>
+                                                    <label>Display name</label>
+                                                    <input required type="text" class="form-control" ng-model="displayName" name="displayName" minlength="5">
+                                                    <div ng-messages="namechange.displayName.$error">
+                                                        <div ng-message="required">This is required!</div>
+                                                        <div ng-message="minlength">Display name must be at least 5 characters long.</div>
+                                                    </div>
+                                                </md-input-container>
+                                            </div>
+                                        </form>
+                                    </md-card-content>
+                                    <md-card-actions layout="row" layout-align="end center">
+                                        <md-button ng-disabled="namechange.$invalid" class="md-primary md-raised edgePadding md-ink-ripple" ng-click="changeDname()">Save</md-button>
+                                    </md-card-actions>
+                                </md-card>
+                                <% if (user.local.username) { %>
+                                    <md-card>
+                                        <md-card-title>
+                                            <md-card-title-text>
+                                                <span class="md-headline">Change the password</span>
+                                            </md-card-title-text>
+                                        </md-card-title>
+                                        <md-card-content>
+                                            <form name="passchange">
+                                                <div layout="row">
+                                                    <md-input-container flex>
+                                                        <label>Password</label>
+                                                        <input required type="password" class="form-control" name="oldPass" ng-model="oldPass">
+                                                        <div ng-messages="passchange.oldPass.$error" ng-show="passchange.oldPass.$dirty">
+                                                            <div ng-message="required">This is required!</div>
+                                                        </div>
+                                                    </md-input-container>
+                                                </div>
+                                                <div layout="row">
+                                                    <md-input-container flex>
+                                                        <label>New password</label>
+                                                        <input required type="password" class="form-control" name="newPass" ng-model="newPass" minlength="7">
+                                                        <div ng-messages="passchange.newPass.$error" ng-show="passchange.newPass.$dirty">
+                                                            <div ng-message="required">This is required!</div>
+                                                            <div ng-message="minlength">Password must be at least 7 characters long.</div>
+                                                            <div ng-message="pattern">Password must be alphanumeric.</div>
+                                                        </div>
+                                                    </md-input-container>
+                                                </div>
+
+                                                <div layout="row">
+                                                    <md-input-container flex>
+                                                        <label>Repeat new password</label>
+                                                        <input required type="password" class="form-control" name="newPass2" ng-model="newPass2" minlength="7" password-verify="{{newPass}}">
+                                                        <div ng-messages="passchange.newPass2.$error" ng-show="passchange.newPass2.$dirty">
+                                                            <div ng-message="minlength">Password must be at least 7 characters long.</div>
+                                                            <div ng-message="passwordVerify">New passwords do not match</div>
+                                                        </div>
+                                                    </md-input-container>
+                                                </div>
+                                            </form>
+                                        </md-card-content>
+                                        <md-card-actions layout="row" layout-align="end center">
+                                            <md-button ng-disabled="passchange.$invalid" class="md-primary md-raised edgePadding md-ink-ripple" ng-click="changePass()">Update</md-button>
+                                        </md-card-actions>
+                                    </md-card>
+                                    <% } %>
+                            </div>
+                        </md-content>
+                    </div>
+                    <div class="col-sm-1" class="right"></div>
+                    <% include ./index_partials/footer %>
+                        <script src="/lib/ng-settings.js"></script>
+                </div>
+            </div>
+        </md-content>
+
+</body>
+
+
+
+</body>
+
+</html>

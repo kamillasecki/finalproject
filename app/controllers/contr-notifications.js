@@ -38,11 +38,15 @@ exports.getByUser = function(req, res) {
 
 exports.allowPostAccess = function(req, res) {
     var nId = req.params.id;
+    var a = {};
     //get the initial notification
     notification.findOne({ _id: nId })
         .exec(function(err, n) {
             if (!n || err) {
                 res.status(400).end();
+                a.status = "Problem";
+                a.message = "Nottification not found!";
+                res.send(a);
             }
             else {
                 //check if the person accepting is the owner of the requaes
@@ -53,7 +57,9 @@ exports.allowPostAccess = function(req, res) {
                     var options = { multi: true };
                     post.update(conditions, update, options, function(err) {
                         if (err) {
-                            res.status(400).end();
+                            a.status = "Problem";
+                            a.message = "Error x325: Database update";
+                            res.send(a);
                         }
                         else {
                             //create new notification which will be sent back to the requestor informing him that his request has been accepted
@@ -64,16 +70,22 @@ exports.allowPostAccess = function(req, res) {
                             n2.type = 'requestAcc';
                             n2.save(function(err) {
                                 if (err) {
-                                    res.status(400).end();
+                                    a.status = "Problem";
+                                    a.message = "Error x325: Database update";
+                                    res.send(a);
                                 }
                                 else {
                                     n.remove(function(err) {
                                         if (err) {
-                                            res.status(400).end();
+                                            a.status = "Problem";
+                                            a.message = "Error x325: Database update";
+                                            res.send(a);
                                         }
                                         else {
                                             //send respont to the browser
-                                            res.send("User's request has been approved.");
+                                            a.status = "Completed";
+                                            a.message = "User's access request has been approved.";
+                                            res.send(a);
                                         }
                                     });
                                 }
@@ -84,7 +96,9 @@ exports.allowPostAccess = function(req, res) {
                 }
                 else {
                     //user not allowed to perform operation on notification
-                    res.status(401).end();
+                    a.status = "Problem";
+                    a.message = "User not authorised.";
+                    res.send(a);
                 }
             }
         });
@@ -92,11 +106,14 @@ exports.allowPostAccess = function(req, res) {
 
 exports.denyPostAccess = function(req, res) {
     var nId = req.params.id;
+    var a = {};
     //get the initial notification
     notification.findOne({ _id: nId })
         .exec(function(err, n) {
             if (!n || err) {
-                res.status(400).end();
+                a.status = "Problem";
+                a.message = "Error x325: Database update";
+                res.send(a);
             }
             else if (n.owner.toString() == req.user._id.toString()) {
                 //remove user from requested array
@@ -105,7 +122,9 @@ exports.denyPostAccess = function(req, res) {
                 var options = { multi: true };
                 post.update(conditions, update, options, function(err) {
                     if (err) {
-                        res.status(400).end();
+                        a.status = "Problem";
+                        a.message = "Error x325: Database update";
+                        res.send(a);
                     }
                     else {
                         //create new notification which will be sent back to the requestor informing him that his request has been denied
@@ -116,16 +135,22 @@ exports.denyPostAccess = function(req, res) {
                         n2.type = 'requestDen';
                         n2.save(function(err) {
                             if (err) {
-                                res.status(400).end();
+                                a.status = "Problem";
+                                a.message = "Error x325: Database update";
+                                res.send(a);
                             }
                             else {
                                 n.remove(function(err) {
                                     if (err) {
-                                        res.status(400).end();
+                                        a.status = "Problem";
+                                        a.message = "Error x325: Database update";
+                                        res.send(a);
                                     }
                                     else {
                                         //send respont to the browser
-                                        res.send("User's request has been denied.");
+                                        a.status = "Completed";
+                                        a.message = "You have denied user access request.";
+                                        res.send(a);
                                     }
                                 });
                             }
@@ -135,7 +160,9 @@ exports.denyPostAccess = function(req, res) {
             }
             else {
                 //user not allowed to perform operation on notification
-                res.status(401).end();
+                a.status = "Problem";
+                a.message = "User not authorised.";
+                res.send(a);
             }
         });
 };
@@ -148,22 +175,29 @@ exports.read = function(req, res) {
 };
 
 exports.delete = function(req, res) {
+    var a = {};
     var id = req.params.id;
     //find the notification
     notification.findOne({ _id: id })
         .exec(function(err, n) {
             if (!n || err) {
-                res.status(400).end();
+                a.status = "Completed";
+                a.message = "You have denied user access request.";
+                res.send(a);
             }
             //check if notification nebongs to user
             else if (n.owner.toString() == req.user._id.toString()) {
                 //remove notification
                 n.remove(function(err) {
                     if (err) {
-                        res.status(400).end();
+                        a.status = "Completed";
+                        a.message = "You have denied user access request.";
+                        res.send(a);
                     }
                     else {
-                        res.send("Notification has been removed.");
+                        a.status = "Completed";
+                        a.message = "Notification has been removed.";
+                        res.send(a);
                     }
                 });
             }
@@ -216,11 +250,13 @@ exports.inviteUser = function(req, res) {
                         fn.message = "You have already invited this user.";
                         fn.status = "error";
                         res.send(fn);
-                    } else if (found2) {
+                    }
+                    else if (found2) {
                         fn.message = "This user already have access to your post.";
                         fn.status = "error";
                         res.send(fn);
-                    } else if (req.user._id.toString() == u._id.toString()) {
+                    }
+                    else if (req.user._id.toString() == u._id.toString()) {
                         fn.message = "You cannot invite yourself.";
                         fn.status = "error";
                         res.send(fn);
@@ -264,13 +300,16 @@ exports.inviteUser = function(req, res) {
     });
 }
 
-exports.acceptInvitation = function(req,res) {
+exports.acceptInvitation = function(req, res) {
     var nId = req.params.id;
-    
+    var a = {};
+
     notification.findOne({ _id: nId })
         .exec(function(err, n) {
             if (!n || err) {
-                res.status(400).end();
+                a.status = "Problem";
+                a.message = "Error x325: Database update";
+                res.send(a);
             }
             else if (n.owner.toString() == req.user._id.toString()) {
                 //remove user from requested array
@@ -279,7 +318,9 @@ exports.acceptInvitation = function(req,res) {
                 var options = { multi: true };
                 post.update(conditions, update, options, function(err) {
                     if (err) {
-                        res.status(400).end();
+                        a.status = "Problem";
+                        a.message = "Error x325: Database update";
+                        res.send(a);
                     }
                     else {
                         //create new notification which will be sent back to the requestor 
@@ -291,16 +332,22 @@ exports.acceptInvitation = function(req,res) {
                         n2.type = 'inviteAcc';
                         n2.save(function(err) {
                             if (err) {
-                                res.status(400).end();
+                                a.status = "Problem";
+                                a.message = "Error x325: Database update";
+                                res.send(a);
                             }
                             else {
                                 n.remove(function(err) {
                                     if (err) {
-                                        res.status(400).end();
+                                        a.status = "Problem";
+                                        a.message = "Error x325: Database update";
+                                        res.send(a);
                                     }
                                     else {
                                         //send respont to the browser
-                                        res.send("An invitation has been accepted.");
+                                        a.status = "Completed";
+                                        a.message = "You have accepted invitation.";
+                                        res.send(a);
                                     }
                                 });
                             }
@@ -310,27 +357,34 @@ exports.acceptInvitation = function(req,res) {
             }
             else {
                 //user not allowed to perform operation on notification
-                res.status(401).end();
+                a.status = "Problem";
+                a.message = "User not authorised.";
+                res.send(a);
             }
         });
 };
 
-exports.declineInvitation = function(req,res) {
+exports.declineInvitation = function(req, res) {
     var nId = req.params.id;
-    
+    var a = {};
+
     notification.findOne({ _id: nId })
         .exec(function(err, n) {
             if (!n || err) {
-                res.status(400).end();
+                a.status = "Problem";
+                a.message = "Error x325: Database update";
+                res.send(a);
             }
             else if (n.owner.toString() == req.user._id.toString()) {
                 //remove user from requested array
                 var conditions = { _id: n.post };
-                var update = { $pull: { 'settings.access.invited': n.owner }};
+                var update = { $pull: { 'settings.access.invited': n.owner } };
                 var options = { multi: true };
                 post.update(conditions, update, options, function(err) {
                     if (err) {
-                        res.status(400).end();
+                        a.status = "Problem";
+                        a.message = "Error x325: Database update";
+                        res.send(a);
                     }
                     else {
                         //create new notification which will be sent back to the requestor 
@@ -342,15 +396,22 @@ exports.declineInvitation = function(req,res) {
                         n2.type = 'inviteDen';
                         n2.save(function(err) {
                             if (err) {
-                                res.status(400).end();
+                                a.status = "Problem";
+                                a.message = "Error x325: Database update";
+                                res.send(a);
                             }
                             else {
                                 n.remove(function(err) {
                                     if (err) {
-                                        res.status(400).end();
+                                        a.status = "Problem";
+                                        a.message = "Error x325: Database update";
+                                        res.send(a);
                                     }
                                     else {
                                         //send respont to the browser
+                                        a.status = "Completed";
+                                        a.message = "You have declined post invitation.";
+                                        res.send(a);
                                         res.send("An invitation has been declined.");
                                     }
                                 });
@@ -361,7 +422,9 @@ exports.declineInvitation = function(req,res) {
             }
             else {
                 //user not allowed to perform operation on notification
-                res.status(401).end();
+                a.status = "Problem";
+                a.message = "User not authorised.";
+                res.send(a);
             }
         });
 };
