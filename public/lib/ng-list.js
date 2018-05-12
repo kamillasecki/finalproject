@@ -2,6 +2,7 @@
 /*global $*/
 var app = angular.module('list', []);
 
+
 var mainController = function($scope, $http, growl) {
     $scope.message = '';
     $scope.parents = [];
@@ -9,11 +10,9 @@ var mainController = function($scope, $http, growl) {
     $scope.currentCat = {};
     $scope.sortType = 'createdAt';
     $scope.sortReverse = true;
-
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var id = url.searchParams.get("id");
-    $scope.id = id;
+    // var url = $location.search();
+    // var id = url.id;
+    var id = $("#id").val();
 
     //on successfull aquire list of parents categories
     var onParentsComplete = function(r) {
@@ -30,7 +29,7 @@ var mainController = function($scope, $http, growl) {
 
     //on failure
     var redirect = function() {
-        window.location = "/list?id=5a650c8bb62a0c8536f056c7";
+        window.location = "/list/5a650c8bb62a0c8536f056c7";
     };
 
     //start chaining data requests
@@ -39,7 +38,7 @@ var mainController = function($scope, $http, growl) {
             .then(onParentsComplete, redirect)
             .catch(angular.noop);
     } else {
-        window.location = "/list?id=5a650c8bb62a0c8536f056c7";
+        window.location = "/list/5a650c8bb62a0c8536f056c7";
     }
 
     $(document).ready(function() {
@@ -49,3 +48,4 @@ var mainController = function($scope, $http, growl) {
 
 };
 app.controller("mainController", ["$scope", "$http", mainController]);
+

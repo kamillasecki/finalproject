@@ -8,11 +8,6 @@ var mainController = function($scope, $http, growl) {
     $scope.sortType = 'createdAt';
     $scope.sortReverse = true;
 
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var f = url.searchParams.get("f");
-    $scope.f = f;
-
     //on successfull aquire list of posts
     var onSeachComplete = function(r) {
         $scope.posts = r.data;
@@ -20,7 +15,7 @@ var mainController = function($scope, $http, growl) {
 
     //on failure
     var error = function(r) {
-        console.log(r)
+        console.log(r);
     };
 
     $(document).ready(function() {

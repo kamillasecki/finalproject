@@ -14,14 +14,16 @@ module.exports = function(app, passport) {
 			req.user.getCount(function(u) {
 				res.render('v-list.ejs', {
 					user: req.user,
-					nCount: u
+					nCount: u,
+					id: "5a650c8bb62a0c8536f056c7"
 				});
 			});
 		}
 		else {
 			res.render('v-list.ejs', {
 				user: null,
-				nCount: null
+				nCount: null,
+				id: "5a650c8bb62a0c8536f056c7"
 			});
 		}
 	});
@@ -37,11 +39,22 @@ module.exports = function(app, passport) {
 	});
 
 	// NEW POST =================================
+	app.get('/newpost/:id', isLoggedIn, function(req, res) {
+		req.user.getCount(function(u) {
+			res.render('v-newpost.ejs', {
+				user: req.user,
+				nCount: u,
+				id: req.params.id
+			});
+		});
+	});
+	
 	app.get('/newpost', isLoggedIn, function(req, res) {
 		req.user.getCount(function(u) {
 			res.render('v-newpost.ejs', {
 				user: req.user,
-				nCount: u
+				nCount: u,
+				id: "5a650c8bb62a0c8536f056c7"
 			});
 		});
 	});
@@ -49,49 +62,54 @@ module.exports = function(app, passport) {
 
 	// DISPLAY SINGLE POST =========================
 
-	app.get('/post', function(req, res) {
+	app.get('/post/:id', function(req, res) {
 
 		if (req.user) {
 			req.user.getCount(function(u) {
 				res.render('v-singlePost.ejs', {
 					user: req.user,
-					nCount: u
+					nCount: u,
+					id: req.params.id
 				});
 			});
 		}
 		else {
 			res.render('v-singlePost.ejs', {
 				user: null,
-				nCount: null
+				nCount: null,
+				id: req.params.id
 			});
 		}
 	});
 
 	// CATEGORY MANAGEMENT =========================
-	app.get('/category', isLoggedIn, function(req, res) {
+	app.get('/category/:id', isLoggedIn, function(req, res) {
 		req.user.getCount(function(u) {
 			res.render('v-category.ejs', {
 				user: req.user,
-				nCount: u
+				nCount: u,
+				id: req.params.id
 			});
 		});
 	});
 
 	// DISPLAY LIST OF POSTST PER CATEGORY =========
 
-	app.get('/list', function(req, res) {
+	app.get('/list/:id', function(req, res) {
 		if (req.user) {
 			req.user.getCount(function(u) {
 				res.render('v-list.ejs', {
 					user: req.user,
-					nCount: u
+					nCount: u,
+					id: req.params.id
 				});
 			});
 		}
 		else {
 			res.render('v-list.ejs', {
 				user: null,
-				nCount: null
+				nCount: null,
+				id: req.params.id
 			});
 		}
 	});
@@ -110,7 +128,7 @@ module.exports = function(app, passport) {
 		else {
 			res.render('v-list.ejs', {
 				user: null,
-				nCount: null
+				nCount: null,
 			});
 		}
 	});
@@ -157,14 +175,14 @@ module.exports = function(app, passport) {
 	app.get('/api/users', function(req, res) {
 		userCtrl.getAllUsers(req, res);
 	});
-	
-	app.put('/api/user/changedname', function(req,res){
-		userCtrl.changeDisplayname(req,res);
+
+	app.put('/api/user/changedname', function(req, res) {
+		userCtrl.changeDisplayname(req, res);
 	});
-	
-	app.put('/api/user/changepass', function(req,res){
-		req.check('newPass', 'New password does not math minimum requirements.').isLength({min: 7}).isAlphanumeric();
-		userCtrl.changePass(req,res);
+
+	app.put('/api/user/changepass', function(req, res) {
+		req.check('newPass', 'New password does not math minimum requirements.').isLength({ min: 7 }).isAlphanumeric();
+		userCtrl.changePass(req, res);
 	});
 
 	//POST API
@@ -180,7 +198,6 @@ module.exports = function(app, passport) {
 
 	//get posts per user
 	app.get('/api/post/myposts', function(req, res) {
-		console.log("here")
 		postCtrl.myPosts(req, res);
 	});
 
@@ -348,7 +365,7 @@ module.exports = function(app, passport) {
 
 	// process the login form
 	app.post('/login', passport.authenticate('local-login', {
-		successRedirect: '/list', // redirect to the secure profile section
+		successRedirect: '/', // redirect to the secure profile section
 		failureRedirect: '/login', // redirect back to the signup page if there is an error
 		failureFlash: true // allow flash messages
 	}));
@@ -376,7 +393,7 @@ module.exports = function(app, passport) {
 
 	// process the signup form
 	app.post('/signup', passport.authenticate('local-signup', {
-		successRedirect: '/list', // redirect to the secure profile section
+		successRedirect: '/', // redirect to the secure profile section
 		failureRedirect: '/signup', // redirect back to the signup page if there is an error
 		failureFlash: true // allow flash messages
 	}));
@@ -389,8 +406,8 @@ module.exports = function(app, passport) {
 	// handle the callback after facebook has authenticated the user
 	app.get('/auth/facebook/callback',
 		passport.authenticate('facebook', {
-			successRedirect: '/list',
-			failureRedirect: '/'
+			successRedirect: '/',
+			failureRedirect: '/login'
 		}));
 
 	// google ---------------------------------
@@ -401,8 +418,8 @@ module.exports = function(app, passport) {
 	// the callback after google has authenticated the user
 	app.get('/auth/google/callback',
 		passport.authenticate('google', {
-			successRedirect: '/list',
-			failureRedirect: '/'
+			successRedirect: '/',
+			failureRedirect: '/login'
 		}));
 
 	// =============================================================================

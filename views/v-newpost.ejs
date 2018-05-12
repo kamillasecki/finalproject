@@ -24,7 +24,7 @@
                                     <md-divider></md-divider>
                                     <h3>Post category</h3>
                                     <ol class="breadcrumb">
-                                        <li ng-repeat="cat in parents | reverse"><a href="/newpost?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+                                        <li ng-repeat="cat in parents | reverse"><a href="/newpost/{{cat._id}}"><span ng-bind="cat.name"></span></a></li>
                                     </ol>
                                     <md-input-container flex ng-if="parents[0].categoriesId.length>0">
                                         <label>Change sub-category</label>
@@ -94,6 +94,7 @@
             <% include ./index_partials/footer %>
                 <script src="/lib/ng-newpost.js"></script>
         </md-content>
+        <input type="text" name="" value="<%=id%>" id="id" hidden="" />
 </body>
 
 </html>

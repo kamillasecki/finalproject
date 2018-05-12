@@ -19,15 +19,19 @@ app.config(function($mdThemingProvider) {
 
 var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialog) {
 
+    var id = $("#id").val();
+    $scope.user = $("#user").val();
+    console.log(id);
+
     var self = this;
 
     self.selectedItem = null;
     self.searchText = null;
     self.querySearch = querySearch;
     var usersList = [];
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var id = url.searchParams.get("id");
+    // var url_string = window.location.href;
+    // var url = new URL(url_string);
+    // var id = url.searchParams.get("id");
 
     //if load is completed
     var onPostLoadCompleted = function(r) {
@@ -49,7 +53,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
         };
 
         if (r.data.settings.isAdmin) {
-            $http.get('api/users')
+            $http.get('/api/users')
                 .then(onComplete, onError)
                 .catch(angular.noop);
         }
@@ -108,7 +112,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
 
     //load the data
     if (id) {
-        $http.get('api/post/' + id)
+        $http.get('/api/post/' + id)
             .then(onPostLoadCompleted, onLoadError)
             .catch(angular.noop);
     }
@@ -125,7 +129,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             }
         };
 
-        $http.get('api/post/' + id)
+        $http.get('/api/post/' + id)
             .then(onPostReloadCompleted, onLoadError)
             .catch(angular.noop);
     };
@@ -234,14 +238,10 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.post('api/post/reqaccess/' + id, data)
+        $http.post('/api/post/reqaccess/' + id, data)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
-
-    $(document).ready(function() {
-        $scope.user = $("#user").val();
-    });
 
     // ###########################
     // ######SHOW / DISPLAY#######
@@ -331,7 +331,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.get('api/post/upvote/' + id)
+        $http.get('/api/post/upvote/' + id)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -353,7 +353,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.get('api/post/downvote/' + id)
+        $http.get('/api/post/downvote/' + id)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -375,7 +375,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.get('api/post/reply/upvote/' + commentId)
+        $http.get('/api/post/reply/upvote/' + commentId)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -397,7 +397,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.get('api/post/reply/downvote/' + commentId)
+        $http.get('/api/post/reply/downvote/' + commentId)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -414,7 +414,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             }
             else if (r.data.status == 'ok') {
                 alert(r.data.m);
-                window.location = '/list';
+                window.location = '/';
             }
         };
 
@@ -422,7 +422,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.delete('api/post/' + id)
+        $http.delete('/api/post/' + id)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -446,7 +446,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                 growl.error("<strong>" + r.status + "</strong>");
             };
 
-            $http.put('api/post/edit/' + id, data)
+            $http.put('/api/post/edit/' + id, data)
                 .then(onComplete, onError)
                 .catch(angular.noop);
         }
@@ -475,7 +475,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                 growl.error("<strong>" + r.status + "</strong>");
             };
 
-            $http.put('api/post/update/' + id, data)
+            $http.put('/api/post/update/' + id, data)
                 .then(onComplete, onError)
                 .catch(angular.noop);
         }
@@ -544,7 +544,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                 growl.error("<strong>" + r.status + "</strong>");
             };
 
-            $http.post('api/post/prep/' + id, data)
+            $http.post('/api/post/prep/' + id, data)
                 .then(onComplete, onError)
                 .catch(angular.noop);
         }
@@ -576,7 +576,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.delete('api/post/' + id + '/reply/' + rid)
+        $http.delete('/api/post/' + id + '/reply/' + rid)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -599,7 +599,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                 growl.error("<strong>" + r.status + "</strong>");
             };
 
-            $http.put('api/post/reply/edit/' + rid, data)
+            $http.put('/api/post/reply/edit/' + rid, data)
                 .then(onComplete, onError)
                 .catch(angular.noop);
         }
@@ -631,7 +631,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
                 growl.error("<strong>" + r.status + "</strong>");
             };
 
-            $http.post('api/post/rrep/' + rid, data)
+            $http.post('/api/post/rrep/' + rid, data)
                 .then(onComplete, onError)
                 .catch(angular.noop);
         }
@@ -662,7 +662,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r.status + "</strong>");
         };
 
-        $http.delete('api/post/rreply/' + rid + "/" + pid)
+        $http.delete('/api/post/rreply/' + rid + "/" + pid)
             .then(onComplete, onError)
             .catch(angular.noop);
     };
@@ -815,7 +815,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r + "</strong>");
         };
 
-        $http.put('api/post/' + id + '/encrypt', encPost)
+        $http.put('/api/post/' + id + '/encrypt', encPost)
             .then(onComplete, onError)
             .catch(angular.noop);
 
@@ -843,7 +843,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
             growl.error("<strong>" + r + "</strong>");
         };
 
-        $http.put('api/post/' + id + '/decrypt', $scope.post)
+        $http.put('/api/post/' + id + '/decrypt', $scope.post)
             .then(onComplete, onError)
             .catch(angular.noop);
     };

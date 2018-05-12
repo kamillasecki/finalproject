@@ -4,44 +4,53 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>category</title>
+    <title>Category management</title>
     <% include ./index_partials/head %>
 </head>
 
 <body ng-controller="mainController">
     <% include ./index_partials/navbar %>
-    <ol class="breadcrumb">
-        <li ng-repeat="cat in parents | orderBy:'-'"><a href="/category?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
-    </ol>
-
-    <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-4" style="padding:36px;">
-            <ul class="list-group">
-                <li class="list-group-item " ng-repeat="catt in parents[0].categoriesId">
-                    <a href="/category?id={{catt._id}}" class="col-md-11" ng-bind="catt.name"></a>
-                    <button type="button" class="btn btn-danger btn-xs text-right" ng-click="remove(catt._id)">
+        <ol class="breadcrumb">
+            <li ng-repeat="cat in parents | orderBy:'-'"><a href="/category/{{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+        </ol>
+        <div class="row">
+            <md-content class="md-no-momentum">
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="padding:36px;">
+                    <h3>Sub-categories</h3>
+                            <br/>
+                    <ul class="list-group">
+                        <li class="list-group-item " ng-repeat="catt in parents[0].categoriesId">
+                            <a href="/category/{{catt._id}}" class="col-md-11" ng-bind="catt.name"></a>
+                            <button type="button" class="btn btn-danger btn-xs text-right" ng-click="remove(catt._id)">
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
-                </li>
-            </ul>
-            <div growl inline="true" reference="2"></div>
-        </div>
-        <div class="col-md-4" style="margin:0px;padding:30px;">
-            <form ng-submit="send()">
-                <div class="form-group">
-                    <label class="control-label">Category name:</label>
-                    <input class="form-control" ng-model="text" type="text" name="category" placeholder="New category...">
-                    <div growl inline="true" reference="1"></div>
-                    <button class="btn btn-default" ng-disabled="!text" type="submit">Create new category</button>
+                        </li>
+                    </ul>
+                    <div growl inline="true" reference="2"></div>
                 </div>
-            </form>
-            
-        </div>
-        <div class="col-md-2"></div>
-    </div>
+                <div class="col-md-4" style="margin:0px;padding:30px;">
+                    <form ng-submit="send()">
+                        <div class="form-group">
+                            <h3>Create new category</h3>
+                            <br/>
+                            <md-input-container class="md-block">
+                                <label>New category name...</label>
+                                <input ng-model="text" type="text" name="category">
+                            </md-input-container>
+                            <div growl inline="true" reference="1"></div>
+                            <md-button type="submit" ng-disabled="!text" class="md-primary md-raised edgePadding md-ink-ripple">Create</md-button>
+                        </div>
+                    </form>
 
-    <script src="/lib/ng-category.js"></script>
+                </div>
+                <div class="col-md-2"></div>
+            </md-content>
+        </div>
+
+        <% include ./index_partials/footer %>
+        <input type="text" name="" value="<%=id%>" id="id" hidden="" />
+            <script src="/lib/ng-category.js"></script>
 </body>
 
 </html>

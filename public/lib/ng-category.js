@@ -1,44 +1,44 @@
 /*global angular*/
 /*global $*/
-var app = angular.module('cat', ['angular-growl']);
+var app = angular.module('cat', ['angular-growl', 'ngMaterial', 'ngMessages']);
+
+
+app.config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+        .primaryPalette('pink')
+        .accentPalette('orange');
+});
 
 app.config(['growlProvider', function(growlProvider) {
-  growlProvider.globalTimeToLive(8000);
-  growlProvider.globalPosition('bottom-center');
+    growlProvider.globalTimeToLive(8000);
+    growlProvider.globalPosition('bottom-center');
 }]);
 
-var mainController = function($scope, growl) {
+var mainController = function($scope, growl, $location) {
     $scope.message = '';
     $scope.parents = [];
     $scope.currentCat = {};
 
+    $scope.error = function(text) {
+        growl.error(text, { referenceId: 1 });
+    };
 
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var id = url.searchParams.get("id");
-    console.log(id);
-    
-      $scope.error = function (text) {
-        growl.error(text,{referenceId: 1});
 
-    }
-
-  
     $scope.getCategories = function getCategories() {
         $.ajax({
             method: "GET",
             dataType: 'json',
-            url: "api/category/getParents/" + id,
+            url: "/api/category/getParents/" + $("#id").val(),
             success: function(r) {
-                if(r.status == "notfound") {
-                    window.location = "/category?id=5a650c8bb62a0c8536f056c7";
-                } else {
-                    $scope.parents = r;
-                $scope.$apply();
-                console.log(r);
+                if (r.status == "notfound") {
+                    window.location = "/category/5a650c8bb62a0c8536f056c7";
                 }
-                
-                
+                else {
+                    $scope.parents = r;
+                    $scope.$apply();
+                }
+
+
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
@@ -51,36 +51,37 @@ var mainController = function($scope, growl) {
 
         $.ajax({
             method: "DELETE",
-            url: "api/category/" + id,
+            url: "/api/category/" + id,
             success: function(response) {
                 $scope.getCategories();
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
-                growl.error(jqXHR.responseText,{referenceId: 2});
+                growl.error(jqXHR.responseText, { referenceId: 2 });
             }
         });
-    }
+    };
 
     $(document).ready(function() {
-        $scope.getCategories()
-    })
+        $scope.getCategories();
+    });
 
     $scope.send = function sent() {
         $.ajax({
             method: "POST",
-            url: "api/category",
+            url: "/api/category",
             data: { "category": $scope.text, parent: $scope.parents[0]._id },
             success: function(response) {
                 $scope.getCategories();
+                $scope.text = null;
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("ERROR: " + textStatus, errorThrown);
                 console.log("ERROR: " + jqXHR.responseText);
-                
-                growl.error(jqXHR.responseText,{referenceId: 1});
+
+                growl.error(jqXHR.responseText, { referenceId: 1 });
             }
         });
     };
 };
-app.controller("mainController", ["$scope", "growl", mainController]);
+app.controller("mainController", ["$scope", "growl", "$location", mainController]);

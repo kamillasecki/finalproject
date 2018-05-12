@@ -37,17 +37,13 @@ var mainController = function($scope, $http, $log, growl, $mdDialog) {
     $scope.currentCat = {};
     $scope.checkword = "";
     $scope.encryptedText = "";
-
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var id = url.searchParams.get("id");
+    var id = $("#id").val();
 
     // Changing page URL when category dropdown is changed
     $scope.change = function() {
-        console.log("dd" + $scope.category)
         var url = $scope.category; // get selected value
         if (url) { // require a URL
-            window.location = "newpost?id=" + url; // redirect
+            window.location = "/newpost/" + url; // redirect
         }
         return false;
     };
@@ -125,7 +121,7 @@ var mainController = function($scope, $http, $log, growl, $mdDialog) {
     //on succesfull send
     var onSendCompleeted = function(r) {
         alert("Your post has been added successfully.");
-        window.location = "post?id=" + r.data;
+        window.location = "/post/" + r.data;
     };
 
     //on failure
@@ -142,12 +138,12 @@ var mainController = function($scope, $http, $log, growl, $mdDialog) {
 
     //load data
     if (id) {
-        $http.get("api/category/getParents/" + id)
+        $http.get("/api/category/getParents/" + id)
             .then(onParentsComplete, redirect)
             .catch(angular.noop);
     }
     else {
-        window.location = "/newpost?id=5a650c8bb62a0c8536f056c7";
+        window.location = "/newpost";
     }
  
     $scope.send = function sent() {
@@ -168,7 +164,7 @@ var mainController = function($scope, $http, $log, growl, $mdDialog) {
                     checkword: $scope.checkword
                 };
             //execute sent action
-            $http.post('api/post', data)
+            $http.post('/api/post', data)
             .then(onSendCompleeted,onError).catch(angular.noop);
         }
     };

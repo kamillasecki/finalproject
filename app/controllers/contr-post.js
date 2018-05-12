@@ -15,7 +15,7 @@ exports.newPost = function(req, res) {
         else {
             var text = req.body.text;
             var subject = req.body.subject;
-            
+
             if (req.body.privacy == "" || req.body.privacy == null || req.body.privacy == undefined) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
@@ -30,7 +30,7 @@ exports.newPost = function(req, res) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("Seems like the subject of the post is missing.");
-            } 
+            }
             else if (req.body.encryption && (!req.body.checkword || req.body.checkword.trim() == "")) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
@@ -311,119 +311,135 @@ exports.upvoteRep = function(req, res) {
     var requestedRepId = req.params.rid;
     var alreadyUpVoted = false;
     var alreadyDownVoted = -1;
-    reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
-        if (err) {
-            console.log('Error while trying to get post from the database');
-            res.render('notfound.ejs');
-        }
-        else {
-            var fb = {};
-            for (var i = 0; i < r.votes.upVotes.length; i++) {
-                if (r.votes.upVotes[i] == req.user._id) {
-                    alreadyUpVoted = true;
-                }
-            }
-            if (alreadyUpVoted) {
-                console.log("Already upvoted by the user ... not upvoting");
-                fb.n = null;
-                fb.m = "You have previously upvoted this comment.";
-                res.send(fb);
+    if (req.user) {
+        reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
+            if (err) {
+                console.log('Error while trying to get post from the database');
+                res.render('notfound.ejs');
             }
             else {
-                console.log("Not yet voted, processing... upvote");
-                //searching for 
-                for (var j = 0; j < r.votes.downVotes.length; j++) {
-                    if (r.votes.downVotes[j] == req.user._id) {
-                        alreadyDownVoted = j;
+                var fb = {};
+                for (var i = 0; i < r.votes.upVotes.length; i++) {
+                    if (r.votes.upVotes[i] == req.user._id) {
+                        alreadyUpVoted = true;
                     }
                 }
-                if (alreadyDownVoted != -1) {
-                    console.log("downvoted prviously, processing... upvote");
-                    //remove user from downvote
-                    r.votes.downVotes.splice(alreadyDownVoted, 1);
-                    //add user to upvote
-                    r.votes.upVotes.push(req.user._id);
-                    //add 2 to vote number
-                    r.votes.num += 2;
-                    r.save();
-                    fb.n = r.votes.num;
-                    fb.m = "";
+                if (alreadyUpVoted) {
+                    console.log("Already upvoted by the user ... not upvoting");
+                    fb.n = null;
+                    fb.m = "You have previously upvoted this comment.";
                     res.send(fb);
                 }
                 else {
-                    console.log("not downvoted prviously, processing... upvote" + requestedRepId);
-                    //add user to upvote
-                    r.votes.upVotes.push(req.user._id);
-                    //add 1 to vote number
-                    r.votes.num += 1;
-                    r.save();
-                    fb.n = r.votes.num;
-                    fb.m = "";
-                    res.send(fb);
+                    console.log("Not yet voted, processing... upvote");
+                    //searching for 
+                    for (var j = 0; j < r.votes.downVotes.length; j++) {
+                        if (r.votes.downVotes[j] == req.user._id) {
+                            alreadyDownVoted = j;
+                        }
+                    }
+                    if (alreadyDownVoted != -1) {
+                        console.log("downvoted prviously, processing... upvote");
+                        //remove user from downvote
+                        r.votes.downVotes.splice(alreadyDownVoted, 1);
+                        //add user to upvote
+                        r.votes.upVotes.push(req.user._id);
+                        //add 2 to vote number
+                        r.votes.num += 2;
+                        r.save();
+                        fb.n = r.votes.num;
+                        fb.m = "";
+                        res.send(fb);
+                    }
+                    else {
+                        console.log("not downvoted prviously, processing... upvote" + requestedRepId);
+                        //add user to upvote
+                        r.votes.upVotes.push(req.user._id);
+                        //add 1 to vote number
+                        r.votes.num += 1;
+                        r.save();
+                        fb.n = r.votes.num;
+                        fb.m = "";
+                        res.send(fb);
+                    }
                 }
             }
-        }
 
-    });
+        });
+    } else {
+        var fb = {};
+        fb.n = null;
+        fb.m = "You have to be logged in to vote.";
+        res.send(fb);
+    }
 };
 
 exports.downvoteRep = function(req, res) {
     var requestedRepId = req.params.rid;
     var alreadyUpVoted = -1;
     var alreadyDownVoted = false;
-    reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
-        if (err) {
-            console.log('Error while trying to get post from the database');
-            res.render('notfound.ejs');
-        }
-        else {
-            var fb = {};
-            for (var i = 0; i < r.votes.downVotes.length; i++) {
-                if (r.votes.downVotes[i] == req.user._id) {
-                    alreadyDownVoted = true;
-                }
-            }
-            if (alreadyDownVoted) {
-                console.log("Already downvoted by the user... not downvoting");
-                fb.n = null;
-                fb.m = "You have previously downvoted this comment.";
-                res.send(fb);
+    if (req.user) {
+        reply.findOne({ '_id': requestedRepId }).exec(function(err, r) {
+            if (err) {
+                console.log('Error while trying to get post from the database');
+                res.render('notfound.ejs');
             }
             else {
-                console.log("Not yet downvoted, processing... downvote");
-                for (var j = 0; j < r.votes.upVotes.length; j++) {
-                    if (r.votes.upVotes[j] == req.user._id) {
-                        alreadyUpVoted = j;
+                var fb = {};
+                for (var i = 0; i < r.votes.downVotes.length; i++) {
+                    if (r.votes.downVotes[i] == req.user._id) {
+                        alreadyDownVoted = true;
                     }
                 }
-                if (alreadyUpVoted != -1) {
-                    console.log("upvoted prviously, processing... downvote");
-                    //remove user from upvotes
-                    r.votes.upVotes.splice(alreadyUpVoted, 1);
-                    //add user to downvotes
-                    r.votes.downVotes.push(req.user._id);
-                    //substract 2 from the vote number
-                    r.votes.num -= 2;
-                    r.save();
-                    fb.n = r.votes.num;
-                    fb.m = "";
+                if (alreadyDownVoted) {
+                    console.log("Already downvoted by the user... not downvoting");
+                    fb.n = null;
+                    fb.m = "You have previously downvoted this comment.";
                     res.send(fb);
                 }
                 else {
-                    console.log("not upvoted prviously, processing... downvote" + requestedRepId);
-                    //add user to downvote
-                    r.votes.downVotes.push(req.user._id);
-                    //substract 1 from the vote number
-                    r.votes.num -= 1;
-                    r.save();
-                    fb.n = r.votes.num;
-                    fb.m = "";
-                    res.send(fb);
+                    console.log("Not yet downvoted, processing... downvote");
+                    for (var j = 0; j < r.votes.upVotes.length; j++) {
+                        if (r.votes.upVotes[j] == req.user._id) {
+                            alreadyUpVoted = j;
+                        }
+                    }
+                    if (alreadyUpVoted != -1) {
+                        console.log("upvoted prviously, processing... downvote");
+                        //remove user from upvotes
+                        r.votes.upVotes.splice(alreadyUpVoted, 1);
+                        //add user to downvotes
+                        r.votes.downVotes.push(req.user._id);
+                        //substract 2 from the vote number
+                        r.votes.num -= 2;
+                        r.save();
+                        fb.n = r.votes.num;
+                        fb.m = "";
+                        res.send(fb);
+                    }
+                    else {
+                        console.log("not upvoted prviously, processing... downvote" + requestedRepId);
+                        //add user to downvote
+                        r.votes.downVotes.push(req.user._id);
+                        //substract 1 from the vote number
+                        r.votes.num -= 1;
+                        r.save();
+                        fb.n = r.votes.num;
+                        fb.m = "";
+                        res.send(fb);
+                    }
                 }
             }
-        }
 
-    });
+        });
+    }
+    else {
+        var fb = {};
+        fb.n = null;
+        fb.m = "You have to be logged in to vote.";
+        res.send(fb);
+    }
+
 };
 
 exports.prep = function(req, res) {
@@ -453,7 +469,7 @@ exports.prep = function(req, res) {
             //save the object to the DB
             r.save(function(err, rep) {
                 if (err) {
-                    throw(err);
+                    throw (err);
                 }
                 //push an ID of newly created reply to the post's array
                 p.replies.push(mongoose.Types.ObjectId(rep._id));
@@ -527,7 +543,7 @@ exports.pdel = function(req, res) {
                     //Execute query
                     category.update(conditions, update, options, function(err) {
                         if (err) {
-                            throw(err);
+                            throw (err);
                         }
                         else {
                             r.status = "ok";
@@ -535,8 +551,8 @@ exports.pdel = function(req, res) {
                             res.send(r);
                         }
                     });
-                    
-                //remove all notifications reffering to deleted post
+
+                    //remove all notifications reffering to deleted post
                     notification.remove({ post: id }, function(err) {
                         if (err) {
                             console.log(err);
@@ -635,7 +651,7 @@ exports.rdel = function(req, res) {
         }
         else if (r.author.toString() == req.user._id) {
             if (r.rreplies.length > 0) {
-                r.text="";
+                r.text = "";
                 r.isDeleted = true;
                 r.save();
                 res.status(200);
@@ -884,19 +900,20 @@ exports.changePrivSett = function(req, res) {
                     }
                     else {
                         //remove all notifications for this post 
-                        notification.deleteMany({ 
-                            post: p._id, type: 
-                                { $in: ['newRequest', 'requestDen', 'requestAcc', 'newInvite', 'inviteDen', 'inviteAcc'] } }, function(err) {
-                                    if (err) {
-                                        a.status = "Problem";
-                                        a.message = "Problem when deleting notifications.";
-                                        res.send(a);
-                                    }
-                                    else {
-                                        a.status = "Completed";
-                                        a.message = "Your privacy settings has been applied.";
-                                        res.send(a);
-                                    }
+                        notification.deleteMany({
+                            post: p._id,
+                            type: { $in: ['newRequest', 'requestDen', 'requestAcc', 'newInvite', 'inviteDen', 'inviteAcc'] }
+                        }, function(err) {
+                            if (err) {
+                                a.status = "Problem";
+                                a.message = "Problem when deleting notifications.";
+                                res.send(a);
+                            }
+                            else {
+                                a.status = "Completed";
+                                a.message = "Your privacy settings has been applied.";
+                                res.send(a);
+                            }
                         });
                     }
                 });
@@ -1015,7 +1032,7 @@ exports.applyEncryption = function(req, res) {
 exports.removeEncryption = function(req, res) {
     var pId = req.params.id;
     var encPost = req.body;
-    
+
     //find the post
     var a = {};
     post.findOne({ _id: pId }).exec(function(err, p) {
@@ -1084,21 +1101,22 @@ exports.removeEncryption = function(req, res) {
 
         }
     });
-    
+
 };
 
-exports.myPosts = function(req,res) {
+exports.myPosts = function(req, res) {
     console.log(req.user._id);
-    post.find({ 'settings.author': req.user._id})
-    .populate('settings.category')
-    .select('-body')
-    .exec(function(err, p) {
-        if(err) {
-            throw(err);
-        } else {
-            res.send(p);
-        }
-    });
+    post.find({ 'settings.author': req.user._id })
+        .populate('settings.category')
+        .select('-body')
+        .exec(function(err, p) {
+            if (err) {
+                throw (err);
+            }
+            else {
+                res.send(p);
+            }
+        });
 };
 
 function filterPosts(postsArray, user) {

@@ -97,9 +97,9 @@
                                 <h1 style="margin-top: 0px;">{{post.header.subject}}</h1>
                             </div>
                             <div class="col-md-2" ng-if="post.settings.author._id==user" style="text-align: right">
-                                <md-icon md-svg-src="img/icons/settings.svg" style="width:30px;height:30px;" ng-click="showSettings($event)"></md-icon>
-                                <md-icon md-svg-src="img/icons/edit.svg" style="width:30px;height:30px;" ng-click="pedit_show()"></md-icon>
-                                <md-icon ng-if="post.replies.length==0" ng-click="pdel()" md-svg-src="img/icons/dustbin.svg" style="color: #f00;width:30px;height:30px;"></md-icon>
+                                <md-icon md-svg-src="/img/icons/settings.svg" style="width:30px;height:30px;" ng-click="showSettings($event)"></md-icon>
+                                <md-icon md-svg-src="/img/icons/edit.svg" style="width:30px;height:30px;" ng-click="pedit_show()"></md-icon>
+                                <md-icon ng-if="post.replies.length==0" ng-click="pdel()" md-svg-src="/img/icons/dustbin.svg" style="color: #f00;width:30px;height:30px;"></md-icon>
                             </div>
                         </div>
                         <div class="row">
@@ -108,8 +108,8 @@
                             </div>
                             <div class="col-md-3 col-md-offset-0" style="text-align: right">
                                 <div class="btn-group" role="group" ng-if="user">
-                                    <md-icon ng-click="uvp()" md-svg-src="img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
-                                    <md-icon ng-click="dvp()" md-svg-src="img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
+                                    <md-icon ng-click="uvp()" md-svg-src="/img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
+                                    <md-icon ng-click="dvp()" md-svg-src="/img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
                                 </div>
                                 <div>
                                     Score: <span id="score">{{post.header.votes.num}}</span>
@@ -174,15 +174,15 @@
                                     <div class="col-md-9">
                                         <span>{{rep.createdAtWords}}</span>
                                         <span ng-if="rep.author._id==user && !rep.isDeleted">
-                                            <md-icon md-svg-src="img/icons/edit.svg" style="width:20px;height:20px;" ng-click="redit_show(rep._id)"></md-icon>
-                                            <md-icon ng-click="rdel(rep._id)" md-svg-src="img/icons/dustbin.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
+                                            <md-icon md-svg-src="/img/icons/edit.svg" style="width:20px;height:20px;" ng-click="redit_show(rep._id)"></md-icon>
+                                            <md-icon ng-click="rdel(rep._id)" md-svg-src="/img/icons/dustbin.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
                                         </span>
                                     </div>
                                     <div class="col-md-3" ng-if="!rep.isDeleted">
                                         <span class="btn-group pull-right" role="group">
-                                            <md-icon ng-click="uvr(rep._id)" md-svg-src="img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
+                                            <md-icon ng-click="uvr(rep._id)" md-svg-src="/img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
                                             <span class="badge" id="score{{rep._id}}">{{rep.votes.num}}</span>
-                                        <md-icon ng-click="dvr(rep._id)" md-svg-src="img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
+                                        <md-icon ng-click="dvr(rep._id)" md-svg-src="/img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
                                         </span>
                                     </div>
                                 </div>
@@ -273,13 +273,13 @@
                                                     <div>
                                                         <span><small>{{rep2.createdAtWords}}</small></span>
                                                         <span ng-if="rep2.author._id==user">
-                                                            <md-icon md-svg-src="img/icons/edit.svg" style="width:20px;height:20px;" ng-click="redit_show(rep2._id)"></md-icon>
-                                                            <md-icon ng-click="rrdel(rep2._id,rep._id)" md-svg-src="img/icons/dustbin.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
+                                                            <md-icon md-svg-src="/img/icons/edit.svg" style="width:20px;height:20px;" ng-click="redit_show(rep2._id)"></md-icon>
+                                                            <md-icon ng-click="rrdel(rep2._id,rep._id)" md-svg-src="/img/icons/dustbin.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
                                                         </span>
                                                         <span class="btn-group pull-right" role="group">
-                                                            <md-icon ng-click="uvr(rep2._id)" md-svg-src="img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
+                                                            <md-icon ng-click="uvr(rep2._id)" md-svg-src="/img/icons/like.svg" style="color: #027a02;width:20px;height:20px;"></md-icon>
                                                             <span class="badge" id="score{{rep2._id}}">{{rep2.votes.num}}</span>
-                                                        <md-icon ng-click="dvr(rep2._id)" md-svg-src="img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
+                                                        <md-icon ng-click="dvr(rep2._id)" md-svg-src="/img/icons/dislike.svg" style="color: #f00;width:20px;height:20px;"></md-icon>
                                                         </span>
                                                     </div>
                                                     <blockquote>
@@ -311,7 +311,7 @@
                                     <h2>Settings</h2>
                                     <span flex></span>
                                     <md-button class="md-icon-button" ng-click="cancel()">
-                                        <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+                                        <md-icon md-svg-src="/img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
                                     </md-button>
                                 </div>
                             </md-toolbar>
@@ -420,6 +420,7 @@
         </div>
         <script src="/lib/ng-singlePost.js"></script>
         <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+        <input type="text" name="" value="<%=id%>" id="id" hidden="" />
 </body>
 
 </html>
