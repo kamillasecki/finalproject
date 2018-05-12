@@ -7,72 +7,93 @@
     <title>post</title>
     <% include ./index_partials/head %>
 
-    <script src="/lib/crypto-js/crypto-js.js"></script>
+        <script src="/lib/crypto-js/crypto-js.js"></script>
 </head>
 
 <body ng-controller="mainController">
     <% include ./index_partials/navbar %>
-        <div></div>
-        <div></div>
-        <div class="contact-clean">
-            <form method="post" ng-submit="send()">
-                <h2 class="text-center">New post</h2>
-                <div class="form-group has-success step1">
-                    <ol class="breadcrumb">
-                        <li ng-repeat="cat in parents | reverse"><a href="/newpost?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
-                    </ol>
-                    <select class="form-control" id="categories_drop">
-                        <optgroup label="Sub-category">
-                            <option value="" selected>Sub-category...</option>
-                            <option ng-repeat="catt in parents[0].categoriesId" value="{{catt._id}}">{{catt.name}}</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <button class="btn btn-primary step1" id="next_btn" type=button>next</button>
-                <div class="step2" style="display: none;">
-                    <input class="form-control" name="subject" placeholder="Subject" ng-model="subject"><i class="form-control-feedback" aria-hidden="true"></i>
-                    <div class="form-group">
-                        <textarea class="form-control" rows="14" name="message" placeholder="Message" ng-model="text"></textarea>
-                    </div>
-                    <div>
-                        <label>Privacy</label>
-                        <select class="form-control" ng-model="privacy" ng-change="update()">
-                            <optgroup label="Privacy">
-                                <option value="pub" selected="selected">Public (default)</option>
-                                <option value="cgp">Closed group - public</option>
-                                <option value="cgh">Closed group - hidden</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                    <div growl limit-messages="1" inline="true" reference="1"></div>
-                </div>
-                <button class="btn btn-primary step2" type="submit" style="display: none;" id="send_btn2">send </button>
-                <button class="btn btn-primary step1" id="next_btn2" type=button style="display: none;" ng-click="next2()">next</button>
-                <div class="step3" style="display: none;">
-                    <div class="form-group">
-                        <label for="">
-                            Encryption:
-                        </label>
-                        <button type="button" class="btn btn-outline-primary" id="enena">Disabled (default)</button>
-                        <button type="button" class="btn btn-outline-primary" id="endis" style="display: none">Enabled</button>
+        <md-content>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-3" class="left"></div>
+                    <div class="col-sm-6">
+                        <form method="post" ng-submit="send()">
+                            <h2 class="text-center">New post</h2>
+                            <div class="form-group has-success step1">
+                                <div class="text-center">
+                                    <md-divider></md-divider>
+                                    <h3>Post category</h3>
+                                    <ol class="breadcrumb">
+                                        <li ng-repeat="cat in parents | reverse"><a href="/newpost?id={{cat._id}}"><span ng-bind="cat.name"></span></a></li>
+                                    </ol>
+                                    <md-input-container flex ng-if="parents[0].categoriesId.length>0">
+                                        <label>Change sub-category</label>
+                                        <md-select id="categories_drop" ng-change="change()" ng-model="$parent.category">
+                                            <md-option ng-repeat="catt in parents[0].categoriesId" value="{{catt._id}}">{{catt.name}}</md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                    <br/><br/><br/>
+                                    <md-divider></md-divider>
+                                    <md-button class="md-primary md-raised edgePadding md-ink-ripple" id="next_btn">next</md-button>
+                                </div>
+                            </div>
 
-                    </div>
-                    <div class="bs-callout bs-callout-danger" id="warn" style="display: none">
-                        <h4>Warning! </h4>
-                        <p>Your post will be encrypted. To read and reply to this post, users will need encryption phrase. The encryption phrase can be set below and should be distributed to the users using a secured communication channel. <br/> For security
-                            reason SafeBoards will not store the encryption phrase, and therefore if you forget your phrase we will not be able to assist you with restoring it.</p>
-                    </div>
+                            <div class="step2" style="display: none;" layout="column">
+                                <md-content class="md-no-momentum">
+                                    <md-input-container class="md-block">
+                                        <label>Subject</label>
+                                        <input ng-model="subject" type="text">
+                                    </md-input-container>
+                                    <md-input-container class="md-block">
+                                        <label>Message</label>
+                                        <textarea ng-model="text" md-maxlength="500" rows="5" md-select-on-focus=""></textarea>
+                                    </md-input-container>
+                                    <md-input-container class="md-block">
+                                        <label>Privacy</label>
+                                        <md-select id="categories_drop" ng-model="privacy" ng-change="update()">
+                                            <md-option value="pub" selected="selected">Public (default)</md-option>
+                                            <md-option value="cgp">Closed group - public</md-option>
+                                            <md-option value="cgh">Closed group - hiden</md-option>
+                                        </md-select>
+                                    </md-input-container>
 
-                    <div class="form-group" style="display: none;" id="secret">
-                        <input class="form-control" name="secret" placeholder="Secret..." ng-model="secret" ng-change="encrypt(text, secret)"><i class="form-control-feedback" aria-hidden="true"></i>
+                                    <div growl limit-messages="1" inline="true" reference="1"></div>
+                                    <md-button type="submit" class="md-primary md-raised edgePadding md-ink-ripple" ng-hide="privacy!='pub'">Send</md-button>
+                                    <md-button class="md-primary md-raised edgePadding md-ink-ripple" ng-hide="privacy=='pub'" ng-click="next2()">Next</md-button>
+                                </md-content>
+                            </div>
+                            <div class="step3 text-center" style="display: none;">
+                                <md-divider></md-divider>
+                                <h3>Encryption</h3>
+                                <br/>
+                                <md-button class="md-accent md-raised edgePadding md-ink-ripple" ng-hide="encrypted" ng-click="encrypted=true">Disabled (default)</md-button>
+                                <md-button class="md-accent md-raised edgePadding md-ink-ripple" ng-hide="!encrypted" ng-click="encrypted=false">Enabled</md-button>
+                                <div class="bs-callout bs-callout-danger" id="warn" ng-hide="!encrypted">
+                                    <h4>Warning! </h4>
+                                    <p>Your post will be encrypted. To read and reply to this post, users will need encryption phrase. The encryption phrase can be set below and should be distributed to the users using a secured communication channel. <br/>                                        For security reason SafeBoards will not store the encryption phrase, and therefore if you forget your phrase we will not be able to assist you with restoring it.</p>
+                                </div>
+                                <br/>
+                                <md-input-container class="md-block" ng-hide="!encrypted">
+                                    <label>Encryption sercret...</label>
+                                    <input ng-model="secret" type="text" ng-change="encrypt(text, secret)">
+                                </md-input-container>
+                                <div class="form-group" style="display: none;" id="secret">
+                                    <input class="form-control" name="secret" placeholder="Secret..." ng-model="secret" ng-change="encrypt(text, secret)"><i class="form-control-feedback" aria-hidden="true"></i>
+                                </div>
+                                <div growl limit-messages="1" inline="true" reference="2"></div>
+                                <br/>
+                                <br/>
+                                <md-divider></md-divider>
+                                <md-button type="submit" class="md-primary md-raised edgePadding md-ink-ripple">Send</md-button>
+                            </div>
+                        </form>
                     </div>
-                    <div growl limit-messages="1" inline="true" reference="2"></div>
-                    <button class="btn btn-primary" type="submit" id="send_btn">send </button>
+                    <div class="col-sm-3" class="right"></div>
                 </div>
-            </form>
-        </div>
-                <% include ./index_partials/footer %>
-        <script src="/lib/ng-newpost.js"></script>
+            </div>
+            <% include ./index_partials/footer %>
+                <script src="/lib/ng-newpost.js"></script>
+        </md-content>
 </body>
 
 </html>

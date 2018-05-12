@@ -331,6 +331,7 @@ module.exports = function(app, passport) {
 		if (req.user) {
 			req.user.getCount(function(u) {
 				res.render('v-list.ejs', {
+					message: req.flash('loginMessage'),
 					user: req.user,
 					nCount: u
 				});
@@ -355,7 +356,22 @@ module.exports = function(app, passport) {
 	// SIGNUP =================================
 	// show the signup form
 	app.get('/signup', function(req, res) {
-		res.render('signup.ejs', { message: req.flash('loginMessage') });
+		if (req.user) {
+			req.user.getCount(function(u) {
+				res.render('v-signup.ejs', {
+					message: req.flash('loginMessage'),
+					user: req.user,
+					nCount: u
+				});
+			});
+		}
+		else {
+			res.render('v-signup.ejs', {
+				message: req.flash('loginMessage'),
+				user: null,
+				nCount: null
+			});
+		}
 	});
 
 	// process the signup form

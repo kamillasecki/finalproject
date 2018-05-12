@@ -13,20 +13,28 @@ exports.newPost = function(req, res) {
             res.send("Is teems that there was a problem with category you have chosen.");
         }
         else {
+            var text = req.body.text;
+            var subject = req.body.subject;
+            
             if (req.body.privacy == "" || req.body.privacy == null || req.body.privacy == undefined) {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
                 res.send("You have to choose the privacy setting");
             }
-            else if (req.body.text.trim() == "" || req.body.text == null || req.body.text == undefined) {
+            else if (!text || text.trim() == "") {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
-                res.send("Seems like the text of the post is missing, you have to write something.");
+                res.send("Seems like the text of the post is missing.");
             }
-            else if (req.body.subject.trim() == "" || req.body.subject == null || req.body.subject == undefined) {
+            else if (!subject || subject.trim() == "") {
                 res.setHeader("Content-Type", "text/html");
                 res.status(406);
-                res.send("Seems like the subject of the post is missing, you have to provide one.");
+                res.send("Seems like the subject of the post is missing.");
+            } 
+            else if (req.body.encryption && (!req.body.checkword || req.body.checkword.trim() == "")) {
+                res.setHeader("Content-Type", "text/html");
+                res.status(406);
+                res.send("You must provide encryption secret.");
             }
             else {
                 var p = new post();

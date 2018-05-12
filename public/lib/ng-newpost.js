@@ -3,42 +3,20 @@
 /*global CryptoJS*/
 var keySize = 256;
 var iterations = 100;
-var app = angular.module('post', ['angular-growl']);
-var encryption = false;
+var app = angular.module('post', ['angular-growl', 'ngMaterial', 'ngMessages']);
+
+app.config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+        .primaryPalette('pink')
+        .accentPalette('orange');
+});
 
 $(function() {
-    // Changing page URL when category dropdown is changed
-    $('#categories_drop').on('change', function() {
-        var url = $(this).val(); // get selected value
-        if (url) { // require a URL
-            window.location = "newpost?id=" + url; // redirect
-        }
-        return false;
-    });
 
     //Clicking first next after the category choice
     $('#next_btn').on('click', function() {
         $('.step2').show();
         $('.step1').hide();
-    });
-
-
-    //Enabling Encryption
-    $('#enena').on('click', function() {
-        $('#enena').hide();
-        $('#endis').show();
-        $('#secret').show();
-        $('#warn').show();
-        encryption = true;
-    });
-
-    //Disabling encryption
-    $('#endis').on('click', function() {
-        $('#endis').hide();
-        $('#enena').show();
-        $('#secret').hide();
-        $('#warn').hide();
-        encryption = false;
     });
 });
 
@@ -52,16 +30,27 @@ app.config(['growlProvider', function(growlProvider) {
     growlProvider.globalPosition('bottom-center');
 }]);
 
-var mainController = function($scope, $http, $log, growl) {
+var mainController = function($scope, $http, $log, growl, $mdDialog) {
     $scope.message = '';
     $scope.tempMessage = '';
     $scope.parents = [];
     $scope.currentCat = {};
     $scope.checkword = "";
+    $scope.encryptedText = "";
 
     var url_string = window.location.href;
     var url = new URL(url_string);
     var id = url.searchParams.get("id");
+
+    // Changing page URL when category dropdown is changed
+    $scope.change = function() {
+        console.log("dd" + $scope.category)
+        var url = $scope.category; // get selected value
+        if (url) { // require a URL
+            window.location = "newpost?id=" + url; // redirect
+        }
+        return false;
+    };
 
     //display error
     $scope.error = function(text) {
@@ -124,7 +113,7 @@ var mainController = function($scope, $http, $log, growl) {
             padding: CryptoJS.pad.Pkcs7,
             mode: CryptoJS.mode.CBC
         });
-        $scope.encrypted = salt.toString() + iv.toString() + encrypted.toString();
+        $scope.encryptedText = salt.toString() + iv.toString() + encrypted.toString();
         $scope.checkword = salt.toString() + iv.toString() + checkword.toString();
     };
 
@@ -162,12 +151,12 @@ var mainController = function($scope, $http, $log, growl) {
     }
  
     $scope.send = function sent() {
-        if (($scope.secret == null || $scope.secret.trim() == "") && encryption) {
+        if (($scope.secret == null || $scope.secret.trim() == "") && $scope.encrypted) {
             growl.error("Please provide the secret phrase or disable an encryption.", { referenceId: 2 });
         }
         else {
-            if (encryption) {
-                $scope.text = $scope.encrypted;
+            if ($scope.encrypted) {
+                $scope.text = $scope.encryptedText;
             }
             //prepare data to be sent
             var data = {
@@ -175,7 +164,7 @@ var mainController = function($scope, $http, $log, growl) {
                     subject: $scope.subject,
                     category: id,
                     privacy: $scope.privacy,
-                    encryption: encryption,
+                    encryption: $scope.encrypted,
                     checkword: $scope.checkword
                 };
             //execute sent action
@@ -184,4 +173,4 @@ var mainController = function($scope, $http, $log, growl) {
         }
     };
 };
-app.controller("mainController", ["$scope", "$http", "$log", "growl", mainController]);
+app.controller("mainController", ["$scope", "$http", "$log", "growl", "$mdDialog",  mainController]);

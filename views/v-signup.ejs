@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html ng-app="signup">
+
+<head>
+    <title>SafeBoards - Login</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/lib/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/lib/jquery/dist/jquery.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <% include ./index_partials/head %>
+
+</head>
+
+<body ng-controller="mainController as mainCtrl">
+    <% include ./index_partials/navbar %>
+        <br/>
+        <md-content>
+            <div class="col-md-2 col-md-offset-5">
+                <h1><span class="fa fa-sign-in"></span> Signup</h1>
+                <br/>
+                <!-- show any messages that come back with authentication -->
+                <% if (message.length > 0) { %>
+                    <div class="alert alert-danger">
+                        <%= message %>
+                    </div>
+                    <% } %>
+                        <!-- SIGNUP FORM -->
+
+                        <form name="signup" action="/signup" method="post">
+                            <div layout="row">
+                                <md-input-container flex>
+                                    <label>Username</label>
+                                    <input required type="text" class="form-control" name="username" ng-model="username">
+                                    <div ng-messages="signup.username.$error" ng-show="signup.username.$dirty">
+                                        <div ng-message="required">This is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            <div layout="row">
+                                <md-input-container flex>
+                                    <label>Password</label>
+                                    <input required type="password" class="form-control" name="password" ng-model="password">
+                                    <div ng-messages="signup.password.$error" ng-show="signup.password.$dirty">
+                                        <div ng-message="required">This is required!</div>
+                                        <div ng-message="minlength">Password must be at least 7 characters long.</div>
+                                        <div ng-message="pattern">Password must be alphanumeric.</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            <div layout="row">
+                                <md-input-container flex>
+                                    <label>Repeat password</label>
+                                    <input required type="password" class="form-control" name="password2" ng-model="password2" minlength="7" password-verify="{{password}}">
+                                    <div ng-messages="signup.password2.$error" ng-show="signup.password.$dirty">
+                                        <div ng-message="minlength">Password must be at least 7 characters long.</div>
+                                        <div ng-message="passwordVerify">Passwords do not match</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            <div layout="row">
+                                <md-button ng-disabled="signup.$invalid" type="submit" class="md-primary md-raised edgePadding md-ink-ripple" flex>Signup</md-button>
+                            </div>
+                        </form>
+                        
+                        <hr/>
+                        <div class="text-center">
+                            <p>Already have an account? <a href="/login">Login</a></p>
+                        </div>
+                        <div class="text-center">
+                            <p>Or go <a href="/">home</a>.</p>
+                        </div>
+                        <br/>
+                        <br/>
+                        <br/>
+            </div>
+
+            <% include ./index_partials/footer %>
+                <script src="/lib/ng-signup.js"></script>
+        </md-content>
+</body>
+</html>

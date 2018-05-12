@@ -33,15 +33,13 @@
                                                     <strong>Username</strong>:
                                                     <%= user.local.username %><br>
                                             </p>
+                                            <br/>
                                     </md-card-content>
-                                    <md-card-actions layout="row" layout-align="end center">
-                                        <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/unlink/local">Unlink</md-button>
-                                    </md-card-actions>
                                     <% } else { %>
                                         You do not have a local account.
                                         </md-card-content>
                                         <md-card-actions layout="row" layout-align="end center">
-                                            <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/connect/local">Connect</md-button>
+                                            <md-button class="md-primary md-raised edgePadding md-ink-ripple" href="/connect/local">Create</md-button>
                                         </md-card-actions>
                                         <% } %>
                                 </md-card>

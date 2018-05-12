@@ -9,8 +9,7 @@ app.config(function($mdThemingProvider) {
 });
 
 var mainController = function($scope, $http, $mdDialog) {
-    $scope.showHints = true;
-    
+
     $scope.changeDname = function() {
         var data = {};
         data.name = $scope.displayName;
