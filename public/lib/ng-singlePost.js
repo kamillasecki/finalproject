@@ -680,7 +680,7 @@ var mainController = function($scope, $http, $log, growl, $q, $timeout, $mdDialo
     }
 
     function createFilterFor(query) {
-        var lowercaseQuery = angular.lowercase(query);
+        var lowercaseQuery = query.toLowerCase();
 
         return function filterFn(user) {
             return (user.value.indexOf(lowercaseQuery) === 0);

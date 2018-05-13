@@ -37,6 +37,7 @@ var mainController = function($scope, $http, $log, growl, $mdDialog) {
     $scope.currentCat = {};
     $scope.checkword = "";
     $scope.encryptedText = "";
+    $scope.encrypted = false;
     var id = $("#id").val();
 
     // Changing page URL when category dropdown is changed
@@ -163,6 +164,7 @@ var mainController = function($scope, $http, $log, growl, $mdDialog) {
                     encryption: $scope.encrypted,
                     checkword: $scope.checkword
                 };
+                console.log(data)
             //execute sent action
             $http.post('/api/post', data)
             .then(onSendCompleeted,onError).catch(angular.noop);

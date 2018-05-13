@@ -896,7 +896,9 @@ exports.changePrivSett = function(req, res) {
                     if (err) {
                         a.status = "Problem";
                         a.message = "Problem when saving new settings.";
+                        a.details = err;
                         res.send(a);
+                        console.log(err)
                     }
                     else {
                         //remove all notifications for this post 
@@ -920,9 +922,10 @@ exports.changePrivSett = function(req, res) {
             }
         }
         else if (p.settings.privacy == "pub") {
+            var me = new mongoose.Types.ObjectId(req.user._id);
             p.settings.privacy = newStatus;
-            p.settings.access.admin = [p.settings.author];
-            p.settings.access.allowed = [p.settings.access.allowed];
+            p.settings.access.admin = [me];
+            p.settings.access.allowed = [me];
             p.settings.access.requested = [];
             p.settings.access.invited = [];
             p.save(function(err) {
@@ -930,6 +933,7 @@ exports.changePrivSett = function(req, res) {
                     a.status = "Problem";
                     a.message = "Problem when saving new settings.";
                     res.send(a);
+                    console.log(err)
                 }
                 else {
                     a.status = "Completed";

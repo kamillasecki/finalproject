@@ -39,16 +39,19 @@ exports.changePass = function(req, res) {
                     else {
                         var oldPass = req.body.oldPass;
                         var newPass = req.body.newPass;
+                        //validate current password
                         if (!u.validPassword(oldPass)) {
                             res.send("An old password seems to be incorrect.");
                         }
                         else {
+                            //generate a hash of new password
                             u.local.password = u.generateHash(newPass);
                             u.save(function(err) {
                                 if (err) {
                                     throw err;
                                 }
                                 else {
+                                    req.logout();
                                     res.send("Your password has been updated.");
                                 }
                             });

@@ -147,7 +147,7 @@ module.exports = function(passport) {
                             }
                             else {
                                 //create displayneme id one doesyn't exist using id
-                                if (user.displayname == null || user.displayName == undefined) {
+                                if (user.displayname == null || user.displayname == undefined) {
                                     user.displayname = "user_" + user._id;
                                     user.save();
                                 }

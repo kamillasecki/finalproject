@@ -12,37 +12,50 @@ exports.addCategoty = function(req, res) {
         res.send("Missing element.");
     }
     else {
-        category.findOne({ '_id': req.body.parent }).populate('categoriesId').exec(function(err, doc) {
-            if (err || doc == null || doc == undefined || doc == "") {
-                res.render('notfound.ejs');
-            }
-            else {
-                for (var i = 0; i < doc.categoriesId.length; i++) {
-                    if (doc.categoriesId[i].name == req.body.category) {
-                        alreadyExist = true;
-                    }
-                }
-                if (alreadyExist) {
+        //check if user is admin
+        if (req.user.local.role == "admin") {
+            //get the parent category
+            category.findOne({ '_id': req.body.parent }).populate('categoriesId').exec(function(err, doc) {
+                if (!doc || err) {
                     res.setHeader("Content-Type", "text/html");
                     res.status(406);
-                    res.send("Category with this mane already exists");
+                    res.send("Wrong parrent category");
                 }
                 else {
-                    var n = new category();
-                    n.name = req.body.category;
-                    n.categoriesId = [];
-                    n.postsId + [];
-                    n.parent = mongoose.Types.ObjectId(req.body.parent);
-                    n.save(function(err, newCategory) {
-                        doc.categoriesId.push(mongoose.Types.ObjectId(newCategory._id));
-                        doc.save();
+                    //Check if category already exists
+                    for (var i = 0; i < doc.categoriesId.length; i++) {
+                        if (doc.categoriesId[i].name == req.body.category) {
+                            alreadyExist = true;
+                        }
+                    }
+                    if (alreadyExist) {
                         res.setHeader("Content-Type", "text/html");
-                        res.status(200);
-                        res.send("Item has been added successfuly.");
-                    });
+                        res.status(406);
+                        res.send("Category with this mane already exists");
+                    }
+                    else {
+                        var n = new category();
+                        n.name = req.body.category;
+                        n.categoriesId = [];
+                        n.postsId + [];
+                        n.parent = mongoose.Types.ObjectId(req.body.parent);
+                        n.save(function(err, newCategory) {
+                            doc.categoriesId.push(mongoose.Types.ObjectId(newCategory._id));
+                            doc.save();
+                            res.setHeader("Content-Type", "text/html");
+                            res.status(200);
+                            res.send("Item has been added successfuly.");
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
+        else {
+            res.setHeader("Content-Type", "text/html");
+            res.status(406);
+            res.send("You are not authorised to add categories");
+        }
+
     }
 };
 

@@ -73,7 +73,7 @@
                     <tbody>
                         <tr ng-repeat="post in posts | orderBy:sortType:sortReverse  | filter:searchSubject">
                             <td>
-                                <a href="/post?id={{post._id}}" class="col-md-11" ng-bind="post.header.subject"></a>
+                                <a href="/post/{{post._id}}" class="col-md-11" ng-bind="post.header.subject"></a>
                             </td>
                             <td>
                                 {{post.createdAtWords}}
