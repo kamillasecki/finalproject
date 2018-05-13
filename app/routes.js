@@ -350,7 +350,8 @@ module.exports = function(app, passport) {
 				res.render('v-list.ejs', {
 					message: req.flash('loginMessage'),
 					user: req.user,
-					nCount: u
+					nCount: u,
+					id: "5a650c8bb62a0c8536f056c7"
 				});
 			});
 		}
